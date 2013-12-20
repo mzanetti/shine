@@ -6,6 +6,7 @@ set(libhue_SRCS
     huebridgeconnection.cpp
     configuration.cpp
     lights.cpp
+    light.cpp
 )
 
 add_library(hue ${libhue_SRCS})

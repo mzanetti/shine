@@ -59,8 +59,11 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
 
 int HueBridgeConnection::get(const QString &path, QObject *sender, const QString &slot)
 {
-    QUrl url("http://10.10.10.123");
-    url.setAuthority(path);
+    if (m_username.isEmpty()) {
+        qWarning() << "No username set. cannot proceed.";
+        return -1;
+    }
+    QUrl url("http://10.10.10.123/api/" + m_username + "/" + path);
     QNetworkRequest request;
     request.setUrl(url);
     QNetworkReply *reply = m_nam->get(request);
@@ -128,7 +131,20 @@ void HueBridgeConnection::createUserFinished()
 void HueBridgeConnection::slotGetFinished()
 {
     QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
-    qDebug() << "got reply" << reply->readAll();
+    reply->deleteLater();
+
+    QByteArray response = reply->readAll();
+    int id = m_requestIdMap.take(reply);
+    CallbackObject co = m_requestSenderMap.take(id);
+
+    QJsonParseError error;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
+    if (!error.error == QJsonParseError::NoError) {
+        qWarning() << "error parsing response:" << error.errorString();
+        return;
+    }
+
+    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, jsonDoc.toVariant()));
 
 }
 

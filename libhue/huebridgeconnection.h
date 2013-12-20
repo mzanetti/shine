@@ -10,7 +10,7 @@ class QNetworkReply;
 class CallbackObject
 {
 public:
-    CallbackObject(QObject *sender, const QString &slot):
+    CallbackObject(QObject *sender = 0, const QString &slot = QString()):
         m_sender(sender),
         m_slot(slot)
     {}

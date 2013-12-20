@@ -34,6 +34,23 @@ Item {
             }
         }
 
+        ListView {
+            width: parent.width
+            height: 300
+
+            model: Lights {
+
+            }
+
+            delegate: Item {
+                width: parent.width
+                height: 100
+                Text {
+                    anchors.centerIn: parent
+                    text: model.name
+                }
+            }
+        }
 
     }
 
