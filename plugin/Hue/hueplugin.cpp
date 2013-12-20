@@ -3,7 +3,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; version 3.
+ * the Free Software Foundation; version 2.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,11 +22,19 @@
 
 // self
 #include "hueplugin.h"
+#include "huebridgeconnection.h"
 #include "lights.h"
+
+
+static QObject* hueBridgeInstance(QQmlEngine* /* engine */, QJSEngine* /* scriptEngine */)
+{
+    return HueBridgeConnection::instance();
+}
 
 void HuePlugin::registerTypes(const char *uri)
 {
     Q_ASSERT(uri == QLatin1String("Hue"));
 
+    qmlRegisterSingletonType<HueBridgeConnection>(uri, 0, 1, "HueBridge", hueBridgeInstance);
     qmlRegisterType<Lights>(uri, 0, 1, "Lights");
 }

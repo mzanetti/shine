@@ -12,6 +12,7 @@ find_package(Qt5Qml)
 find_package(Qt5Quick)
 
 add_subdirectory(libhue)
+add_subdirectory(plugin)
 add_subdirectory(apps)
 
 
