@@ -94,8 +94,9 @@ quint8 Light::bri() const
 void Light::setBri(quint8 bri)
 {
     if (m_bri != bri) {
-        m_bri = bri;
-        emit stateChanged();
+        QVariantMap params;
+        params.insert("bri", bri);
+        HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     }
 }
 
@@ -251,10 +252,14 @@ void Light::setStateFinished(int id, const QVariant &response)
     QVariantMap result = response.toList().first().toMap();
 
     if (result.contains("success")) {
-        bool on = result.value("success").toMap().value("/lights/" + QString::number(m_id) + "/state/on").toBool();
-        if (m_on != on) {
-            m_on = on;
-            emit stateChanged();
+        QVariantMap successMap = result.value("success").toMap();
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/on")) {
+            m_on = result.value("success").toMap().value("/lights/" + QString::number(m_id) + "/state/on").toBool();
         }
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
+            m_bri = result.value("success").toMap().value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
+        }
+
+        emit stateChanged();
     }
 }

@@ -17,7 +17,7 @@ class Light: public QObject
     Q_PROPERTY(QString swversion READ swversion NOTIFY swversionChanged)
 
     Q_PROPERTY(bool on READ on WRITE setOn NOTIFY stateChanged)
-    Q_PROPERTY(quint8 bri READ bri NOTIFY stateChanged)
+    Q_PROPERTY(quint8 bri READ bri WRITE setBri NOTIFY stateChanged)
     Q_PROPERTY(quint16 hue READ hue NOTIFY stateChanged)
     Q_PROPERTY(quint8 sat READ sat NOTIFY stateChanged)
     Q_PROPERTY(QPointF xy READ xy NOTIFY stateChanged)

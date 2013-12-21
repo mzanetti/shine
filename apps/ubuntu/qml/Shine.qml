@@ -16,34 +16,67 @@ MainView {
         }
 
         delegate: Empty {
+            id: delegateItem
+            clip: true
+            property bool expanded: false
 
-            Row {
-                anchors {
-                    left: parent.left
-                    leftMargin: units.gu(2)
-                    right: parent.right
-                    rightMargin: units.gu(2)
-                    top: parent.top
+            states: [
+                State {
+                    name: "expanded"; when: delegateItem.expanded
+                    PropertyChanges { target: delegateItem; height: units.gu(20) }
                 }
-                height: units.gu(6)
-
-                Label {
-                    width: parent.width - onOffSwitch.width
-                    text: model.name
-                    anchors.verticalCenter: parent.verticalCenter
+            ]
+            transitions: [
+                Transition {
+                    from: "*"; to: "*"
+                    UbuntuNumberAnimation { properties: "height" }
                 }
 
-                Switch {
-                    id: onOffSwitch
-                    checked: model.on
-                    anchors.verticalCenter: parent.verticalCenter
-                    onClicked: {
-                        lights.get(index).on = checked;
+            ]
+
+            Column {
+                anchors { fill: parent; leftMargin: units.gu(2); rightMargin: units.gu(2) }
+                spacing: units.gu(2)
+
+                Row {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                    }
+                    height: units.gu(6)
+
+                    Label {
+                        width: parent.width - onOffSwitch.width
+                        text: model.name
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Switch {
+                        id: onOffSwitch
+                        checked: model.on
+                        anchors.verticalCenter: parent.verticalCenter
+                        onClicked: {
+                            lights.get(index).on = checked;
+                        }
+                    }
+                }
+
+                Slider {
+                    anchors { left: parent.left; right: parent.right }
+                    minimumValue: 0
+                    maximumValue: 255
+                    value: model.bri
+                    onValueChanged: {
+                        print("val changed")
+                        lights.get(index).bri = value
                     }
                 }
             }
 
 
+            onClicked: {
+                delegateItem.expanded = !delegateItem.expanded
+            }
         }
     }
 }
