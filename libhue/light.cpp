@@ -250,7 +250,7 @@ void Light::setReachable(bool reachable)
 
 void Light::responseReceived(int id, const QVariant &response)
 {
-
+    Q_UNUSED(id)
     QVariantMap attributes = response.toMap();
 
     setModelId(attributes.value("modelid").toString());
@@ -275,6 +275,7 @@ void Light::responseReceived(int id, const QVariant &response)
 
 void Light::setDescriptionFinished(int id, const QVariant &response)
 {
+    Q_UNUSED(id)
     qDebug() << "setDescription finished" << response;
     QVariantMap result = response.toList().first().toMap();
 

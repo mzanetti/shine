@@ -4,12 +4,22 @@ project(shine C CXX)
 
 set(CMAKE_AUTOMOC ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-permissive -pedantic -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-permissive -pedantic -Wall -Wextra -fPIC")
 
 include(FindPkgConfig)
-find_package(Qt5Core)
-find_package(Qt5Qml)
-find_package(Qt5Quick)
+
+if(NOT QT4_BUILD)
+    find_package(Qt5Core)
+    find_package(Qt5Qml)
+    find_package(Qt5Quick)
+else()
+    find_package(Qt4 REQUIRED)
+
+    set(QT_USE_QTDECLARATIVE ON)
+    set(QT_USE_QTNETWORK ON)
+
+    include( ${QT_USE_FILE} )
+endif()
 
 add_subdirectory(libhue)
 add_subdirectory(plugin)

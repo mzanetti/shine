@@ -11,5 +11,9 @@ set(libhue_SRCS
 )
 
 add_library(hue ${libhue_SRCS})
-qt5_use_modules(hue Gui Network)
+
+if(QT4_BUILD)
+else()
+    qt5_use_modules(hue Gui Network)
+endif()
 

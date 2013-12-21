@@ -21,6 +21,7 @@
 #define CONFIGURATION_H
 
 #include <QObject>
+#include <QVariantMap>
 
 class Configuration: public QObject
 {
@@ -31,10 +32,11 @@ class Configuration: public QObject
 public:
     Configuration(QObject *parent = 0);
 
-    void refresh();
-
     QString name();
     void setName(const QString &name);
+
+public slots:
+    void refresh();
 
 signals:
     void nameChanged();

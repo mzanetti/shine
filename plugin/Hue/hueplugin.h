@@ -19,6 +19,9 @@
 #ifndef HUEPLUGIN_H
 #define HUEPLUGIN_H
 
+#include <qglobal.h>
+
+#if QT_VERSION >= 0x050000
 #include <QtQml/QQmlEngine>
 #include <QtQml/QQmlExtensionPlugin>
 
@@ -27,8 +30,23 @@ class HuePlugin : public QQmlExtensionPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")
 
+#else
+
+#include <QDeclarativeExtensionPlugin>
+
+class HuePlugin : public QDeclarativeExtensionPlugin
+{
+    Q_OBJECT
+
+#endif
+
+
 public:
     void registerTypes(const char *uri);
+
+#if QT_VERSION < 0x050000
+    void initializeEngine(QDeclarativeEngine *engine, const char *uri);
+#endif
 };
 
 #endif

@@ -17,27 +17,43 @@
  *      Michael Zanetti <michael_zanetti@gmx.net>
  */
 
-// Qt
-#include <QtQml/qqml.h>
-
-// self
 #include "hueplugin.h"
-#include "huebridgeconnection.h"
-#include "lights.h"
-#include "light.h"
-#include "groups.h"
 
+// FIXME: Dafuq is going on on harmattan? doesnt find those with include_dir() in CMakeLists.txt
+#include "../../libhue/huebridgeconnection.h"
+#include "../../libhue/lights.h"
+#include "../../libhue/light.h"
+
+#if QT_VERSION >= 0x050000
+#include <QtQml/qqml.h>
+#else
+#include <QtDeclarative>
+#include <QDeclarativeContext>
+#endif
+
+
+#if QT_VERSION >= 0x050000
 static QObject* hueBridgeInstance(QQmlEngine* /* engine */, QJSEngine* /* scriptEngine */)
 {
     return HueBridgeConnection::instance();
 }
+#endif
 
 void HuePlugin::registerTypes(const char *uri)
 {
     Q_ASSERT(uri == QLatin1String("Hue"));
 
+#if QT_VERSION >= 0x050000
     qmlRegisterSingletonType<HueBridgeConnection>(uri, 0, 1, "HueBridge", hueBridgeInstance);
+#endif
     qmlRegisterType<Lights>(uri, 0, 1, "Lights");
     qmlRegisterUncreatableType<Light>(uri, 0, 1, "Light", "Cannot create lights. Get them from the Lights model.");
-    qmlRegisterType<Groups>(uri, 0, 1, "Groups");
 }
+
+
+#if QT_VERSION < 0x050000
+void HuePlugin::initializeEngine(QDeclarativeEngine *engine, const char *uri)
+{
+    engine->rootContext()->setContextProperty("hueBridge", HueBridgeConnection::instance());
+}
+#endif

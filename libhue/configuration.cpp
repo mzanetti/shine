@@ -23,9 +23,10 @@
 #include <QNetworkAccessManager>
 #include <QDebug>
 
-Configuration::Configuration(QObject *parent)
+Configuration::Configuration(QObject *parent):
+    QObject(parent)
 {
-    connect(HueBridgeConnection::instance(), &HueBridgeConnection::usernameChanged, this, &Configuration::refresh);
+    connect(HueBridgeConnection::instance(), SIGNAL(usernameChanged()), this, SLOT(refresh()));
 }
 
 void Configuration::refresh()
@@ -47,5 +48,6 @@ void Configuration::setName(const QString &name)
 
 void Configuration::responseReceived(int id, const QVariantMap &data)
 {
+    Q_UNUSED(id)
     qDebug() << "got config response" << data;
 }

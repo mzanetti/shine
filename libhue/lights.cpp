@@ -27,12 +27,13 @@
 Lights::Lights(QObject *parent) :
     QAbstractListModel(parent)
 {
-    connect(HueBridgeConnection::instance(), &HueBridgeConnection::usernameChanged, this, &Lights::refresh);
+    connect(HueBridgeConnection::instance(), SIGNAL(usernameChanged()), this, SLOT(refresh()));
     refresh();
 }
 
 int Lights::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent)
     return m_list.count();
 }
 
@@ -105,6 +106,7 @@ void Lights::refresh()
 
 void Lights::lightsReceived(int id, const QVariant &variant)
 {
+    Q_UNUSED(id)
     qDebug() << "got lights" << variant;
     QVariantMap lights = variant.toMap();
 
@@ -122,6 +124,8 @@ void Lights::lightDescriptionChanged()
     Light *light = static_cast<Light*>(sender());
     int idx = m_list.indexOf(light);
     QModelIndex modelIndex = index(idx);
+
+#if QT_VERSION >= 0x050000
     QVector<int> roles = QVector<int>()
             << RoleId
             << RoleName
@@ -130,6 +134,9 @@ void Lights::lightDescriptionChanged()
             << RoleSwVersion;
 
     emit dataChanged(modelIndex, modelIndex, roles);
+#else
+    emit dataChanged(modelIndex, modelIndex);
+#endif
 }
 
 void Lights::lightStateChanged()
@@ -137,6 +144,8 @@ void Lights::lightStateChanged()
     Light *light = static_cast<Light*>(sender());
     int idx = m_list.indexOf(light);
     QModelIndex modelIndex = index(idx);
+
+#if QT_VERSION >= 0x050000
     QVector<int> roles = QVector<int>()
             << RoleOn
             << RoleBrightness
@@ -149,18 +158,21 @@ void Lights::lightStateChanged()
             << RoleReachable;
 
     emit dataChanged(modelIndex, modelIndex, roles);
+#else
+    emit dataChanged(modelIndex, modelIndex);
+#endif
 }
 
 Light *Lights::createLight(int id, const QString &name)
 {
     Light *light = new Light(id, name);
 
-    connect(light, &Light::nameChanged, this, &Lights::lightDescriptionChanged);
-    connect(light, &Light::modelIdChanged, this, &Lights::lightDescriptionChanged);
-    connect(light, &Light::typeChanged, this, &Lights::lightDescriptionChanged);
-    connect(light, &Light::swversionChanged, this, &Lights::lightDescriptionChanged);
+    connect(light, SIGNAL(nameChanged()), this, SLOT(lightDescriptionChanged()));
+    connect(light, SIGNAL(modelIdChanged()), this, SLOT(lightDescriptionChanged()));
+    connect(light, SIGNAL(typeChanged()), this, SLOT(lightDescriptionChanged()));
+    connect(light, SIGNAL(swversionChanged()), this, SLOT(lightDescriptionChanged()));
 
-    connect(light, &Light::stateChanged, this, &Lights::lightStateChanged);
+    connect(light, SIGNAL(stateChanged()), this, SLOT(lightStateChanged()));
 
     return light;
 }

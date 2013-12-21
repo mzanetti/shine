@@ -25,9 +25,14 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include <QJsonDocument>
 #include <QSettings>
 #include <QDebug>
+#if QT_VERSION >= 0x050000
+#include <QJsonDocument>
+#else
+#include "qjson/parser.h"
+#include "qjson/serializer.h"
+#endif
 
 #include "discovery.h"
 
@@ -46,9 +51,9 @@ HueBridgeConnection::HueBridgeConnection():
     m_requestCounter(0)
 {
     Discovery *discovery = new Discovery(this);
-    connect(discovery, &Discovery::error, this, &HueBridgeConnection::onDiscoveryError);
-    connect(discovery, &Discovery::foundBridge, this, &HueBridgeConnection::onFoundBridge);
-    connect(discovery, &Discovery::noBridgesFound, this, &HueBridgeConnection::onNoBridgesFound);
+    connect(discovery, SIGNAL(error()), this, SLOT(onDiscoveryError()));
+    connect(discovery, SIGNAL(foundBridge(QHostAddress)), this, SLOT(onFoundBridge(QHostAddress)));
+    connect(discovery, SIGNAL(noBridgesFound()), this, SLOT(onNoBridgesFound()));
     discovery->findBridges();
 }
 
@@ -96,12 +101,19 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
     QVariantMap params;
     params.insert("devicetype", devicetype);
     params.insert("username", username);
+
+#if QT_VERSION >= 0x050000
     QJsonDocument jsonDoc = QJsonDocument::fromVariant(params);
+    QByteArray data = jsonDoc.toJson();
+#else
+    QJson::Serializer serializer;
+    QByteArray data = serializer.serialize(params);
+#endif
 
     QNetworkRequest request;
     request.setUrl(QUrl("http://" + m_bridge.toString() + "/api"));
-    QNetworkReply *reply = m_nam->post(request, jsonDoc.toJson());
-    connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::createUserFinished);
+    QNetworkReply *reply = m_nam->post(request, data);
+    connect(reply, SIGNAL(finished()), this, SLOT(createUserFinished()));
 }
 
 
@@ -115,7 +127,7 @@ int HueBridgeConnection::get(const QString &path, QObject *sender, const QString
     QNetworkRequest request;
     request.setUrl(url);
     QNetworkReply *reply = m_nam->get(request);
-    connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::slotGetFinished);
+    connect(reply, SIGNAL(finished()), this, SLOT(slotGetFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -133,10 +145,16 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
     QNetworkRequest request;
     request.setUrl(url);
 
+#if QT_VERSION >= 0x050000
     QJsonDocument jsonDoc = QJsonDocument::fromVariant(params);
+    QByteArray data = jsonDoc.toJson();
+#else
+    QJson::Serializer serializer;
+    QByteArray data = serializer.serialize(params);
+#endif
 
-    QNetworkReply *reply = m_nam->post(request, jsonDoc.toJson());
-    connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::slotGetFinished);
+    QNetworkReply *reply = m_nam->post(request, data);
+    connect(reply, SIGNAL(finished()), this, SLOT(slotGetFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -154,10 +172,16 @@ int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QOb
     QNetworkRequest request;
     request.setUrl(url);
 
+#if QT_VERSION >= 0x050000
     QJsonDocument jsonDoc = QJsonDocument::fromVariant(params);
+    QByteArray data = jsonDoc.toJson();
+#else
+    QJson::Serializer serializer;
+    QByteArray data = serializer.serialize(params);
+#endif
 
-    QNetworkReply *reply = m_nam->put(request, jsonDoc.toJson());
-    connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::slotPutFinished);
+    QNetworkReply *reply = m_nam->put(request, data);
+    connect(reply, SIGNAL(finished()), this, SLOT(slotPutFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -169,14 +193,26 @@ void HueBridgeConnection::createUserFinished()
     QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
     QByteArray response = reply->readAll();
     qDebug() << "create user finished" << response;
+
+#if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
+
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "cannot parse response:" << error.errorString();
         return;
     }
-
     QVariant rsp = jsonDoc.toVariant();
+#else
+    QJson::Parser parser;
+    bool ok;
+    QVariant rsp = parser.parse(response, &ok).toMap();
+    if(!ok) {
+        qWarning() << "cannot parse response:" << response;
+        return;
+    }
+#endif
+
     QVariantMap map = rsp.toList().first().toMap();
     if (map.contains("error")) {
         qWarning() << "error creating user" << map.value("error").toMap().value("description").toString();
@@ -205,14 +241,26 @@ void HueBridgeConnection::slotGetFinished()
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
 
+
+#if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "error parsing get response:" << error.errorString();
         return;
     }
+    QVariant rsp = jsonDoc.toVariant();
+#else
+    QJson::Parser parser;
+    bool ok;
+    QVariant rsp = parser.parse(response, &ok).toMap();
+    if(!ok) {
+        qWarning() << "cannot parse response:" << response;
+        return;
+    }
+#endif
 
-    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, jsonDoc.toVariant()));
+    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
 
 }
 
@@ -225,14 +273,25 @@ void HueBridgeConnection::slotPutFinished()
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
 
+#if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "error parsing put response:" << error.errorString();
         return;
     }
+    QVariant rsp = jsonDoc.toVariant();
+#else
+    QJson::Parser parser;
+    bool ok;
+    QVariant rsp = parser.parse(response, &ok).toMap();
+    if(!ok) {
+        qWarning() << "cannot parse response:" << response;
+        return;
+    }
+#endif
 
-    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, jsonDoc.toVariant()));
+    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
 
 }
 

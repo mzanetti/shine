@@ -40,10 +40,10 @@ Discovery::Discovery(QObject *parent) :
         }
     }
 
-    connect(this, &Discovery::readyRead, this, &Discovery::onReadyRead);
+    connect(this, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
 
     m_timeout->setSingleShot(true);
-    connect(m_timeout, &QTimer::timeout, this, &Discovery::onTimeout);
+    connect(m_timeout, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
 void Discovery::findBridges()
