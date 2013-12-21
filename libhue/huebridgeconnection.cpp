@@ -215,7 +215,9 @@ void HueBridgeConnection::createUserFinished()
 
     QVariantMap map = rsp.toList().first().toMap();
     if (map.contains("error")) {
-        qWarning() << "error creating user" << map.value("error").toMap().value("description").toString();
+        QString errorMessage = map.value("error").toMap().value("description").toString();
+        qWarning() << "error creating user" << errorMessage;
+        emit createUserFailed(errorMessage);
         return;
     }
 

@@ -63,6 +63,7 @@ public:
 
 signals:
     void usernameChanged();
+    void createUserFailed(const QString &errorMessage);
 
 private slots:
     void onDiscoveryError();
