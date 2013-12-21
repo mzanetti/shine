@@ -15,13 +15,19 @@ endif()
 
 target_link_libraries(hueplugin hue)
 
+# Copy all qml files and replace QtQuick 2.0 import with QtQuick 1.1
+add_custom_target(CopyAndRename
+    COMMAND ${CMAKE_COMMAND} -E copy ColorPicker.qml ColorPickerQtQuick1.qml && sed -i 's/import QtQuick 2.0/import QtQuick 1.1/' ColorPickerQtQuick1.qml
+)
+
+
 # Copy qmldir file to build dir for running from build dir
 add_custom_target(hueplugin-qmlfiles ALL
     COMMAND cp ${QML_SRCS} ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${QMLFILES}
+    DEPENDS ${QMLFILES} CopyAndRename
 )
 
 if(HARMATTAN_BUILD)
 install(TARGETS hueplugin LIBRARY DESTINATION opt/shine/plugins/Hue/)
-install(FILES ${QML_SRCS} DESTINATION opt/shine/plugins/Hue/)
+install(FILES ${QML_SRCS} ${CMAKE_CURRENT_BINARY_DIR}/ColorPickerQtQuick1.qml DESTINATION opt/shine/plugins/Hue/)
 endif()

@@ -12,7 +12,8 @@ set(libhue_SRCS
 
 add_library(hue ${libhue_SRCS})
 
-if(QT4_BUILD)
+if(HARMATTAN_BUILD)
+    target_link_libraries(hue qjson)
 else()
     qt5_use_modules(hue Gui Network)
 endif()

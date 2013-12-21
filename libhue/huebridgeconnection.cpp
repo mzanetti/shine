@@ -206,11 +206,12 @@ void HueBridgeConnection::createUserFinished()
 #else
     QJson::Parser parser;
     bool ok;
-    QVariant rsp = parser.parse(response, &ok).toMap();
+    QVariant rsp = parser.parse(response, &ok);
     if(!ok) {
         qWarning() << "cannot parse response:" << response;
         return;
     }
+    qDebug() << "json parsed" << rsp;
 #endif
 
     QVariantMap map = rsp.toList().first().toMap();
@@ -255,7 +256,7 @@ void HueBridgeConnection::slotGetFinished()
 #else
     QJson::Parser parser;
     bool ok;
-    QVariant rsp = parser.parse(response, &ok).toMap();
+    QVariant rsp = parser.parse(response, &ok);
     if(!ok) {
         qWarning() << "cannot parse response:" << response;
         return;
@@ -286,7 +287,7 @@ void HueBridgeConnection::slotPutFinished()
 #else
     QJson::Parser parser;
     bool ok;
-    QVariant rsp = parser.parse(response, &ok).toMap();
+    QVariant rsp = parser.parse(response, &ok);
     if(!ok) {
         qWarning() << "cannot parse response:" << response;
         return;

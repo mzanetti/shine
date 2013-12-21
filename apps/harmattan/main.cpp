@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
     imports.append("/opt/shine/plugins/");
     view.engine()->setImportPathList(imports);
 
-    view.setSource(QUrl("/opt/shine/qml/Shine.qml"));
+    view.setSource(QUrl("/opt/shine/qml/main.qml"));
     view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    view.showFullscreen();
+    view.showFullScreen();
 
 
     return app.exec();

@@ -132,10 +132,13 @@ private:
     QString m_colormode;
     bool m_reachable;
 
-    int m_setColorId;
-    bool m_outOfSync;
+    int m_busyStateChangeId;
+    bool m_hueDirty;
     quint16 m_dirtyHue;
+    bool m_satDirty;
     quint8 m_dirtySat;
+    bool m_briDirty;
+    quint8 m_dirtyBri;
 };
 
 #endif

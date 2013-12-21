@@ -29,6 +29,10 @@ Lights::Lights(QObject *parent) :
 {
     connect(HueBridgeConnection::instance(), SIGNAL(usernameChanged()), this, SLOT(refresh()));
     refresh();
+
+#if QT_VERSION < 0x050000
+    setRoleNames(roleNames());
+#endif
 }
 
 int Lights::rowCount(const QModelIndex &parent) const
