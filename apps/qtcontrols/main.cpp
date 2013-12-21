@@ -5,6 +5,8 @@
 #include <QDir>
 #include <QDebug>
 
+#include "huebridgeconnection.h"
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -20,6 +22,7 @@ int main(int argc, char *argv[])
     view.setResizeMode(QQuickView::SizeViewToRootObject);
     view.show();
 
+    HueBridgeConnection::instance();
 
     return app.exec();
 }
