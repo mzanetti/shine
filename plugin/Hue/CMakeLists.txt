@@ -20,3 +20,8 @@ add_custom_target(hueplugin-qmlfiles ALL
     COMMAND cp ${QML_SRCS} ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${QMLFILES}
 )
+
+if(HARMATTAN_BUILD)
+install(TARGETS hueplugin LIBRARY DESTINATION opt/shine/plugins/Hue/)
+install(FILES ${QML_SRCS} DESTINATION opt/shine/plugins/Hue/)
+endif()

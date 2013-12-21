@@ -11,14 +11,13 @@ int main(int argc, char *argv[])
 
     QDeclarativeView view;
 
-    // For easy running
     QStringList imports = view.engine()->importPathList();
-    imports.append(QDir::currentPath() + "/../../plugin/");
+    imports.append("/opt/shine/plugins/");
     view.engine()->setImportPathList(imports);
 
-    view.setSource(QUrl("qml/Shine.qml"));
-    view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
-    view.show();
+    view.setSource(QUrl("/opt/shine/qml/Shine.qml"));
+    view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    view.showFullscreen();
 
 
     return app.exec();

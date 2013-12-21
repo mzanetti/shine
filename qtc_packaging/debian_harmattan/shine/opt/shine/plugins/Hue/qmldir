@@ -1,0 +1,4 @@
+module Hue
+plugin hueplugin
+
+ColorPicker 0.1 ColorPicker.qml

@@ -1,0 +1,11 @@
+4bf9abf8d06ebfa9f642a9c67a79bbc2  opt/shine/qml/GroupsPage.qml
+25fc5a9d5eaeeae1aab67166c522a622  opt/shine/qml/Shine.qml
+a34cd273daa2904e181a6c83c404c646  opt/shine/qml/LightsPage.qml
+fff18fac0f238d7090618cd3bc266445  opt/shine/qml/UbuntuColorPicker.qml
+9d3a58de583d95abaf475706daf4a88f  opt/shine/plugins/Hue/qmldir
+c4a38af2f4751b834dc31786531b59dd  opt/shine/plugins/Hue/ColorPicker.qml
+bc7973e832d38ff928776bacdcc49350  opt/shine/plugins/Hue/libhueplugin.so
+d0895c607927c9ee7678dcbea66d22a0  opt/shine/bin/shine_harmattan
+0b901fffa2aef756ffd0d0a9f8727130  usr/share/applications/shine_harmattan.desktop
+a5b40e0801176e8b44492c69dd1abb6a  usr/share/doc/shine/copyright
+19a952510f02f719f45a3b269b8efd43  usr/share/doc/shine/changelog.Debian.gz

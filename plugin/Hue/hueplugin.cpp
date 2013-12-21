@@ -56,4 +56,6 @@ void HuePlugin::initializeEngine(QDeclarativeEngine *engine, const char *uri)
 {
     engine->rootContext()->setContextProperty("hueBridge", HueBridgeConnection::instance());
 }
+
+Q_EXPORT_PLUGIN2(Hue, HuePlugin)
 #endif

@@ -13,3 +13,7 @@ add_custom_target(shine_harmattan-qmlfiles ALL
     COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/qml ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${QMLFILES}
 )
+
+install(TARGETS shine_harmattan RUNTIME DESTINATION opt/shine/bin)
+install(FILES ${QML_SRCS} DESTINATION opt/shine/qml/)
+install(FILES shine_harmattan.desktop DESTINATION usr/share/applications/)
