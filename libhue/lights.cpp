@@ -76,6 +76,11 @@ QHash<int, QByteArray> Lights::roleNames() const
     return roles;
 }
 
+Light *Lights::get(int index) const
+{
+    return m_list.at(index);
+}
+
 void Lights::refresh()
 {
     HueBridgeConnection::instance()->get("lights", this, "lightsReceived");

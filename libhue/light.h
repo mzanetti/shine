@@ -16,7 +16,7 @@ class Light: public QObject
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
     Q_PROPERTY(QString swversion READ swversion NOTIFY swversionChanged)
 
-    Q_PROPERTY(bool on READ on NOTIFY stateChanged)
+    Q_PROPERTY(bool on READ on WRITE setOn NOTIFY stateChanged)
     Q_PROPERTY(quint8 bri READ bri NOTIFY stateChanged)
     Q_PROPERTY(quint16 hue READ hue NOTIFY stateChanged)
     Q_PROPERTY(quint8 sat READ sat NOTIFY stateChanged)
@@ -94,6 +94,7 @@ signals:
 private slots:
     void responseReceived(int id, const QVariant &response);
     void setNameFinished(int id, const QVariant &response);
+    void setStateFinished(int id, const QVariant &response);
 
 private:
     int m_id;

@@ -79,8 +79,9 @@ bool Light::on() const
 void Light::setOn(bool on)
 {
     if (m_on != on) {
-        m_on = on;
-        emit stateChanged();
+        QVariantMap params;
+        params.insert("on", on);
+        HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     }
 
 }
@@ -241,4 +242,19 @@ void Light::responseReceived(int id, const QVariant &response)
 void Light::setNameFinished(int id, const QVariant &response)
 {
     qDebug() << "setName finished" << response;
+}
+
+void Light::setStateFinished(int id, const QVariant &response)
+{
+    qDebug() << "setState finished" << response;
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        bool on = result.value("success").toMap().value("/lights/" + QString::number(m_id) + "/state/on").toBool();
+        if (m_on != on) {
+            m_on = on;
+            emit stateChanged();
+        }
+    }
 }

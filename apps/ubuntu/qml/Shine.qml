@@ -1,57 +1,49 @@
 import QtQuick 2.0
+import Ubuntu.Components 0.1
+import Ubuntu.Components.ListItems 0.1
+import Ubuntu.Components.Popups 0.1
 import Hue 0.1
 
-Item {
-    width: 500
-    height: 500
+MainView {
+    width: units.gu(50)
+    height: units.gu(75)
 
-    Column {
+    ListView {
         anchors.fill: parent
 
-        Rectangle {
-            width: parent.width
-            height: 100
-            color: "blue"
-            Text {
-                anchors.centerIn: parent
-                text: "current user:" + HueBridge.username
-            }
+        model: Lights {
+            id: lights
         }
 
-        Rectangle {
-            width: parent.width
-            height: 100
-            color: "khaki"
-            Text {
-                anchors.centerIn: parent
-                text: "Create user"
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    HueBridge.createUser("testdevice", "micha1234567")
+        delegate: Empty {
+
+            Row {
+                anchors {
+                    left: parent.left
+                    leftMargin: units.gu(2)
+                    right: parent.right
+                    rightMargin: units.gu(2)
+                    top: parent.top
+                }
+                height: units.gu(6)
+
+                Label {
+                    width: parent.width - onOffSwitch.width
+                    text: model.name
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Switch {
+                    id: onOffSwitch
+                    checked: model.on
+                    anchors.verticalCenter: parent.verticalCenter
+                    onClicked: {
+                        lights.get(index).on = checked;
+                    }
                 }
             }
+
+
         }
-
-        ListView {
-            width: parent.width
-            height: 300
-
-            model: Lights {
-
-            }
-
-            delegate: Item {
-                width: parent.width
-                height: 100
-                Text {
-                    anchors.centerIn: parent
-                    text: model.name + " " + (model.on ? "On" : "off")
-                }
-            }
-        }
-
     }
-
 }
