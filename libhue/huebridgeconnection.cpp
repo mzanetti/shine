@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QDebug>
 
+#include "discovery.h"
+
 HueBridgeConnection *HueBridgeConnection::s_instance = 0;
 
 HueBridgeConnection *HueBridgeConnection::instance()
@@ -22,13 +24,22 @@ HueBridgeConnection::HueBridgeConnection():
     m_nam(new QNetworkAccessManager(this)),
     m_requestCounter(0)
 {
+    Discovery *discovery = new Discovery(this);
+    connect(discovery, &Discovery::foundBridge, this, &HueBridgeConnection::onFoundBridge);
+}
+
+void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
+{
+    qDebug() << Q_FUNC_INFO << bridge;
+    m_bridge = bridge;
+
     QSettings settings;
     if (settings.contains("username")) {
         m_username = settings.value("username").toString();
         emit usernameChanged();
     }
-
 }
+
 
 QString HueBridgeConnection::username() const
 {
@@ -51,7 +62,7 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
     QJsonDocument jsonDoc = QJsonDocument::fromVariant(params);
 
     QNetworkRequest request;
-    request.setUrl(QUrl("http://10.10.10.123/api"));
+    request.setUrl(QUrl("http://" + m_bridge.toString() + "/api"));
     QNetworkReply *reply = m_nam->post(request, jsonDoc.toJson());
     connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::createUserFinished);
 }
@@ -63,7 +74,7 @@ int HueBridgeConnection::get(const QString &path, QObject *sender, const QString
         qWarning() << "No username set. cannot proceed.";
         return -1;
     }
-    QUrl url("http://10.10.10.123/api/" + m_username + "/" + path);
+    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
     QNetworkRequest request;
     request.setUrl(url);
     QNetworkReply *reply = m_nam->get(request);
@@ -81,7 +92,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
         return -1;
     }
 
-    QUrl url("http://10.10.10.123/api/" + m_username + "/" + path);
+    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
     url.setAuthority(path);
     QNetworkRequest request;
     request.setUrl(url);

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QHostAddress>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -44,6 +45,7 @@ signals:
     void postFinished(int id, const QVariantMap &result);
 
 private slots:
+    void onFoundBridge(QHostAddress bridge);
     void createUserFinished();
     void slotGetFinished();
 
@@ -57,6 +59,8 @@ private:
     int m_requestCounter;
     QHash<QNetworkReply*, int> m_requestIdMap;
     QHash<int, CallbackObject> m_requestSenderMap;
+
+    QHostAddress m_bridge;
 };
 
 #endif
