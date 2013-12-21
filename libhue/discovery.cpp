@@ -1,29 +1,55 @@
 #include "discovery.h"
 
 #include <QDebug>
+#include <QTimer>
+
+// Discovery timeout in seconds
+const unsigned int DISCOVERY_TIMEOUT = 3;
 
 Discovery::Discovery(QObject *parent) :
-    QUdpSocket(parent)
+    QUdpSocket(parent),
+    m_timeout(new QTimer(this))
 {
-    //FIXME: port might be taken
-    bind(QHostAddress::AnyIPv4, 1900);
+    quint16 port = 1900;
+    unsigned int tries = 0;
+    const unsigned int maxtries = 3;
+
+    while (!bind(port++)) {
+        if (++tries == maxtries) {
+            emit error();
+            return;
+        }
+    }
+
     connect(this, &Discovery::readyRead, this, &Discovery::onReadyRead);
 
-    findBridges();
+    m_timeout->setSingleShot(true);
+    connect(m_timeout, &QTimer::timeout, this, &Discovery::onTimeout);
 }
 
 void Discovery::findBridges()
 {
-    QByteArray b("M-SEARCH * HTTP/1.1\r\n"
-                 "HOST: 239.255.255.250:1900\r\n"
-                 "MAN: \"ssdp:discover\"\r\n"
-                 "MX: 3\r\n"
-                 "ST: libhue:idl\r\n");
+    m_timeout->stop();
+    m_reportedBridges.clear();
 
-    //FIXME: write might fail
-    writeDatagram(b, QHostAddress("239.255.255.250"), 1900);
+    QString b("M-SEARCH * HTTP/1.1\r\n"
+              "HOST: 239.255.255.250:1900\r\n"
+              "MAN: \"ssdp:discover\"\r\n"
+              "MX: %1\r\n"
+              "ST: libhue:idl\r\n");
+    b.arg(DISCOVERY_TIMEOUT);
+
+    m_timeout->start(DISCOVERY_TIMEOUT * 1000);
+    if (writeDatagram(b.toUtf8(), QHostAddress("239.255.255.250"), 1900) < 0) {
+        emit error();
+    }
 }
 
+void Discovery::onTimeout()
+{
+    if (m_reportedBridges.isEmpty())
+        emit noBridgesFound();
+}
 
 void Discovery::onReadyRead()
 {
