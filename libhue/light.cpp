@@ -173,32 +173,22 @@ QString Light::effect() const
 void Light::setEffect(const QString &effect)
 {
     if (m_effect != effect) {
-        m_effect = effect;
-        emit stateChanged();
+        QVariantMap params;
+        params.insert("effect", effect);
+        HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     }
 }
 
-Light::ColorMode Light::colormode() const
+QString Light::colormode() const
 {
     return m_colormode;
 }
 
-void Light::setColormode(Light::ColorMode colorMode)
+void Light::setColormode(const QString &colorMode)
 {
     if (m_colormode != colorMode) {
         m_colormode = colorMode;
         emit stateChanged();
-    }
-}
-
-void Light::setColorMode(const QString &colorModeString)
-{
-    if (colorModeString == "cs") {
-        m_colormode == ColorModeCT;
-    } else if (colorModeString == "hs") {
-        m_colormode == ColorModeHS;
-    } else if (colorModeString == "xy") {
-        m_colormode == ColorModeXY;
     }
 }
 
@@ -233,7 +223,7 @@ void Light::responseReceived(int id, const QVariant &response)
     m_ct = stateMap.value("ct").toInt();
     m_alert = stateMap.value("alert").toString();
     m_effect = stateMap.value("effect").toString();
-    setColorMode(stateMap.value("colormode").toString());
+    m_colormode = stateMap.value("colormode").toString();
     m_reachable = stateMap.value("reachable").toBool();
     emit stateChanged();
 
@@ -258,6 +248,9 @@ void Light::setStateFinished(int id, const QVariant &response)
         }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
             m_bri = result.value("success").toMap().value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
+        }
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
+            m_effect = result.value("success").toMap().value("/lights/" + QString::number(m_id) + "/state/effect").toString();
         }
 
         emit stateChanged();

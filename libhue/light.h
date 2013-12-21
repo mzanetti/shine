@@ -23,17 +23,11 @@ class Light: public QObject
     Q_PROPERTY(QPointF xy READ xy NOTIFY stateChanged)
     Q_PROPERTY(quint16 ct READ ct NOTIFY stateChanged)
     Q_PROPERTY(QString alert READ alert NOTIFY stateChanged)
-    Q_PROPERTY(QString effect READ effect NOTIFY stateChanged)
-    Q_PROPERTY(ColorMode colormode READ colormode NOTIFY stateChanged)
+    Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY stateChanged)
+    Q_PROPERTY(QString colormode READ colormode NOTIFY stateChanged)
     Q_PROPERTY(bool reachable READ reachable NOTIFY stateChanged)
 
 public:
-    enum ColorMode {
-        ColorModeHS,
-        ColorModeXY,
-        ColorModeCT
-    };
-
     Light(int id, const QString &name, QObject *parent = 0);
 
     int id() const;
@@ -75,9 +69,8 @@ public:
     QString effect() const;
     void setEffect(const QString &effect);
 
-    ColorMode colormode() const;
-    void setColormode(ColorMode colorMode);
-    void setColorMode(const QString &colorModeString);
+    QString colormode() const;
+    void setColormode(const QString &colormode);
 
     bool reachable() const;
     void setReachable(bool reachable);
@@ -112,7 +105,7 @@ private:
     quint16 m_ct;
     QString m_alert;
     QString m_effect;
-    ColorMode m_colormode;
+    QString m_colormode;
     bool m_reachable;
 };
 

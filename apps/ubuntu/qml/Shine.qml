@@ -23,7 +23,7 @@ MainView {
             states: [
                 State {
                     name: "expanded"; when: delegateItem.expanded
-                    PropertyChanges { target: delegateItem; height: units.gu(20) }
+                    PropertyChanges { target: delegateItem; height: delegateColumn.height + units.gu(2) }
                 }
             ]
             transitions: [
@@ -35,8 +35,10 @@ MainView {
             ]
 
             Column {
-                anchors { fill: parent; leftMargin: units.gu(2); rightMargin: units.gu(2) }
+                id: delegateColumn
+                anchors { left: parent.left; right: parent.right; leftMargin: units.gu(2); rightMargin: units.gu(2) }
                 spacing: units.gu(2)
+                height: childrenRect.height
 
                 Row {
                     anchors {
@@ -61,6 +63,10 @@ MainView {
                     }
                 }
 
+                Label {
+                    text: "Brightness"
+                }
+
                 Slider {
                     anchors { left: parent.left; right: parent.right }
                     minimumValue: 0
@@ -69,6 +75,33 @@ MainView {
                     onValueChanged: {
                         print("val changed")
                         lights.get(index).bri = value
+                    }
+                }
+
+                Label {
+                    text: "Effect"
+                }
+
+                OptionSelector {
+                    model: ListModel {
+                        id: effectModel
+                        ListElement { name: "None"; value: "none" }
+                        ListElement { name: "Color loop"; value: "colorloop" }
+                    }
+                    selectedIndex: {
+                        for (var i = 0; i < effectModel.count; i++) {
+                            if (effectModel.get(i).value == lights.get(index).effect) {
+                                return i;
+                            }
+                        }
+                    }
+
+                    onSelectedIndexChanged: {
+                        lights.get(index).effect = effectModel.get(selectedIndex).value;
+                    }
+
+                    delegate: OptionSelectorDelegate {
+                        text: name
                     }
                 }
             }
