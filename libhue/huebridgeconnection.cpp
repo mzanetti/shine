@@ -93,7 +93,6 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
     }
 
     QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
-    url.setAuthority(path);
     QNetworkRequest request;
     request.setUrl(url);
 
@@ -101,6 +100,27 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
 
     QNetworkReply *reply = m_nam->post(request, jsonDoc.toJson());
     connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::slotGetFinished);
+    m_requestIdMap.insert(reply, m_requestCounter);
+    CallbackObject co(sender, slot);
+    m_requestSenderMap.insert(m_requestCounter, co);
+    return m_requestCounter++;
+}
+
+int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot)
+{
+    if (m_username.isEmpty()) {
+        qWarning() << "No username set, cannot proceed";
+        return -1;
+    }
+
+    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
+    QNetworkRequest request;
+    request.setUrl(url);
+
+    QJsonDocument jsonDoc = QJsonDocument::fromVariant(params);
+
+    QNetworkReply *reply = m_nam->put(request, jsonDoc.toJson());
+    connect(reply, &QNetworkReply::finished, this, &HueBridgeConnection::slotPutFinished);
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -150,8 +170,28 @@ void HueBridgeConnection::slotGetFinished()
 
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
-    if (!error.error == QJsonParseError::NoError) {
-        qWarning() << "error parsing response:" << error.errorString();
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "error parsing get response:" << error.errorString();
+        return;
+    }
+
+    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, jsonDoc.toVariant()));
+
+}
+
+void HueBridgeConnection::slotPutFinished()
+{
+    QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
+    reply->deleteLater();
+
+    QByteArray response = reply->readAll();
+    int id = m_requestIdMap.take(reply);
+    CallbackObject co = m_requestSenderMap.take(id);
+
+    QJsonParseError error;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "error parsing put response:" << error.errorString();
         return;
     }
 

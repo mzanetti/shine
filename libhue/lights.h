@@ -41,7 +41,7 @@ private slots:
     void lightStateChanged();
 
 private:
-    Light* createLight(int id);
+    Light* createLight(int id, const QString &name);
 
 private:
     QList<Light*> m_list;

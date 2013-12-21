@@ -3,9 +3,10 @@
 
 #include <QDebug>
 
-Light::Light(int id, QObject *parent):
+Light::Light(int id, const QString &name, QObject *parent):
     QObject(parent),
-    m_id(id)
+    m_id(id),
+    m_name(name)
 {
     HueBridgeConnection::instance()->get("lights/" + QString::number(id), this, "responseReceived");
 
@@ -24,8 +25,9 @@ QString Light::name() const
 void Light::setName(const QString &name)
 {
     if (m_name != name) {
-        m_name = name;
-        emit nameChanged();
+        QVariantMap params;
+        params.insert("name", name);
+        HueBridgeConnection::instance()->put("lights/" + QString::number(m_id), params, this, "setNameFinished");
     }
 }
 
@@ -234,4 +236,9 @@ void Light::responseReceived(int id, const QVariant &response)
     emit stateChanged();
 
     qDebug() << "got light response" << m_modelId << m_type << m_swversion << m_on << m_bri << m_reachable;
+}
+
+void Light::setNameFinished(int id, const QVariant &response)
+{
+    qDebug() << "setName finished" << response;
 }

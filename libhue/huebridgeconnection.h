@@ -37,17 +37,16 @@ public:
 
     int get(const QString &path, QObject *sender, const QString &slot);
     int post(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot);
+    int put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot);
 
 signals:
     void usernameChanged();
-
-    void getFinished(int id, const QVariantMap &result);
-    void postFinished(int id, const QVariantMap &result);
 
 private slots:
     void onFoundBridge(QHostAddress bridge);
     void createUserFinished();
     void slotGetFinished();
+    void slotPutFinished();
 
 private:
     HueBridgeConnection();

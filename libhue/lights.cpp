@@ -88,9 +88,7 @@ void Lights::lightsReceived(int id, const QVariant &variant)
 
     beginResetModel();
     foreach (const QString &lightId, lights.keys()) {
-        Light *light = createLight(lightId.toInt());
-        QVariantMap lightMap = lights.value(lightId).toMap();
-        light->setName(lightMap.value("name").toString());
+        Light *light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
         m_list.append(light);
         qDebug() << "got light" << light->name() << light->id();
     }
@@ -131,9 +129,9 @@ void Lights::lightStateChanged()
     emit dataChanged(modelIndex, modelIndex, roles);
 }
 
-Light *Lights::createLight(int id)
+Light *Lights::createLight(int id, const QString &name)
 {
-    Light *light = new Light(id);
+    Light *light = new Light(id, name);
 
     connect(light, &Light::nameChanged, this, &Lights::lightDescriptionChanged);
     connect(light, &Light::modelIdChanged, this, &Lights::lightDescriptionChanged);

@@ -34,7 +34,7 @@ public:
         ColorModeCT
     };
 
-    Light(int id, QObject *parent = 0);
+    Light(int id, const QString &name, QObject *parent = 0);
 
     int id() const;
 
@@ -93,6 +93,7 @@ signals:
 
 private slots:
     void responseReceived(int id, const QVariant &response);
+    void setNameFinished(int id, const QVariant &response);
 
 private:
     int m_id;
