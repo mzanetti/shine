@@ -43,7 +43,10 @@ signals:
     void usernameChanged();
 
 private slots:
+    void onDiscoveryError();
     void onFoundBridge(QHostAddress bridge);
+    void onNoBridgesFound();
+
     void createUserFinished();
     void slotGetFinished();
     void slotPutFinished();

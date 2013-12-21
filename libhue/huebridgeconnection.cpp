@@ -25,12 +25,23 @@ HueBridgeConnection::HueBridgeConnection():
     m_requestCounter(0)
 {
     Discovery *discovery = new Discovery(this);
+    connect(discovery, &Discovery::error, this, &HueBridgeConnection::onDiscoveryError);
     connect(discovery, &Discovery::foundBridge, this, &HueBridgeConnection::onFoundBridge);
+    connect(discovery, &Discovery::noBridgesFound, this, &HueBridgeConnection::onNoBridgesFound);
+    discovery->findBridges();
+}
+
+void HueBridgeConnection::onDiscoveryError()
+{
+    //FIXME: handle error case
+    qDebug() << Q_FUNC_INFO << "Error discovering hue bridge!";
 }
 
 void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
 {
-    qDebug() << Q_FUNC_INFO << bridge;
+    //FIXME: eventually handle multiple bridges
+    disconnect(sender());
+
     m_bridge = bridge;
 
     QSettings settings;
@@ -40,6 +51,11 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     }
 }
 
+void HueBridgeConnection::onNoBridgesFound()
+{
+    //FIXME: handle error case
+    qDebug() << Q_FUNC_INFO << "No hue bridges found!";
+}
 
 QString HueBridgeConnection::username() const
 {
