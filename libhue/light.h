@@ -134,6 +134,8 @@ private:
 
     int m_setColorId;
     bool m_outOfSync;
+    quint16 m_dirtyHue;
+    quint8 m_dirtySat;
 };
 
 #endif

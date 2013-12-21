@@ -25,7 +25,7 @@
 #include "huebridgeconnection.h"
 #include "lights.h"
 #include "light.h"
-
+#include "groups.h"
 
 static QObject* hueBridgeInstance(QQmlEngine* /* engine */, QJSEngine* /* scriptEngine */)
 {
@@ -39,4 +39,5 @@ void HuePlugin::registerTypes(const char *uri)
     qmlRegisterSingletonType<HueBridgeConnection>(uri, 0, 1, "HueBridge", hueBridgeInstance);
     qmlRegisterType<Lights>(uri, 0, 1, "Lights");
     qmlRegisterUncreatableType<Light>(uri, 0, 1, "Light", "Cannot create lights. Get them from the Lights model.");
+    qmlRegisterType<Groups>(uri, 0, 1, "Groups");
 }

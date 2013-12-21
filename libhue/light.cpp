@@ -149,12 +149,11 @@ void Light::setSat(quint8 sat)
 
 QColor Light::color() const
 {
-    return QColor();
+    return QColor::fromHsv(m_hue * 360 / 65535, m_sat, 255);
 }
 
 void Light::setColor(const QColor &color)
 {
-    // ph : 65535 = hue : 360;
     quint16 hue = color.hue() * 65535 / 360;
     quint8 sat = color.saturation();
 
@@ -164,8 +163,8 @@ void Light::setColor(const QColor &color)
     if (m_setColorId == -1) {
         m_setColorId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     } else {
-        m_hue = hue;
-        m_sat = sat;
+        m_dirtyHue = hue;
+        m_dirtySat = sat;
         m_outOfSync = true;
     }
 }
@@ -314,8 +313,8 @@ void Light::setStateFinished(int id, const QVariant &response)
         m_setColorId = -1;
         if (m_outOfSync) {
             QVariantMap params;
-            params.insert("hue", m_hue);
-            params.insert("sat", m_sat);
+            params.insert("hue", m_dirtyHue);
+            params.insert("sat", m_dirtySat);
             m_setColorId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
             m_outOfSync = false;
         }
