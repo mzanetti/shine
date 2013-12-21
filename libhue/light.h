@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QPointF>
+#include <QColor>
 
 class Light: public QObject
 {
@@ -39,6 +40,7 @@ class Light: public QObject
     Q_PROPERTY(quint8 bri READ bri WRITE setBri NOTIFY stateChanged)
     Q_PROPERTY(quint16 hue READ hue NOTIFY stateChanged)
     Q_PROPERTY(quint8 sat READ sat NOTIFY stateChanged)
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY stateChanged)
     Q_PROPERTY(QPointF xy READ xy NOTIFY stateChanged)
     Q_PROPERTY(quint16 ct READ ct NOTIFY stateChanged)
     Q_PROPERTY(QString alert READ alert NOTIFY stateChanged)
@@ -75,6 +77,9 @@ public:
 
     quint8 sat() const;
     void setSat(quint8 sat);
+
+    QColor color() const;
+    void setColor(const QColor &color);
 
     QPointF xy() const;
     void setXy(const QPointF &xy);
@@ -126,6 +131,9 @@ private:
     QString m_effect;
     QString m_colormode;
     bool m_reachable;
+
+    int m_setColorId;
+    bool m_outOfSync;
 };
 
 #endif

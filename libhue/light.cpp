@@ -20,12 +20,14 @@
 #include "light.h"
 #include "huebridgeconnection.h"
 
+#include <QColor>
 #include <QDebug>
 
 Light::Light(int id, const QString &name, QObject *parent):
     QObject(parent),
     m_id(id),
-    m_name(name)
+    m_name(name),
+    m_setColorId(-1)
 {
     HueBridgeConnection::instance()->get("lights/" + QString::number(id), this, "responseReceived");
 
@@ -142,6 +144,29 @@ void Light::setSat(quint8 sat)
     if (m_sat != sat) {
         m_sat = sat;
         emit stateChanged();
+    }
+}
+
+QColor Light::color() const
+{
+    return QColor();
+}
+
+void Light::setColor(const QColor &color)
+{
+    // ph : 65535 = hue : 360;
+    quint16 hue = color.hue() * 65535 / 360;
+    quint8 sat = color.saturation();
+
+    QVariantMap params;
+    params.insert("hue", hue);
+    params.insert("sat", sat);
+    if (m_setColorId == -1) {
+        m_setColorId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+    } else {
+        m_hue = hue;
+        m_sat = sat;
+        m_outOfSync = true;
     }
 }
 
@@ -265,8 +290,6 @@ void Light::setDescriptionFinished(int id, const QVariant &response)
 
 void Light::setStateFinished(int id, const QVariant &response)
 {
-    qDebug() << "setState finished" << response;
-
     QVariantMap result = response.toList().first().toMap();
 
     if (result.contains("success")) {
@@ -277,10 +300,24 @@ void Light::setStateFinished(int id, const QVariant &response)
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
             m_bri = successMap.value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
         }
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/sat")) {
+            m_sat = successMap.value("/lights/" + QString::number(m_id) + "/state/sat").toInt();
+        }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
             m_effect = successMap.value("/lights/" + QString::number(m_id) + "/state/effect").toString();
         }
 
         emit stateChanged();
+    }
+
+    if (m_setColorId == id) {
+        m_setColorId = -1;
+        if (m_outOfSync) {
+            QVariantMap params;
+            params.insert("hue", m_hue);
+            params.insert("sat", m_sat);
+            m_setColorId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+            m_outOfSync = false;
+        }
     }
 }

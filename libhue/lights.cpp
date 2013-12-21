@@ -38,13 +38,11 @@ int Lights::rowCount(const QModelIndex &parent) const
 
 QVariant Lights::data(const QModelIndex &index, int role) const
 {
-    qDebug() << "data called" << index.row() << role << RoleOn;
     Light *light = m_list.at(index.row());
     switch (role) {
     case RoleId:
         return light->id();
     case RoleName:
-        qDebug() << "name requested" << light->name();
         return light->name();
     case RoleModelId:
         return light->modelId();

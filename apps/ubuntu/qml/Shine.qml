@@ -98,10 +98,6 @@ MainView {
                     }
                 }
 
-                Label {
-                    text: "Brightness"
-                }
-
                 Slider {
                     anchors { left: parent.left; right: parent.right }
                     minimumValue: 0
@@ -111,6 +107,19 @@ MainView {
                         print("val changed")
                         lights.get(index).bri = value
                     }
+                }
+                ColorPicker {
+                    id: colorPicker
+
+                    onColorChanged: {
+                        lights.get(index).color = colorPicker.color;
+                    }
+
+                }
+                Rectangle {
+                    width: parent.width
+                    height: units.gu(2)
+                    color: colorPicker.color
                 }
 
                 Label {
