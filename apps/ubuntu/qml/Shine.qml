@@ -47,7 +47,7 @@ Item {
                 height: 100
                 Text {
                     anchors.centerIn: parent
-                    text: model.name
+                    text: model.name + " " + (model.on ? "On" : "off")
                 }
             }
         }

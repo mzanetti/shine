@@ -8,6 +8,7 @@ set(libhue_SRCS
     configuration.cpp
     lights.cpp
     light.cpp
+    lightstate.cpp
 )
 
 add_library(hue ${libhue_SRCS})

@@ -12,10 +12,18 @@ public:
     enum Roles {
         RoleId,
         RoleName,
+        RoleModelId,
+        RoleType,
+        RoleSwVersion,
         RoleOn,
-        RoleSaturation,
         RoleBrightness,
-        RoleHue
+        RoleHue,
+        RoleSaturation,
+        RoleXY,
+        RoleAlert,
+        RoleEffect,
+        RoleColorMode,
+        RoleReachable
     };
 
     explicit Lights(QObject *parent = 0);
@@ -29,6 +37,11 @@ public slots:
 
 private slots:
     void lightsReceived(int id, const QVariant &variant);
+    void lightDescriptionChanged();
+    void lightStateChanged();
+
+private:
+    Light* createLight(int id);
 
 private:
     QList<Light*> m_list;
