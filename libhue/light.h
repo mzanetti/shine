@@ -105,7 +105,7 @@ signals:
 
 private slots:
     void responseReceived(int id, const QVariant &response);
-    void setNameFinished(int id, const QVariant &response);
+    void setDescriptionFinished(int id, const QVariant &response);
     void setStateFinished(int id, const QVariant &response);
 
 private:

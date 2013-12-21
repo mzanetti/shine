@@ -18,20 +18,25 @@ MainView {
         delegate: Empty {
             id: delegateItem
             clip: true
-            property bool expanded: false
 
             states: [
                 State {
-                    name: "expanded"; when: delegateItem.expanded
+                    name: "expanded"
                     PropertyChanges { target: delegateItem; height: delegateColumn.height + units.gu(2) }
+                },
+                State {
+                    name: "rename"
+                    PropertyChanges { target: mainRow; opacity: 0 }
+                    PropertyChanges { target: renameRow; opacity: 1 }
                 }
+
             ]
             transitions: [
                 Transition {
                     from: "*"; to: "*"
                     UbuntuNumberAnimation { properties: "height" }
+                    UbuntuNumberAnimation { properties: "opacity" }
                 }
-
             ]
 
             Column {
@@ -40,25 +45,55 @@ MainView {
                 spacing: units.gu(2)
                 height: childrenRect.height
 
-                Row {
+                Item {
                     anchors {
                         left: parent.left
                         right: parent.right
                     }
                     height: units.gu(6)
+                    Row {
+                        id: mainRow
+                        anchors.fill: parent
+                        spacing: units.gu(2)
+                        visible: opcity > 0
 
-                    Label {
-                        width: parent.width - onOffSwitch.width
-                        text: model.name
-                        anchors.verticalCenter: parent.verticalCenter
+                        Label {
+                            width: parent.width - onOffSwitch.width - parent.spacing
+                            text: model.name
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Switch {
+                            id: onOffSwitch
+                            checked: model.on
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                lights.get(index).on = checked;
+                            }
+                        }
                     }
+                    Row {
+                        id: renameRow
+                        anchors.fill: parent
+                        spacing: units.gu(2)
+                        height: units.gu(6)
+                        visible: opacity > 0
+                        opacity: 0
 
-                    Switch {
-                        id: onOffSwitch
-                        checked: model.on
-                        anchors.verticalCenter: parent.verticalCenter
-                        onClicked: {
-                            lights.get(index).on = checked;
+                        TextField {
+                            id: renameTextField
+                            width: parent.width - okButton.width - parent.spacing
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: model.name
+                        }
+                        Button {
+                            id: okButton
+                            text: "OK"
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked: {
+                                lights.get(index).name = renameTextField.text
+                                delegateItem.state = ""
+                            }
                         }
                     }
                 }
@@ -108,7 +143,18 @@ MainView {
 
 
             onClicked: {
-                delegateItem.expanded = !delegateItem.expanded
+                if (delegateItem.state == "expanded") {
+                    delegateItem.state = ""
+                } else {
+                    delegateItem.state = "expanded"
+                }
+            }
+            onPressAndHold: {
+                if (delegateItem.state == "rename") {
+                    delegateItem.state = ""
+                } else {
+                    delegateItem.state = "rename"
+                }
             }
         }
     }
