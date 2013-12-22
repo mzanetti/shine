@@ -31,7 +31,7 @@ Discovery::Discovery(QObject *parent) :
 {
     quint16 port = 1900;
     unsigned int tries = 0;
-    const unsigned int maxtries = 3;
+    const unsigned int maxtries = 10;
 
     while (!bind(port++)) {
         if (++tries == maxtries) {
@@ -58,7 +58,7 @@ void Discovery::findBridges()
               "ST: libhue:idl\r\n");
     b.arg(DISCOVERY_TIMEOUT);
 
-    qDebug() << "writing datagram" << b;
+//    qDebug() << "writing datagram" << b;
     m_timeout->start(DISCOVERY_TIMEOUT * 1000);
     if (writeDatagram(b.toUtf8(), QHostAddress("239.255.255.250"), 1900) < 0) {
         emit error();
@@ -81,7 +81,7 @@ void Discovery::onReadyRead()
 
         readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
-        qDebug() << "got datagram" << datagram;
+//        qDebug() << "got datagram" << datagram;
         if (!m_reportedBridges.contains(sender)) {
             m_reportedBridges << sender;
             emit foundBridge(sender);
