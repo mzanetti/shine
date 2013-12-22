@@ -17,7 +17,7 @@ target_link_libraries(hueplugin hue)
 
 # Copy all qml files and replace QtQuick 2.0 import with QtQuick 1.1
 add_custom_target(CopyAndRename
-    COMMAND ${CMAKE_COMMAND} -E copy ColorPicker.qml ColorPickerQtQuick1.qml && sed -i 's/import QtQuick 2.0/import QtQuick 1.1/' ColorPickerQtQuick1.qml
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ColorPicker.qml ColorPickerQtQuick1.qml && sed -i 's/import QtQuick 2.0/import QtQuick 1.1/' ColorPickerQtQuick1.qml
 )
 
 

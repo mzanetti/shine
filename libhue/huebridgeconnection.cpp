@@ -211,7 +211,6 @@ void HueBridgeConnection::createUserFinished()
         qWarning() << "cannot parse response:" << response;
         return;
     }
-    qDebug() << "json parsed" << rsp;
 #endif
 
     QVariantMap map = rsp.toList().first().toMap();

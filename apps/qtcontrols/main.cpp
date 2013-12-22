@@ -25,6 +25,7 @@
 
 #include <QDir>
 #include <QDebug>
+#include <QQmlComponent>
 
 #include "huebridgeconnection.h"
 
@@ -32,18 +33,33 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    QQuickView view;
-
-    // For easy running
-    QStringList imports = view.engine()->importPathList();
-    imports.append(QDir::currentPath() + "/../../plugin/");
-    view.engine()->setImportPathList(imports);
-
-    view.setSource(QStringLiteral("qml/Shine.qml"));
-    view.setResizeMode(QQuickView::SizeViewToRootObject);
-    view.show();
-
     HueBridgeConnection::instance();
+
+    QQmlEngine engine;
+    QObject::connect(&engine, SIGNAL(quit()), QCoreApplication::instance(), SLOT(quit()));
+    engine.addImportPath(QDir::currentPath() + "/../../plugin/");
+
+    QQmlComponent *component = new QQmlComponent(&engine);
+//    if (!component->isReady()) {
+//        qFatal(qPrintable("Failed to load QML. exiting"));
+//        return -1;
+//    }
+
+    component->loadUrl(QStringLiteral("qml/Shine.qml"));
+    if (!component->isReady()) {
+        qFatal(qPrintable(component->errorString()));
+        return -1;
+    }
+
+    QObject *topLevel = component->create();
+    QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
+
+    if (!window) {
+        qDebug() << "ApplicationWindow not found. Shine.qml must be an ApplicationWindow.";
+        return -1;
+    }
+
+    window->show();
 
     return app.exec();
 }
