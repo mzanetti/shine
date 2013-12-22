@@ -24,7 +24,7 @@
 #include <QDebug>
 
 Light::Light(int id, const QString &name, QObject *parent):
-    QObject(parent),
+    LightInterface(parent),
     m_id(id),
     m_name(name),
     m_on(false),

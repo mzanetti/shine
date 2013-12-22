@@ -24,7 +24,9 @@
 #include <QPointF>
 #include <QColor>
 
-class Light: public QObject
+#include "lightinterface.h"
+
+class Light: public LightInterface
 {
     Q_OBJECT
     Q_ENUMS(ColorMode)
@@ -35,18 +37,6 @@ class Light: public QObject
     Q_PROPERTY(QString modelId READ modelId NOTIFY modelIdChanged)
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
     Q_PROPERTY(QString swversion READ swversion NOTIFY swversionChanged)
-
-    Q_PROPERTY(bool on READ on WRITE setOn NOTIFY stateChanged)
-    Q_PROPERTY(quint8 bri READ bri WRITE setBri NOTIFY stateChanged)
-    Q_PROPERTY(quint16 hue READ hue NOTIFY stateChanged)
-    Q_PROPERTY(quint8 sat READ sat NOTIFY stateChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY stateChanged)
-    Q_PROPERTY(QPointF xy READ xy NOTIFY stateChanged)
-    Q_PROPERTY(quint16 ct READ ct NOTIFY stateChanged)
-    Q_PROPERTY(QString alert READ alert NOTIFY stateChanged)
-    Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY stateChanged)
-    Q_PROPERTY(QString colormode READ colormode NOTIFY stateChanged)
-    Q_PROPERTY(bool reachable READ reachable NOTIFY stateChanged)
 
 public:
     Light(int id, const QString &name, QObject *parent = 0);
@@ -65,7 +55,7 @@ public:
     QString swversion() const;
     void setSwversion(const QString &swversion);
 
-
+    // LightInterface implementation
     bool on() const;
     void setOn(bool on);
 
@@ -105,8 +95,6 @@ signals:
     void modelIdChanged();
     void typeChanged();
     void swversionChanged();
-
-    void stateChanged();
 
 private slots:
     void responseReceived(int id, const QVariant &response);
