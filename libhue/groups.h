@@ -50,17 +50,21 @@ public:
     Q_INVOKABLE Group* get(int index) const;
 
 public slots:
+    Q_INVOKABLE void createGroup(const QString &name);
+    Q_INVOKABLE void deleteGroup(int id);
+
     void refresh();
 
 private slots:
+    void createGroupFinished(int id, const QVariant &variant);
+    void deleteGroupFinished(int id, const QVariant &variant);
     void groupsReceived(int id, const QVariant &variant);
     void groupDescriptionChanged();
     void groupStateChanged();
 
 private:
-    Group* createGroup(int id, const QString &name);
+    Group* createGroupInternal(int id, const QString &name);
 
-private:
     QList<Group*> m_list;
 };
 

@@ -107,8 +107,7 @@ void Groups::groupsReceived(int id, const QVariant &variant)
 
     beginResetModel();
     foreach (const QString &groupId, groups.keys()) {
-        Group *group = createGroup(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
-        m_list.append(group);
+        Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
         qDebug() << "got group" << group->name() << group->id();
     }
     endResetModel();
@@ -155,12 +154,64 @@ void Groups::groupStateChanged()
 #endif
 }
 
-Group *Groups::createGroup(int id, const QString &name)
+void Groups::createGroup(const QString &name)
+{
+    QVariantMap params;
+    params.insert("name", name);
+    HueBridgeConnection::instance()->post("groups", params, this, "createGroupFinished");
+}
+
+Group *Groups::createGroupInternal(int id, const QString &name)
 {
     Group *group = new Group(id, name);
 
     connect(group, SIGNAL(nameChanged()), this, SLOT(groupDescriptionChanged()));
     connect(group, SIGNAL(stateChanged()), this, SLOT(groupStateChanged()));
 
+    m_list.append(group);
     return group;
+}
+
+void Groups::createGroupFinished(int id, const QVariant &response)
+{
+    Q_UNUSED(id)
+    qDebug() << "got createGroup result" << response;
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        QVariantMap successMap = result.value("success").toMap();
+        if (successMap.contains("id")) {
+            QString groupId = successMap.value("id").toString();
+            groupId = groupId.mid(groupId.lastIndexOf("/") + 1);
+
+            //TODO: could be added without refrshing, but we don't know the name at this point.
+            //TODO: might be best to ctor groups/lights with id only and make them fetch their own info.
+            refresh();
+        }
+    }
+}
+
+void Groups::deleteGroup(int id)
+{
+    HueBridgeConnection::instance()->deleteResource("groups/" + QString::number(id), this, "deleteGroupFinished");
+}
+
+void Groups::deleteGroupFinished(int id, const QVariant &response)
+{
+    Q_UNUSED(id)
+    qDebug() << "got deleteGroup result" << response;
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        QString success = result.value("success").toString();
+        if (success.contains("/groups/")) {
+            QString groupId = success.mid(success.indexOf("/groups/") + 8);
+            groupId = groupId.left(groupId.indexOf(" deleted"));
+
+            //TODO: could be deleted without refrshing
+            refresh();
+        }
+    }
 }
