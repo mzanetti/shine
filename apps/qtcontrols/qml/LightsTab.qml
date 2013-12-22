@@ -56,6 +56,9 @@ Tab {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.columnSpan: 2
+                    onColorChanged: {
+                        layout.light.color = color;
+                    }
                 }
                 Label {
                     text: "Effect:"
