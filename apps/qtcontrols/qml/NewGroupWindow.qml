@@ -6,8 +6,11 @@ import Hue 0.1
 
 ApplicationWindow {
     id: root
-    width: mainColumn.width + spacing * 2
-    height: mainColumn.height + spacing * 2
+    width: mainColumn.implicitWidth * 1.5
+    minimumWidth: mainColumn.implicitWidth
+    height: mainColumn.implicitHeight
+    minimumHeight: mainColumn.implicitHeight
+    title: "Add Group"
 
     property int spacing: rowLayout.height / 4
 
@@ -16,12 +19,11 @@ ApplicationWindow {
 
     Component.onDestruction: print("destroying window")
 
-    Column {
+    ColumnLayout {
         id: mainColumn
-        anchors.centerIn: parent
+        anchors.fill: parent
         spacing: root.spacing
         width: rowLayout.width
-        height: childrenRect.height
 
         RowLayout {
             id: rowLayout
@@ -39,6 +41,8 @@ ApplicationWindow {
             title: "Lights assigned to this group"
             GridLayout {
                 id: gridLayout
+                anchors { left: parent.left; right: parent.right }
+
                 columns: 2
 
                 Repeater {
@@ -58,13 +62,9 @@ ApplicationWindow {
             }
         }
         Row {
-            Button {
-                text: "Cancel"
-                onClicked: {
-                    root.rejected();
-                    root.destroy();
-                }
-            }
+            anchors { left: parent.left; right: parent.right }
+            layoutDirection: Qt.RightToLeft
+
             Button {
                 text: "OK"
                 enabled: nameInput.text
@@ -74,6 +74,13 @@ ApplicationWindow {
                         lights[i] = lightsRepeater.itemAt(i).checked;
                     }
                     root.accepted(nameInput.text, lights);
+                    root.destroy();
+                }
+            }
+            Button {
+                text: "Cancel"
+                onClicked: {
+                    root.rejected();
                     root.destroy();
                 }
             }

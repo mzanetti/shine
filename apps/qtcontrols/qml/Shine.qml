@@ -3,12 +3,15 @@ import Hue 0.1
 import QtQuick.Controls 1.0
 
 ApplicationWindow {
-    height: 1000
-    width: 1000
+    width: tabView.implicitWidth * 3
+    minimumWidth: tabView.implicitWidth * 3
+    height: tabView.implicitHeight * 3
+    minimumHeight: tabView.implicitHeight * 3
+    title: "Shine"
 
     toolBar: ToolBar {
         ToolButton {
-            iconName: "select"
+            iconName: "add"
             text: "connect"
             onClicked: {
                 HueBridge.createUser("shine", "1234567890abcdef")
@@ -35,6 +38,7 @@ ApplicationWindow {
 
 
     TabView {
+        id: tabView
         anchors.fill: parent
 
         LightsTab {
@@ -46,6 +50,4 @@ ApplicationWindow {
             title: "Groups"
         }
     }
-
-    NewGroupWindow {}
 }
