@@ -29,7 +29,6 @@
 class Light: public LightInterface
 {
     Q_OBJECT
-    Q_ENUMS(ColorMode)
 
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
@@ -57,37 +56,28 @@ public:
 
     // LightInterface implementation
     bool on() const;
-    void setOn(bool on);
-
     quint8 bri() const;
-    void setBri(quint8 bri);
-
     quint16 hue() const;
-    void setHue(quint16 hue);
-
     quint8 sat() const;
-    void setSat(quint8 sat);
-
     QColor color() const;
-    void setColor(const QColor &color);
-
     QPointF xy() const;
-    void setXy(const QPointF &xy);
-
     quint16 ct() const;
-    void setCt(quint16 ct);
-
     QString alert() const;
-    void setAlert(const QString &alert);
-
     QString effect() const;
-    void setEffect(const QString &effect);
-
-    QString colormode() const;
-    void setColormode(const QString &colormode);
-
+    QString colorMode() const;
     bool reachable() const;
-    void setReachable(bool reachable);
+
+public slots:
+    void setOn(bool on);
+    void setBri(quint8 bri);
+    void setHue(quint16 hue);
+    void setSat(quint8 sat);
+    void setColor(const QColor &color);
+    void setXy(const QPointF &xy);
+    void setCt(quint16 ct);
+    void setAlert(const QString &alert);
+    void setEffect(const QString &effect);
+    void setColorMode(const QString &colormode);
 
 signals:
     void nameChanged();
@@ -102,6 +92,8 @@ private slots:
     void setStateFinished(int id, const QVariant &response);
 
 private:
+    void setReachable(bool reachable);
+
     int m_id;
     QString m_name;
 

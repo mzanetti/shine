@@ -40,7 +40,7 @@ class LightInterface: public QObject
     Q_PROPERTY(quint16 ct READ ct NOTIFY stateChanged)
     Q_PROPERTY(QString alert READ alert NOTIFY stateChanged)
     Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY stateChanged)
-    Q_PROPERTY(QString colormode READ colormode NOTIFY stateChanged)
+    Q_PROPERTY(QString colormode READ colorMode NOTIFY stateChanged)
     Q_PROPERTY(bool reachable READ reachable NOTIFY stateChanged)
 
 public:
@@ -49,37 +49,28 @@ public:
     {}
 
     virtual bool on() const = 0;
-    virtual void setOn(bool on) = 0;
-
     virtual quint8 bri() const = 0;
-    virtual void setBri(quint8 bri) = 0;
-
     virtual quint16 hue() const = 0;
-    virtual void setHue(quint16 hue) = 0;
-
     virtual quint8 sat() const = 0;
-    virtual void setSat(quint8 sat) = 0;
-
     virtual QColor color() const = 0;
-    virtual void setColor(const QColor &color) = 0;
-
     virtual QPointF xy() const = 0;
-    virtual void setXy(const QPointF &xy) = 0;
-
     virtual quint16 ct() const = 0;
-    virtual void setCt(quint16 ct) = 0;
-
     virtual QString alert() const = 0;
-    virtual void setAlert(const QString &alert) = 0;
-
     virtual QString effect() const = 0;
-    virtual void setEffect(const QString &effect) = 0;
-
-    virtual QString colormode() const = 0;
-    virtual void setColormode(const QString &colormode) = 0;
-
+    virtual QString colorMode() const = 0;
     virtual bool reachable() const = 0;
-    virtual void setReachable(bool reachable) = 0;
+
+public slots:
+    virtual void setOn(bool on) = 0;
+    virtual void setBri(quint8 bri) = 0;
+    virtual void setHue(quint16 hue) = 0;
+    virtual void setSat(quint8 sat) = 0;
+    virtual void setColor(const QColor &color) = 0;
+    virtual void setXy(const QPointF &xy) = 0;
+    virtual void setCt(quint16 ct) = 0;
+    virtual void setAlert(const QString &alert) = 0;
+    virtual void setEffect(const QString &effect) = 0;
+    virtual void setColorMode(const QString &colormode) = 0;
 
 signals:
     void stateChanged();

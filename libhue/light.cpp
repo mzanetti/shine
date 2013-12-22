@@ -34,7 +34,6 @@ Light::Light(int id, const QString &name, QObject *parent):
     m_briDirty(false)
 {
     HueBridgeConnection::instance()->get("lights/" + QString::number(id), this, "responseReceived");
-
 }
 
 int Light::id() const
@@ -93,7 +92,6 @@ void Light::setSwversion(const QString &swversion)
         m_swversion = swversion;
         emit swversionChanged();
     }
-
 }
 
 bool Light::on() const
@@ -108,7 +106,6 @@ void Light::setOn(bool on)
         params.insert("on", on);
         HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     }
-
 }
 
 quint8 Light::bri() const
@@ -233,12 +230,12 @@ void Light::setEffect(const QString &effect)
     }
 }
 
-QString Light::colormode() const
+QString Light::colorMode() const
 {
     return m_colormode;
 }
 
-void Light::setColormode(const QString &colorMode)
+void Light::setColorMode(const QString &colorMode)
 {
     if (m_colormode != colorMode) {
         m_colormode = colorMode;

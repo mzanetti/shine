@@ -70,7 +70,7 @@ QVariant Lights::data(const QModelIndex &index, int role) const
     case RoleEffect:
         return light->effect();
     case RoleColorMode:
-        return light->colormode();
+        return light->colorMode();
     case RoleReachable:
         return light->reachable();
     }
