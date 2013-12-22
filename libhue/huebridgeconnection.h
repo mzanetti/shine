@@ -63,6 +63,7 @@ public:
     Q_INVOKABLE void createUser(const QString &devicetype, const QString &username);
 
     int get(const QString &path, QObject *sender, const QString &slot);
+    int deleteResource(const QString &path, QObject *sender, const QString &slot);
     int post(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot);
     int put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot);
 
@@ -79,8 +80,7 @@ private slots:
     void onNoBridgesFound();
 
     void createUserFinished();
-    void slotGetFinished();
-    void slotPutFinished();
+    void slotOpFinished();
 
 private:
     HueBridgeConnection();

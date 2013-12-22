@@ -133,7 +133,24 @@ int HueBridgeConnection::get(const QString &path, QObject *sender, const QString
     QNetworkRequest request;
     request.setUrl(url);
     QNetworkReply *reply = m_nam->get(request);
-    connect(reply, SIGNAL(finished()), this, SLOT(slotGetFinished()));
+    connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
+    m_requestIdMap.insert(reply, m_requestCounter);
+    CallbackObject co(sender, slot);
+    m_requestSenderMap.insert(m_requestCounter, co);
+    return m_requestCounter++;
+}
+
+int HueBridgeConnection::deleteResource(const QString &path, QObject *sender, const QString &slot)
+{
+    if (m_username.isEmpty()) {
+        qWarning() << "No username set. cannot proceed.";
+        return -1;
+    }
+    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
+    QNetworkRequest request;
+    request.setUrl(url);
+    QNetworkReply *reply = m_nam->deleteResource(request);
+    connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -160,7 +177,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
 #endif
 
     QNetworkReply *reply = m_nam->post(request, data);
-    connect(reply, SIGNAL(finished()), this, SLOT(slotGetFinished()));
+    connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -187,7 +204,7 @@ int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QOb
 #endif
 
     QNetworkReply *reply = m_nam->put(request, data);
-    connect(reply, SIGNAL(finished()), this, SLOT(slotPutFinished()));
+    connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
@@ -239,7 +256,7 @@ void HueBridgeConnection::createUserFinished()
     settings.setValue("username", m_username);
 }
 
-void HueBridgeConnection::slotGetFinished()
+void HueBridgeConnection::slotOpFinished()
 {
     QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
     reply->deleteLater();
@@ -247,43 +264,12 @@ void HueBridgeConnection::slotGetFinished()
     QByteArray response = reply->readAll();
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
-
 
 #if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "error parsing get response:" << error.errorString();
-        return;
-    }
-    QVariant rsp = jsonDoc.toVariant();
-#else
-    QJson::Parser parser;
-    bool ok;
-    QVariant rsp = parser.parse(response, &ok);
-    if(!ok) {
-        qWarning() << "cannot parse response:" << response;
-        return;
-    }
-#endif
-
-    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
-}
-
-void HueBridgeConnection::slotPutFinished()
-{
-    QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
-    reply->deleteLater();
-
-    QByteArray response = reply->readAll();
-    int id = m_requestIdMap.take(reply);
-    CallbackObject co = m_requestSenderMap.take(id);
-
-#if QT_VERSION >= 0x050000
-    QJsonParseError error;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
-    if (error.error != QJsonParseError::NoError) {
-        qWarning() << "error parsing put response:" << error.errorString();
         return;
     }
     QVariant rsp = jsonDoc.toVariant();
