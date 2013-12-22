@@ -26,7 +26,7 @@
 Configuration::Configuration(QObject *parent):
     QObject(parent)
 {
-    connect(HueBridgeConnection::instance(), SIGNAL(usernameChanged()), this, SLOT(refresh()));
+    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
 }
 
 void Configuration::refresh()

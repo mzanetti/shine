@@ -19,7 +19,10 @@ ApplicationWindow {
     statusBar: StatusBar {
         Label {
             id: statusLabel
-            text: HueBridge.username ? ("username:" + HueBridge.username) : "Please connect to a HueBridge"
+            text: HueBridge.discoveryError ? "Error while discovering bridge... This will not work."
+                : HueBridge.foundHost && HueBridge.connectedBridge ? "Waiting for authentication"
+                : HueBridge.connectedBridge ? "Connected to " + HueBridge.connectedBridge
+                : "Searching for bridges..."
         }
     }
 
@@ -41,61 +44,6 @@ ApplicationWindow {
 
         Tab {
             title: "Groups"
-//            GroupsPage {
-
-//            }
         }
     }
-
-
-
-//    Column {
-//        anchors.fill: parent
-
-//        Rectangle {
-//            width: parent.width
-//            height: 100
-//            color: "blue"
-//            Text {
-//                anchors.centerIn: parent
-//                text: "current user:" + HueBridge.username
-//            }
-//        }
-
-//        Rectangle {
-//            width: parent.width
-//            height: 100
-//            color: "khaki"
-//            Text {
-//                anchors.centerIn: parent
-//                text: "Create user"
-//            }
-//            MouseArea {
-//                anchors.fill: parent
-//                onClicked: {
-//                    HueBridge.createUser("testdevice", "micha1234567")
-//                }
-//            }
-//        }
-
-//        ListView {
-//            width: parent.width
-//            height: 300
-
-//            model: Lights {
-
-//            }
-
-//            delegate: Item {
-//                width: parent.width
-//                height: 100
-//                Text {
-//                    anchors.centerIn: parent
-//                    text: model.name
-//                }
-//            }
-//        }
-
-//    }
-
 }

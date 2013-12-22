@@ -35,7 +35,7 @@ Discovery::Discovery(QObject *parent) :
 
     while (!bind(port++)) {
         if (++tries == maxtries) {
-            emit error();
+            QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection);
             return;
         }
     }
@@ -58,6 +58,7 @@ void Discovery::findBridges()
               "ST: libhue:idl\r\n");
     b.arg(DISCOVERY_TIMEOUT);
 
+    qDebug() << "writing datagram" << b;
     m_timeout->start(DISCOVERY_TIMEOUT * 1000);
     if (writeDatagram(b.toUtf8(), QHostAddress("239.255.255.250"), 1900) < 0) {
         emit error();
@@ -80,6 +81,7 @@ void Discovery::onReadyRead()
 
         readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
+        qDebug() << "got datagram" << datagram;
         if (!m_reportedBridges.contains(sender)) {
             m_reportedBridges << sender;
             emit foundBridge(sender);

@@ -48,13 +48,18 @@ class HueBridgeConnection: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
+    Q_PROPERTY(bool discoveryError READ discoveryError NOTIFY discoveryErrorChanged)
+    // TODO: Convert this to a model holding all the discovered bridges
+    Q_PROPERTY(bool bridgeFound READ bridgeFound NOTIFY bridgeFoundChanged)
+    Q_PROPERTY(QString connectedBridge READ connectedBridge NOTIFY connectedBridgeChanged)
 
 public:
     static HueBridgeConnection* instance();
 
-    QString username() const;
-    void setUsername(const QString &username);
+    bool discoveryError() const;
+    bool bridgeFound() const;
+    QString connectedBridge() const;
+
     Q_INVOKABLE void createUser(const QString &devicetype, const QString &username);
 
     int get(const QString &path, QObject *sender, const QString &slot);
@@ -62,7 +67,10 @@ public:
     int put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot);
 
 signals:
-    void usernameChanged();
+    void discoveryErrorChanged();
+    void bridgeFoundChanged();
+    void connectedBridgeChanged();
+
     void createUserFailed(const QString &errorMessage);
 
 private slots:
@@ -79,6 +87,9 @@ private:
     static HueBridgeConnection *s_instance;
 
     QNetworkAccessManager *m_nam;
+
+    bool m_discoveryError;
+
     QString m_username;
 
     int m_requestCounter;

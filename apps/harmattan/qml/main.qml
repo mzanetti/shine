@@ -8,10 +8,26 @@ PageStackWindow {
     Component.onCompleted: {
         theme.inverted = true
 
-        if (!hueBridge.username) {
+        if (HueBridge.discoveryError) {
+            print("TODO: handle discovery error")
+        } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
             var component = Qt.createComponent(Qt.resolvedUrl("ConnectionDialog.qml"));
             var popup = component.createObject(mainPage);
             popup.open();
+        }
+    }
+
+    Connections {
+        target: HueBridge
+        onBridgeFoundChanged: {
+            if (!HueBridge.connectedBridge) {
+                PopupUtils.open(loginComponent, root)
+            }
+        }
+        onDiscoveryErrorChanged: {
+            if (HueBridge.discoveryError) {
+                PopupUtils.open(errorComponent, root)
+            }
         }
     }
 

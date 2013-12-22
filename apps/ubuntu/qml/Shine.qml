@@ -10,13 +10,30 @@ MainView {
     height: units.gu(75)
 
     Component.onCompleted: {
-        if (!HueBridge.username) {
+        if (HueBridge.discoveryError) {
+            PopupUtils.open(errorComponent, root)
+        } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
             PopupUtils.open(loginComponent, root)
+        }
+    }
+
+    Connections {
+        target: HueBridge
+        onBridgeFoundChanged: {
+            if (!HueBridge.connectedBridge) {
+                PopupUtils.open(loginComponent, root)
+            }
+        }
+        onDiscoveryErrorChanged: {
+            if (HueBridge.discoveryError) {
+                PopupUtils.open(errorComponent, root)
+            }
         }
     }
 
     Tabs {
         anchors.fill: parent
+        visible: HueBridge.connectedBridge
 
         Tab {
             title: "Lights"
@@ -46,8 +63,8 @@ MainView {
                     connectDialog.text = "Error creating user: " + errorMessage;
                     connectButton.text = "Try again!";
                 }
-                onUsernameChanged: {
-                    if (HueBridge.username) {
+                onConnectedBridgeChanged: {
+                    if (HueBridge.connectedBridge) {
                         PopupUtils.close(connectDialog)
                     }
                 }
@@ -61,6 +78,38 @@ MainView {
                     connectDialog.text = "Waiting for the connection to establish..."
                 }
             }
+        }
+    }
+
+    Component {
+        id: errorComponent
+        Dialog {
+            id: errorDialog
+            title: "Error discovering bridges"
+            text: "Could not start discovery for bridges. This won't work."
+            Button {
+                text: "Quit"
+                onClicked: Qt.quit();
+            }
+        }
+    }
+
+    Column {
+        anchors { left: parent.left; right: parent.right }
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: units.gu(5)
+        visible: searchingSpinner.running
+        ActivityIndicator {
+            id: searchingSpinner
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: units.gu(5)
+            width: height
+            running: !HueBridge.discoveryError && !HueBridge.bridgeFound
+        }
+        Label {
+            anchors { left: parent.left; right: parent.right }
+            text: "Searching for Hue bridges..."
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 }

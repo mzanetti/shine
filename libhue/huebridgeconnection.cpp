@@ -46,8 +46,24 @@ HueBridgeConnection *HueBridgeConnection::instance()
     return s_instance;
 }
 
+bool HueBridgeConnection::discoveryError() const
+{
+    return m_discoveryError;
+}
+
+bool HueBridgeConnection::bridgeFound() const
+{
+    return !m_bridge.isNull();
+}
+
+QString HueBridgeConnection::connectedBridge() const
+{
+    return m_username.isEmpty() ? "" : m_bridge.toString();
+}
+
 HueBridgeConnection::HueBridgeConnection():
     m_nam(new QNetworkAccessManager(this)),
+    m_discoveryError(false),
     m_requestCounter(0)
 {
     Discovery *discovery = new Discovery(this);
@@ -59,41 +75,31 @@ HueBridgeConnection::HueBridgeConnection():
 
 void HueBridgeConnection::onDiscoveryError()
 {
-    //FIXME: handle error case
     qDebug() << Q_FUNC_INFO << "Error discovering hue bridge!";
+    m_discoveryError = true;
+    emit discoveryErrorChanged();
 }
 
 void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
 {
     //FIXME: eventually handle multiple bridges
     disconnect(sender());
-
     m_bridge = bridge;
 
     QSettings settings;
     if (settings.contains("username")) {
         m_username = settings.value("username").toString();
-        emit usernameChanged();
+        emit connectedBridgeChanged();
     }
+
+    // Emitting this after we know if we can connect or not to avoid the ui triggering connect dialogs
+    emit bridgeFoundChanged();
 }
 
 void HueBridgeConnection::onNoBridgesFound()
 {
     //FIXME: handle error case
     qDebug() << Q_FUNC_INFO << "No hue bridges found!";
-}
-
-QString HueBridgeConnection::username() const
-{
-    return m_username;
-}
-
-void HueBridgeConnection::setUsername(const QString &username)
-{
-    if (username != m_username) {
-        m_username = username;
-        emit usernameChanged();
-    }
 }
 
 void HueBridgeConnection::createUser(const QString &devicetype, const QString &username)
@@ -110,6 +116,7 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
     QByteArray data = serializer.serialize(params);
 #endif
 
+    qDebug() << "sending createUser to" << m_bridge.toString();
     QNetworkRequest request;
     request.setUrl(QUrl("http://" + m_bridge.toString() + "/api"));
     QNetworkReply *reply = m_nam->post(request, data);
@@ -199,7 +206,7 @@ void HueBridgeConnection::createUserFinished()
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
 
     if (error.error != QJsonParseError::NoError) {
-        qWarning() << "cannot parse response:" << error.errorString();
+        qWarning() << "cannot parse response:" << error.errorString() << response;
         return;
     }
     QVariant rsp = jsonDoc.toVariant();
@@ -227,9 +234,8 @@ void HueBridgeConnection::createUserFinished()
     }
 
     m_username = map.value("success").toMap().value("username").toString();
-    emit usernameChanged();
+    emit connectedBridgeChanged();
 
-    // TODO: move this away from the lib
     QSettings settings;
     settings.setValue("username", m_username);
 }

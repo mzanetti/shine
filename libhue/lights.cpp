@@ -27,7 +27,7 @@
 Lights::Lights(QObject *parent) :
     QAbstractListModel(parent)
 {
-    connect(HueBridgeConnection::instance(), SIGNAL(usernameChanged()), this, SLOT(refresh()));
+    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
     refresh();
 
 #if QT_VERSION < 0x050000
