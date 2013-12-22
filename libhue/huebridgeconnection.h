@@ -91,6 +91,7 @@ private:
     QHostAddress m_bridge;
     bool m_discoveryError;
     QString m_username;
+    QString m_baseApiUrl;
 
     int m_requestCounter;
     QHash<QNetworkReply*, int> m_requestIdMap;

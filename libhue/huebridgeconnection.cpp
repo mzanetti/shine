@@ -89,6 +89,7 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     QSettings settings;
     if (settings.contains("username")) {
         m_username = settings.value("username").toString();
+        m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_username + "/";
         emit connectedBridgeChanged();
     }
 
@@ -125,11 +126,11 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
 
 int HueBridgeConnection::get(const QString &path, QObject *sender, const QString &slot)
 {
-    if (m_username.isEmpty()) {
-        qWarning() << "No username set. cannot proceed.";
+    if (m_baseApiUrl.isEmpty()) {
+        qWarning() << "Not authenticated to bridge, cannot proceed";
         return -1;
     }
-    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
+    QUrl url(m_baseApiUrl + path);
     QNetworkRequest request;
     request.setUrl(url);
     QNetworkReply *reply = m_nam->get(request);
@@ -142,11 +143,11 @@ int HueBridgeConnection::get(const QString &path, QObject *sender, const QString
 
 int HueBridgeConnection::deleteResource(const QString &path, QObject *sender, const QString &slot)
 {
-    if (m_username.isEmpty()) {
-        qWarning() << "No username set. cannot proceed.";
+    if (m_baseApiUrl.isEmpty()) {
+        qWarning() << "Not authenticated to bridge, cannot proceed";
         return -1;
     }
-    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
+    QUrl url(m_baseApiUrl + path);
     QNetworkRequest request;
     request.setUrl(url);
     QNetworkReply *reply = m_nam->deleteResource(request);
@@ -159,12 +160,12 @@ int HueBridgeConnection::deleteResource(const QString &path, QObject *sender, co
 
 int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot)
 {
-    if (m_username.isEmpty()) {
-        qWarning() << "No username set, cannot proceed";
+    if (m_baseApiUrl.isEmpty()) {
+        qWarning() << "Not authenticated to bridge, cannot proceed";
         return -1;
     }
 
-    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
+    QUrl url(m_baseApiUrl + path);
     QNetworkRequest request;
     request.setUrl(url);
 
@@ -186,12 +187,12 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
 
 int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot)
 {
-    if (m_username.isEmpty()) {
-        qWarning() << "No username set, cannot proceed";
+    if (m_baseApiUrl.isEmpty()) {
+        qWarning() << "Not authenticated to bridge, cannot proceed";
         return -1;
     }
 
-    QUrl url("http://" + m_bridge.toString() + "/api/" + m_username + "/" + path);
+    QUrl url(m_baseApiUrl + path);
     QNetworkRequest request;
     request.setUrl(url);
 
