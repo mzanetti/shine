@@ -29,7 +29,6 @@ Tab {
                 property var light: lights.get(lightsView.currentRow)
                 columns: 2
                 Label {
-                    Layout.fillWidth: true
                     text: "Power: " + (layout.light && layout.light.on ? "On" : "Off")
                 }
                 Button {
@@ -41,7 +40,6 @@ Tab {
                 }
                 Label {
                     text: "Brightness:"
-                    Layout.fillWidth: true
                 }
                 Slider {
                     Layout.fillWidth: true
@@ -58,6 +56,41 @@ Tab {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.columnSpan: 2
+                }
+                Label {
+                    text: "Effect:"
+                }
+
+                ComboBox {
+                    id: effectCb
+                    Layout.fillWidth: true
+                    textRole: "name"
+                    model: ListModel {
+                        id: effectModel
+                        ListElement { name: "No effect"; value: "none" }
+                        ListElement { name: "Color loop"; value: "colorloop" }
+                    }
+                    currentIndex: getCurrentIndex(layout.light);
+                    function getCurrentIndex(light){
+                        for (var i = 0; i < effectModel.count; i++) {
+                            if (effectModel.get(i).value == light.effect) {
+                                return i;
+                            }
+                        }
+                    }
+
+                    Connections {
+                        target: layout
+                        onLightChanged: {
+                            effectCb.currentIndex = effectCb.getCurrentIndex(layout.light);
+                        }
+                    }
+
+                    onCurrentIndexChanged: {
+                        layout.light.effect = effectModel.get(currentIndex).value;
+                    }
+
+
                 }
             }
         }
