@@ -91,7 +91,10 @@ QHash<int, QByteArray> Groups::roleNames() const
 
 Group *Groups::get(int index) const
 {
-    return m_list.at(index);
+    if (index > -1 && index  < m_list.count()) {
+        return m_list.at(index);
+    }
+    return 0;
 }
 
 void Groups::refresh()
