@@ -11,7 +11,6 @@ Tab {
             GridLayout {
                 id: layout2
                 anchors.fill: parent
-                anchors.margins: 20
                 columns: 2
                 TableView {
                     id: groupsView
