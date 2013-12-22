@@ -21,8 +21,8 @@ Dialog {
 
     Connections {
         target: hueBridge
-        onUsernameChanged: {
-            if (hueBridge.username) {
+        onConnectedBridgeChanged: {
+            if (hueBridge.connectedBridge) {
                 connectDialog.accept()
             }
         }

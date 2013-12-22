@@ -26,6 +26,7 @@ Page {
                 GradientStop { position: 0.0; color: "#222222" }
                 GradientStop { position: 1.0; color: "#111111" }
             }
+            opacity: model.reachable ? 1.0 : 0.5
 
             id: delegateItem
             width: parent.width
@@ -81,15 +82,25 @@ Page {
                         left: parent.left
                         right: parent.right
                     }
-                    height: units.gu(6)
+                    height: units.gu(8)
                     Row {
                         id: mainRow
                         anchors.fill: parent
+                        anchors { topMargin: units.gu(1); bottomMargin: units.gu(1) }
                         spacing: units.gu(2)
                         visible: opacity > 0
 
+                        Image {
+                            id: icon
+                            height: parent.height
+                            width: height
+                            anchors.verticalCenter: parent.verticalCenter
+                            source: model.reachable ? model.on ? "image://theme/icon-m-camera-torch-on" : "image://theme/icon-m-camera-torch-off" : "image://theme/icon-m-camera-flash-off-choice"
+                            rotation: model.reachable ? 180 : 0
+                        }
+
                         Label {
-                            width: parent.width - onOffSwitch.width - parent.spacing
+                            width: parent.width - onOffSwitch.width - icon.width - parent.spacing * 2
                             text: model.name
                             anchors.verticalCenter: parent.verticalCenter
                         }
@@ -146,7 +157,8 @@ Page {
                     Image {
                         height: brightnessSlider.height
                         width: height
-//                        source: "torch-off"
+                        source: "image://theme/icon-m-camera-torch-off"
+                        rotation: 180
                     }
                     Slider {
                         id: brightnessSlider
@@ -162,7 +174,8 @@ Page {
                     Image {
                         height: brightnessSlider.height
                         width: height
-//                        source: "image://theme/torch-on"
+                        source: "image://theme/icon-m-camera-torch-on"
+                        rotation: 180
                     }
                 }
 
