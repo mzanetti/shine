@@ -123,7 +123,6 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
     connect(reply, SIGNAL(finished()), this, SLOT(createUserFinished()));
 }
 
-
 int HueBridgeConnection::get(const QString &path, QObject *sender, const QString &slot)
 {
     if (m_username.isEmpty()) {
@@ -269,7 +268,6 @@ void HueBridgeConnection::slotGetFinished()
 #endif
 
     QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
-
 }
 
 void HueBridgeConnection::slotPutFinished()
@@ -300,6 +298,5 @@ void HueBridgeConnection::slotPutFinished()
 #endif
 
     QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
-
 }
 

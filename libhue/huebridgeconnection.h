@@ -88,15 +88,13 @@ private:
 
     QNetworkAccessManager *m_nam;
 
+    QHostAddress m_bridge;
     bool m_discoveryError;
-
     QString m_username;
 
     int m_requestCounter;
     QHash<QNetworkReply*, int> m_requestIdMap;
     QHash<int, CallbackObject> m_requestSenderMap;
-
-    QHostAddress m_bridge;
 };
 
 #endif
