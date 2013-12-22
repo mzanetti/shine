@@ -42,7 +42,7 @@ ApplicationWindow {
 
         }
 
-        Tab {
+        GroupsTab {
             title: "Groups"
         }
     }
