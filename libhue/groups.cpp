@@ -96,6 +96,12 @@ Group *Groups::get(int index) const
 
 void Groups::refresh()
 {
+    beginResetModel();
+    QList<Group*> tmp = m_list;
+    m_list.clear();
+    endResetModel();
+    qDeleteAll(tmp);
+
     HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
 }
 
@@ -157,7 +163,11 @@ void Groups::groupStateChanged()
 void Groups::createGroup(const QString &name)
 {
     QVariantMap params;
+    QVariantList lights;
+    lights << "1";
+
     params.insert("name", name);
+    params.insert("lights", lights);
     HueBridgeConnection::instance()->post("groups", params, this, "createGroupFinished");
 }
 
