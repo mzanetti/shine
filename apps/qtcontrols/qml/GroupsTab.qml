@@ -28,6 +28,16 @@ Tab {
                         title: "Hue groups"
                     }
                 }
+                Button {
+                    id: deleteButton
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 2
+                    property var group: groups.get(groupsView.currentRow)
+                    text: "Delete Group"
+                    onClicked: {
+                        groups.deleteGroup(deleteButton.group.id);
+                    }
+                }
                 TextField {
                     id: nameInput
                     text: "New Group"
@@ -39,7 +49,7 @@ Tab {
                     text: "Add"
                     onClicked: {
                         if (nameInput.text.length) {
-                            groups.createGroup(nameInput.text)
+                            groups.createGroup(nameInput.text);
                             nameInput.text = ""
                         }
                     }
