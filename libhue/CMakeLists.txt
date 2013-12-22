@@ -6,6 +6,8 @@ set(libhue_SRCS
     huebridgeconnection.cpp
     discovery.cpp
     configuration.cpp
+    groups.cpp
+    group.cpp
     lights.cpp
     light.cpp
     lightinterface.h
