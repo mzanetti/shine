@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import QtQuick.Window 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1
 import Ubuntu.Components.Popups 0.1
@@ -8,10 +9,26 @@ MainView {
     id: root
     width: units.gu(50)
     height: units.gu(75)
+    onHeightChanged: print("aaaaaaaaaaaaaa", height)
+    onWidthChanged: print("bbbbbbbbbbbbbbbb", width)
 
     automaticOrientation: true
 
+    property string orientation: Screen.width == root.width
+                                 && Screen.orientation == Qt.LandscapeOrientation
+                                 ? "landscape" : "portrait"
+    onOrientationChanged: {
+        if (orientation == "portrait") {
+            pageStack.pop();
+            pageStack.push(Qt.resolvedUrl("MainTabs.qml"))
+        } else {
+            pageStack.pop();
+            pageStack.push(Qt.resolvedUrl("BigColorPicker.qml"))
+        }
+    }
+
     Component.onCompleted: {
+//        pageStack.push(Qt.resolvedUrl("MainTabs.qml"));
         if (HueBridge.discoveryError) {
             PopupUtils.open(errorComponent, root)
         } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
@@ -33,23 +50,8 @@ MainView {
         }
     }
 
-    Tabs {
-        anchors.fill: parent
-        visible: HueBridge.connectedBridge
-
-        Tab {
-            title: "Lights"
-            LightsPage {
-
-            }
-        }
-
-        Tab {
-            title: "Groups"
-            GroupsPage {
-
-            }
-        }
+    PageStack {
+        id: pageStack
     }
 
     Component {

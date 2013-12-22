@@ -26,7 +26,7 @@ Empty {
                 id: mainRow
                 anchors.fill: parent
                 spacing: units.gu(1)
-                visible: opcaity > 0
+                visible: opacity > 0
 
                 Icon {
                     id: icon

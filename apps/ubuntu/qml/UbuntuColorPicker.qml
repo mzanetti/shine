@@ -5,6 +5,9 @@ import Hue 0.1
 Item {
 
     property alias color: colorPicker.color
+    function calculateColor(x, y) {
+        return colorPicker.calculateColor(x, y);
+    }
 
     ShaderEffectSource {
         id: source
