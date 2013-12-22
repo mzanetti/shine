@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.1
 import Hue 0.1
 
 Tab {
+    id: groupTab
 
     SplitView {
         Item {
@@ -37,20 +38,17 @@ Tab {
                         groups.deleteGroup(deleteButton.group.id);
                     }
                 }
-                TextField {
-                    id: nameInput
-                    text: "New Group"
-                    Layout.fillWidth: true
-                }
                 Button {
                     id: addButton
                     Layout.fillWidth: true
                     text: "Add"
                     onClicked: {
-                        if (nameInput.text.length) {
-                            groups.createGroup(nameInput.text);
-                            nameInput.text = ""
-                        }
+                        var component = Qt.createComponent("NewGroupWindow.qml");
+                        var window = component.createObject(groupTab);
+                        window.show();
+                        window.accepted.connect(function(name, lights) {
+                            groups.createGroup(name)
+                        });
                     }
                 }
             }

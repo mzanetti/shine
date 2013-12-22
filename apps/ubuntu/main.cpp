@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     view.engine()->setImportPathList(imports);
 
     view.setSource(QStringLiteral("qml/Shine.qml"));
-    view.setResizeMode(QQuickView::SizeViewToRootObject);
+    view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
 
 

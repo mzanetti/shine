@@ -46,4 +46,6 @@ ApplicationWindow {
             title: "Groups"
         }
     }
+
+    NewGroupWindow {}
 }

@@ -9,6 +9,8 @@ MainView {
     width: units.gu(50)
     height: units.gu(75)
 
+    automaticOrientation: true
+
     Component.onCompleted: {
         if (HueBridge.discoveryError) {
             PopupUtils.open(errorComponent, root)
