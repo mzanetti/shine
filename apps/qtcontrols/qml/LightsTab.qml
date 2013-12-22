@@ -26,7 +26,7 @@ Tab {
                 anchors.fill: parent
                 anchors.margins: 20
                 visible: lightsView.currentRow > -1
-                light: lights.get(lightsView.cuurentRow)
+                light: lights.get(lightsView.currentRow)
             }
         }
     }

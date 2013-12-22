@@ -61,7 +61,7 @@ Tab {
                 anchors.fill: parent
                 anchors.margins: 20
                 visible: groupsView.currentRow > -1
-                light: groups.get(groupsView.cuurentRow)
+                light: groups.get(groupsView.currentRow)
             }
         }
     }

@@ -15,6 +15,7 @@ Page {
         delegate: Empty {
             id: delegateItem
             clip: true
+            opacity: model.reachable ? 1 : .5
 
             states: [
                 State {
@@ -51,11 +52,19 @@ Page {
                     Row {
                         id: mainRow
                         anchors.fill: parent
-                        spacing: units.gu(2)
+                        spacing: units.gu(1)
                         visible: opcaity > 0
 
+                        Icon {
+                            id: icon
+                            height: parent.height - units.gu(2)
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: height
+                            name: model.reachable ? model.on ? "torch-on" : "torch-off" : "flash-off"
+                        }
+
                         Label {
-                            width: parent.width - onOffSwitch.width - parent.spacing
+                            width: parent.width - onOffSwitch.width - icon.width - parent.spacing*2
                             text: model.name
                             anchors.verticalCenter: parent.verticalCenter
                         }
