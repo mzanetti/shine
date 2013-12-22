@@ -6,18 +6,44 @@ import Hue 0.1
 Tab {
 
     SplitView {
-        anchors.fill: parent
+        Item {
+            width: 200
+            GridLayout {
+                id: layout2
+                anchors.fill: parent
+                anchors.margins: 20
+                columns: 2
+                TableView {
+                    id: groupsView
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.columnSpan: 2
 
-        TableView {
-            id: groupsView
+                    model: Groups {
+                        id: groups
+                    }
 
-            model: Groups {
-                id: groups
-            }
-
-            TableViewColumn {
-                role: "name"
-                title: "Hue groups"
+                    TableViewColumn {
+                        role: "name"
+                        title: "Hue groups"
+                    }
+                }
+                TextField {
+                    id: nameInput
+                    text: "New Group"
+                    Layout.fillWidth: true
+                }
+                Button {
+                    id: addButton
+                    Layout.fillWidth: true
+                    text: "Add"
+                    onClicked: {
+                        if (nameInput.text.length) {
+                            groups.createGroup(nameInput.text)
+                            nameInput.text = ""
+                        }
+                    }
+                }
             }
         }
 
@@ -92,8 +118,6 @@ Tab {
                     onCurrentIndexChanged: {
                         layout.group.effect = effectModel.get(currentIndex).value;
                     }
-
-
                 }
             }
         }
