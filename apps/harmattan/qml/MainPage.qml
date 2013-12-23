@@ -184,6 +184,7 @@ Page {
                     id: colorPicker
                     anchors { left: parent.left; right: parent.right }
                     height: width / 2
+                    color: model.color
 
                     onColorChanged: {
                         lights.get(index).color = colorPicker.color;

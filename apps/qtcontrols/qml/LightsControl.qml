@@ -39,6 +39,7 @@ GridLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.columnSpan: 2
+        color: light.color
         onColorChanged: {
             light.color = color;
         }

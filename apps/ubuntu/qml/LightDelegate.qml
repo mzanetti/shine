@@ -108,6 +108,7 @@ Empty {
             id: colorPicker
             anchors { left: parent.left; right: parent.right }
             height: width / 2
+            color: light.color
 
             onColorChanged: {
                 light.color = colorPicker.color;
