@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 
     QObject *topLevel = component->create();
     QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
+    window->setIcon(QIcon(":/data/images/shine.svg"));
 
     if (!window) {
         qDebug() << "ApplicationWindow not found. Shine.qml must be an ApplicationWindow.";

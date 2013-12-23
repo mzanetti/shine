@@ -10,6 +10,8 @@ set(shine_SRCS
     ${QML_SRCS}
 )
 
+qt5_add_resources(RC_SRCS "../../resources.qrc")
+set(shine_SRCS ${shine_SRCS} ${RC_SRCS})
 add_executable(shine ${shine_SRCS})
 qt5_use_modules(shine Gui Qml Quick)
 
