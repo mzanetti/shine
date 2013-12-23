@@ -14,8 +14,8 @@ MainView {
 
     automaticOrientation: true
 
-    property string orientation: Screen.width == root.width
-                                 && Screen.orientation == Qt.LandscapeOrientation
+    property string orientation: /*Screen.width == root.width
+                                 &&*/ Screen.orientation == Qt.LandscapeOrientation
                                  ? "landscape" : "portrait"
     onOrientationChanged: {
         if (orientation == "portrait") {
