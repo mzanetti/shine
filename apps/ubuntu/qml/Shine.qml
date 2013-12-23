@@ -14,8 +14,8 @@ MainView {
 
     automaticOrientation: true
 
-    property string orientation: /*Screen.width == root.width
-                                 &&*/ Screen.orientation == Qt.LandscapeOrientation
+    property string orientation: Screen.width == root.width
+                                 && Screen.orientation == Qt.LandscapeOrientation
                                  ? "landscape" : "portrait"
     onOrientationChanged: {
         if (orientation == "portrait") {
@@ -28,7 +28,6 @@ MainView {
     }
 
     Component.onCompleted: {
-//        pageStack.push(Qt.resolvedUrl("MainTabs.qml"));
         if (HueBridge.discoveryError) {
             PopupUtils.open(errorComponent, root)
         } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
