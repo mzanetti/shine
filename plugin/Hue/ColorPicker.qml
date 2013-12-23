@@ -3,7 +3,7 @@ import Hue 0.1
 
 Item {
     id: root
-//    clip: true
+    clip: true
 
     property color color
     property bool pressed: mouseArea.pressed
@@ -132,10 +132,10 @@ Item {
         anchors.fill: parent
         preventStealing: true
 
-        drag.minimumX: -dndItem.width / 2
-        drag.maximumX: width - dndItem.width / 2
-        drag.minimumY: -dndItem.width / 2
-        drag.maximumY: height - dndItem.height / 2
+        drag.minimumX: 0
+        drag.maximumX: width - dndItem.width
+        drag.minimumY: 0
+        drag.maximumY: height - dndItem.height
 
         property var draggedItem
         property var draggedLight
@@ -187,8 +187,8 @@ Item {
     Loader {
         id: touchDelegateLoader
         property var point: calculateXy(root.color);
-        x: item ? point.x - width * .5 : 0
-        y: item ? point.y - height * .5 : 0
+        x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
+        y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
         sourceComponent: root.showAll ? undefined : root.touchDelegate
     }
 
@@ -203,8 +203,8 @@ Item {
             id: lightDelegate
             sourceComponent: root.touchDelegate
             property var point: root.calculateXy(lights.get(index).color)
-            x: item ? point.x - width * .5 : 0
-            y: item ? point.y - height * .5 : 0
+            x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
+            y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
             visible: mouseArea.draggedItem != lightDelegate
             onLoaded: {
                 if (item.hasOwnProperty("text")) item.text = index + 1;
