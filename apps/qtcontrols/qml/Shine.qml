@@ -49,5 +49,28 @@ ApplicationWindow {
         GroupsTab {
             title: "Groups"
         }
+
+        Tab {
+            title: "Colors"
+            ColorPicker {
+                id: colorPicker
+                anchors.fill: parent
+                showAll: true
+                touchDelegate: Rectangle {
+                    height: colorPicker.height / 10
+                    width: height
+                    radius: height * .499
+                    color: light ? (light.on ? "blue" : light.reachable ? "gray" : "red") : "transparent"
+                    Label {
+                        id: label
+                        anchors.centerIn: parent
+                        color: "white"
+                    }
+
+                    property var light
+                    property alias text: label.text
+                }
+            }
+        }
     }
 }

@@ -110,6 +110,12 @@ Empty {
             height: width / 2
             color: light.color
 
+            touchDelegate: UbuntuShape {
+                height: units.gu(3)
+                width: units.gu(3)
+                color: "grey"
+            }
+
             onColorChanged: {
                 if (pressed) {
                     light.color = colorPicker.color;

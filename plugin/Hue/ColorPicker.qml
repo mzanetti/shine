@@ -1,13 +1,14 @@
 import QtQuick 2.0
+import Hue 0.1
 
 Item {
     id: root
     clip: true
 
     property color color
-
-    property bool showIndicator: true
     property bool pressed: mouseArea.pressed
+    property Component touchDelegate
+    property bool showAll: false
 
     function calculateXy(color) {
         var point = new Object;
@@ -129,21 +130,93 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onMouseXChanged: root.color = root.calculateColor(mouseX, mouseY);
-        onMouseYChanged: root.color = root.calculateColor(mouseX, mouseY)
         preventStealing: true
+
+        drag.minimumX: 0
+        drag.maximumX: width - dndItem.width
+        drag.minimumY: 0
+        drag.maximumY: height - dndItem.height
+
+        property var draggedItem
+        property var draggedLight
+
+        onPressed: {
+            for (var i = 0; i < lightsDraghandleRepeater.count; i++) {
+                var item = lightsDraghandleRepeater.itemAt(i);
+                if (mouseX > item.x && mouseX < (item.x + item.width) && mouseY > item.y && mouseY < (item.y + item.height)) {
+                    if (!lights.get(i).reachable) {
+                        print("light not reachable... not moving");
+                        return;
+                    }
+                    if (!lights.get(i).on) {
+                        lights.get(i).on = true;
+                        print("light was off. turning on");
+                    }
+
+                    mouseArea.drag.target = dndItem;
+                    dndItem.x = item.x;
+                    dndItem.y = item.y;
+
+                    if (dndItem.item) {
+                        if (dndItem.item.hasOwnProperty("text")) dndItem.item.text = i + 1;
+                        if (dndItem.item.hasOwnProperty("light")) dndItem.item.light = lights.get(i);
+                    }
+
+                    mouseArea.draggedLight = lights.get(i)
+                    mouseArea.draggedItem = item;
+                }
+            }
+        }
+        onPositionChanged: {
+            root.color = root.calculateColor(mouseX, mouseY);
+
+            if (mouseArea.draggedItem) {
+                mouseArea.draggedLight.color = root.calculateColor(mouseX, mouseY);
+            }
+        }
+
+        onReleased: {
+            mouseArea.draggedItem = undefined;
+            mouseArea.draggedLight = undefined;
+            mouseArea.drag.target = undefined;
+
+        }
+
     }
-    Rectangle {
-        height: root.height * .1
-        width: height
-        radius: height * .5
-        color: root.color
-        visible: root.showIndicator
-        border.width: height * .2
-        border.color: "black"
-        property var coords: calculateXy(root.color);
-        x: coords.x - height * .5
-        y: coords.y - height * .5
+
+    Loader {
+        id: touchDelegateLoader
+        property var point: calculateXy(root.color);
+        x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
+        y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
+        sourceComponent: root.showAll ? undefined : root.touchDelegate
+    }
+
+    Lights {
+        id: lights
+    }
+    Repeater {
+        id: lightsDraghandleRepeater
+        model: root.showAll ? lights : undefined
+
+        delegate: Loader {
+            id: lightDelegate
+            sourceComponent: root.touchDelegate
+            property var point: root.calculateXy(lights.get(index).color)
+            x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
+            y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
+            visible: mouseArea.draggedItem != lightDelegate
+            onLoaded: {
+                if (item.hasOwnProperty("text")) item.text = index + 1;
+                item.light = lights.get(index)
+            }
+        }
+    }
+
+    Loader {
+        id: dndItem
+        sourceComponent: root.touchDelegate
+        visible: mouseArea.draggedItem != undefined
     }
 }
 

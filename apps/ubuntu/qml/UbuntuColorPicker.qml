@@ -5,8 +5,9 @@ import Hue 0.1
 Item {
 
     property alias color: colorPicker.color
-    property alias showIndicator: colorPicker.showIndicator
     property alias pressed: colorPicker.pressed
+    property alias touchDelegate: colorPicker.touchDelegate
+    property alias showAll: colorPicker.showAll
 
     function calculateColor(x, y) {
         return colorPicker.calculateColor(x, y);

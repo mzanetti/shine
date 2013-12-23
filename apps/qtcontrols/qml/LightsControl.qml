@@ -41,10 +41,19 @@ GridLayout {
         Layout.columnSpan: 2
         color: light.color
         onColorChanged: {
-            light.color = color;
+            if (pressed) {
+                light.color = color;
+            }
+        }
+        touchDelegate: Rectangle {
+            height: effectLabel.height / 2
+            width: height
+            radius: height * .499
+            color: "grey"
         }
     }
     Label {
+        id: effectLabel
         text: "Effect:"
     }
 
