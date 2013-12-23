@@ -168,6 +168,12 @@ void Light::setColor(const QColor &color)
         QVariantMap params;
         params.insert("hue", hue);
         params.insert("sat", sat);
+        qDebug() << "******************sending hue" << hue << "sat" << sat;
+
+        // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
+        // Lets just assume it always succeeds
+        m_sat = m_dirtySat;
+
         m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     } else {
         m_dirtyHue = hue;
@@ -305,6 +311,9 @@ void Light::setStateFinished(int id, const QVariant &response)
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/on")) {
             m_on = successMap.value("/lights/" + QString::number(m_id) + "/state/on").toBool();
         }
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/hue")) {
+            m_hue = successMap.value("/lights/" + QString::number(m_id) + "/state/hue").toInt();
+        }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
             m_bri = successMap.value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
         }
@@ -314,7 +323,6 @@ void Light::setStateFinished(int id, const QVariant &response)
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
             m_effect = successMap.value("/lights/" + QString::number(m_id) + "/state/effect").toString();
         }
-
         emit stateChanged();
     }
 
@@ -334,6 +342,11 @@ void Light::setStateFinished(int id, const QVariant &response)
                 params.insert("bri", m_dirtyBri);
                 m_briDirty = false;
             }
+
+            // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
+            // Lets just assume it always succeeds
+            m_sat = m_dirtySat;
+
             m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
         }
     }

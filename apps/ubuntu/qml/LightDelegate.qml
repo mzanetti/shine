@@ -111,7 +111,9 @@ Empty {
             color: light.color
 
             onColorChanged: {
-                light.color = colorPicker.color;
+                if (pressed) {
+                    light.color = colorPicker.color;
+                }
             }
         }
 

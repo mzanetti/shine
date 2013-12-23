@@ -5,8 +5,15 @@ import Hue 0.1
 Item {
 
     property alias color: colorPicker.color
+    property alias showIndicator: colorPicker.showIndicator
+    property alias pressed: colorPicker.pressed
+
     function calculateColor(x, y) {
         return colorPicker.calculateColor(x, y);
+    }
+
+    function calculateXy(color) {
+        return colorPicker.calculateXy(color);
     }
 
     ShaderEffectSource {

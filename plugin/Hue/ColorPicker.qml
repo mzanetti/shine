@@ -6,6 +6,9 @@ Item {
 
     property color color
 
+    property bool showIndicator: true
+    property bool pressed: mouseArea.pressed
+
     function calculateXy(color) {
         var point = new Object;
         var brightness = Math.min(color.r, color.g, color.b);
@@ -124,6 +127,7 @@ Item {
     }
 
     MouseArea {
+        id: mouseArea
         anchors.fill: parent
         onMouseXChanged: root.color = root.calculateColor(mouseX, mouseY);
         onMouseYChanged: root.color = root.calculateColor(mouseX, mouseY)
@@ -134,6 +138,7 @@ Item {
         width: height
         radius: height * .5
         color: root.color
+        visible: root.showIndicator
         border.width: height * .2
         border.color: "black"
         property var coords: calculateXy(root.color);
