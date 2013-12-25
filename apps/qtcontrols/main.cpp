@@ -26,6 +26,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QQmlComponent>
+#include <QImageReader>
 
 #include "huebridgeconnection.h"
 
@@ -40,12 +41,8 @@ int main(int argc, char *argv[])
     engine.addImportPath(QDir::currentPath() + "/../../plugin/");
 
     QQmlComponent *component = new QQmlComponent(&engine);
-//    if (!component->isReady()) {
-//        qFatal(qPrintable("Failed to load QML. exiting"));
-//        return -1;
-//    }
-
     component->loadUrl(QStringLiteral("qml/Shine.qml"));
+
     if (!component->isReady()) {
         qFatal(qPrintable(component->errorString()));
         return -1;
@@ -53,13 +50,14 @@ int main(int argc, char *argv[])
 
     QObject *topLevel = component->create();
     QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
-    window->setIcon(QIcon(":/data/images/shine.svg"));
 
     if (!window) {
         qDebug() << "ApplicationWindow not found. Shine.qml must be an ApplicationWindow.";
         return -1;
     }
 
+    qDebug() << "setting app icon" << QImageReader::supportedImageFormats();
+    window->setIcon(QIcon("shine.svg"));
     window->show();
 
     return app.exec();

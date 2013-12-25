@@ -10,8 +10,7 @@ set(shine_SRCS
     ${QML_SRCS}
 )
 
-qt5_add_resources(RC_SRCS "../../resources.qrc")
-set(shine_SRCS ${shine_SRCS} ${RC_SRCS})
+set(shine_SRCS ${shine_SRCS})
 add_executable(shine ${shine_SRCS})
 qt5_use_modules(shine Gui Qml Quick)
 
@@ -19,5 +18,9 @@ target_link_libraries(shine hue)
 
 add_custom_target(shine-qmlfiles ALL
     COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/qml ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${QMLFILES}
+)
+add_custom_target(shine-incon ALL
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/shine.svg ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${QMLFILES}
 )
