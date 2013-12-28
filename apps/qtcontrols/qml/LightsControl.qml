@@ -36,7 +36,7 @@ GridLayout {
     }
 
     ColorPicker {
-        enabled: effectCb.currentIndex == 0
+        enabled: effectCb.currentIndex != 1
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.columnSpan: 2
