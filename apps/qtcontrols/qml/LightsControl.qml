@@ -16,7 +16,7 @@ GridLayout {
         text: "Power: " + (light && light.on ? "On" : "Off")
     }
     Button {
-        text: "toggle"
+        text: "Switch " + (light && light.on ? "Off" : "On")
         Layout.fillWidth: true
         onClicked: {
             light.on = !light.on
@@ -36,6 +36,7 @@ GridLayout {
     }
 
     ColorPicker {
+        enabled: effectCb.currentIndex == 0
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.columnSpan: 2
