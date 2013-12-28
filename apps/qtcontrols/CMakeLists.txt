@@ -12,7 +12,7 @@ set(shine_SRCS
 
 set(shine_SRCS ${shine_SRCS})
 add_executable(shine ${shine_SRCS})
-qt5_use_modules(shine Gui Qml Quick)
+qt5_use_modules(shine Gui Qml Quick Widgets)
 
 target_link_libraries(shine hue)
 

@@ -19,7 +19,7 @@
  *      Christian Muehlhaeuser <muesli@gmail.com>
  */
 
-#include <QtGui/QGuiApplication>
+#include <QtWidgets/QApplication>
 #include <QQuickView>
 #include <QQmlEngine>
 
@@ -32,7 +32,7 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     HueBridgeConnection::instance();
 
@@ -59,6 +59,5 @@ int main(int argc, char *argv[])
     qDebug() << "setting app icon" << QImageReader::supportedImageFormats();
     window->setIcon(QIcon("shine.svg"));
     window->show();
-
     return app.exec();
 }
