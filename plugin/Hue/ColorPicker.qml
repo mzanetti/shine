@@ -168,16 +168,18 @@ Item {
                     }
                 }
             } else {
-                mouseArea.drag.target = dndItem;
-                dndItem.x = touchDelegateLoader.x;
-                dndItem.y = touchDelegateLoader.y;
-                mouseArea.draggedItem = touchDelegateLoader;
+                if (mouseX > touchDelegateLoader.x && mouseX < (touchDelegateLoader.x + touchDelegateLoader.width)
+                        && mouseY > touchDelegateLoader.y && mouseY < (touchDelegateLoader.y + touchDelegateLoader.height)) {
+                    mouseArea.drag.target = dndItem;
+                    dndItem.x = touchDelegateLoader.x;
+                    dndItem.y = touchDelegateLoader.y;
+                    mouseArea.draggedItem = touchDelegateLoader;
+                }
             }
         }
         onPositionChanged: {
-            root.color = root.calculateColor(mouseX, mouseY);
-
             if (mouseArea.draggedItem) {
+                root.color = root.calculateColor(mouseX, mouseY);
                 mouseArea.draggedLight.color = root.calculateColor(mouseX, mouseY);
             }
         }
