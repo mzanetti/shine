@@ -20,7 +20,8 @@ MainView {
     onOrientationChanged: {
         if (orientation == "portrait") {
             pageStack.pop();
-            pageStack.push(Qt.resolvedUrl("MainTabs.qml"))
+//            pageStack.push(Qt.resolvedUrl("MainTabs.qml"))
+            pageStack.push(Qt.resolvedUrl("LightsPage.qml"))
         } else {
             pageStack.pop();
             pageStack.push(Qt.resolvedUrl("BigColorPicker.qml"))

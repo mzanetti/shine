@@ -4,7 +4,7 @@ import Ubuntu.Components.ListItems 0.1
 import Hue 0.1
 
 Page {
-
+    title: "Lights"
     ListView {
         id: lightsListView
         anchors.fill: parent
