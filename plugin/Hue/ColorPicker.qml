@@ -141,30 +141,37 @@ Item {
         property var draggedLight
 
         onPressed: {
-            for (var i = 0; i < lightsDraghandleRepeater.count; i++) {
-                var item = lightsDraghandleRepeater.itemAt(i);
-                if (mouseX > item.x && mouseX < (item.x + item.width) && mouseY > item.y && mouseY < (item.y + item.height)) {
-                    if (!lights.get(i).reachable) {
-                        print("light not reachable... not moving");
-                        return;
-                    }
-                    if (!lights.get(i).on) {
-                        lights.get(i).on = true;
-                        print("light was off. turning on");
-                    }
+            if (showAll) {
+                for (var i = 0; i < lightsDraghandleRepeater.count; i++) {
+                    var item = lightsDraghandleRepeater.itemAt(i);
+                    if (mouseX > item.x && mouseX < (item.x + item.width) && mouseY > item.y && mouseY < (item.y + item.height)) {
+                        if (!lights.get(i).reachable) {
+                            print("light not reachable... not moving");
+                            return;
+                        }
+                        if (!lights.get(i).on) {
+                            lights.get(i).on = true;
+                            print("light was off. turning on");
+                        }
 
-                    mouseArea.drag.target = dndItem;
-                    dndItem.x = item.x;
-                    dndItem.y = item.y;
+                        mouseArea.drag.target = dndItem;
+                        dndItem.x = item.x;
+                        dndItem.y = item.y;
 
-                    if (dndItem.item) {
-                        if (dndItem.item.hasOwnProperty("text")) dndItem.item.text = i + 1;
-                        if (dndItem.item.hasOwnProperty("light")) dndItem.item.light = lights.get(i);
+                        if (dndItem.item) {
+                            if (dndItem.item.hasOwnProperty("text")) dndItem.item.text = i + 1;
+                            if (dndItem.item.hasOwnProperty("light")) dndItem.item.light = lights.get(i);
+                        }
+
+                        mouseArea.draggedLight = lights.get(i)
+                        mouseArea.draggedItem = item;
                     }
-
-                    mouseArea.draggedLight = lights.get(i)
-                    mouseArea.draggedItem = item;
                 }
+            } else {
+                mouseArea.drag.target = dndItem;
+                dndItem.x = touchDelegateLoader.x;
+                dndItem.y = touchDelegateLoader.y;
+                mouseArea.draggedItem = touchDelegateLoader;
             }
         }
         onPositionChanged: {
@@ -190,6 +197,7 @@ Item {
         x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
         y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
         sourceComponent: root.showAll ? undefined : root.touchDelegate
+        visible: mouseArea.draggedItem != touchDelegateLoader
     }
 
     Lights {
