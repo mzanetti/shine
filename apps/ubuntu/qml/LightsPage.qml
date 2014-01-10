@@ -6,7 +6,10 @@ import Hue 0.1
 Page {
 
     ListView {
+        id: lightsListView
         anchors.fill: parent
+
+        property var expandedItem: null
 
         model: Lights {
             id: lights
@@ -18,7 +21,7 @@ Page {
 
             states: [
                 State {
-                    name: "expanded"
+                    name: "expanded"; when: lightsListView.expandedItem === delegateItem
                     PropertyChanges { target: delegateItem; height: delegateItem.expandedHeight + units.gu(2) }
                 },
                 State {
@@ -39,10 +42,12 @@ Page {
 
 
             onClicked: {
-                if (delegateItem.state == "expanded") {
-                    delegateItem.state = ""
-                } else {
-                    delegateItem.state = "expanded"
+                if (light.reachable) {
+                    if (ListView.view.expandedItem == delegateItem) {
+                        ListView.view.expandedItem = null;
+                    } else {
+                        ListView.view.expandedItem = delegateItem;
+                    }
                 }
             }
             onPressAndHold: {
