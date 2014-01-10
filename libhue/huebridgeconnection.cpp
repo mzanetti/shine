@@ -87,6 +87,7 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     m_bridge = bridge;
 
     QSettings settings;
+    qDebug() << "Using settings file:" << settings.fileName();
     if (settings.contains("username")) {
         m_username = settings.value("username").toString();
         m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_username + "/";
@@ -127,7 +128,7 @@ void HueBridgeConnection::createUser(const QString &devicetype, const QString &u
 int HueBridgeConnection::get(const QString &path, QObject *sender, const QString &slot)
 {
     if (m_baseApiUrl.isEmpty()) {
-        qWarning() << "Not authenticated to bridge, cannot proceed";
+        qWarning() << "Not authenticated to bridge, cannot get" << path;
         return -1;
     }
     QUrl url(m_baseApiUrl + path);
@@ -144,7 +145,7 @@ int HueBridgeConnection::get(const QString &path, QObject *sender, const QString
 int HueBridgeConnection::deleteResource(const QString &path, QObject *sender, const QString &slot)
 {
     if (m_baseApiUrl.isEmpty()) {
-        qWarning() << "Not authenticated to bridge, cannot proceed";
+        qWarning() << "Not authenticated to bridge, cannot delete" << path;
         return -1;
     }
     QUrl url(m_baseApiUrl + path);
@@ -161,7 +162,7 @@ int HueBridgeConnection::deleteResource(const QString &path, QObject *sender, co
 int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot)
 {
     if (m_baseApiUrl.isEmpty()) {
-        qWarning() << "Not authenticated to bridge, cannot proceed";
+        qWarning() << "Not authenticated to bridge, cannot post" << path;
         return -1;
     }
 
@@ -188,7 +189,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
 int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot)
 {
     if (m_baseApiUrl.isEmpty()) {
-        qWarning() << "Not authenticated to bridge, cannot proceed";
+        qWarning() << "Not authenticated to bridge, cannot put" << path;
         return -1;
     }
 
@@ -251,6 +252,8 @@ void HueBridgeConnection::createUserFinished()
     }
 
     m_username = map.value("success").toMap().value("username").toString();
+    m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_username + "/";
+
     emit connectedBridgeChanged();
 
     QSettings settings;
