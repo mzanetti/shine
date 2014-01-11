@@ -23,19 +23,12 @@ import Hue 0.1
 
 Item {
 
-    property alias color: colorPicker.color
-    property alias pressed: colorPicker.pressed
-    property alias touchDelegate: colorPicker.touchDelegate
-    property alias lights: colorPicker.lights
-    property alias active: colorPicker.active
-
-    function calculateColor(x, y) {
-        return colorPicker.calculateColor(x, y);
-    }
-
-    function calculateXy(color) {
-        return colorPicker.calculateXy(color);
-    }
+    property alias ct: colorPickerCt.ct
+    property alias minCt: colorPickerCt.minCt
+    property alias maxCt: colorPickerCt.maxCt
+    property alias touchDelegate: colorPickerCt.touchDelegate
+    property alias pressed: colorPickerCt.pressed
+    property alias active: colorPickerCt.active
 
     ShaderEffectSource {
         id: source
@@ -43,7 +36,7 @@ Item {
         width: 1
         height: 1
         hideSource: true
-        sourceItem: colorPicker
+        sourceItem: colorPickerCt
     }
 
     Shape {
@@ -53,8 +46,8 @@ Item {
         anchors.fill: parent
     }
 
-    ColorPicker {
-        id: colorPicker
+    ColorPickerCt {
+        id: colorPickerCt
         anchors.fill: parent
     }
 

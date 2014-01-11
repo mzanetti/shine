@@ -62,6 +62,7 @@ GridLayout {
         Layout.fillHeight: true
         Layout.columnSpan: 2
         color: light.color
+        active: light.colormode == LightInterface.ColorModeHS || light.color == LightInterface.ColorModeXY
         onColorChanged: {
             if (pressed) {
                 light.color = color;
@@ -71,9 +72,33 @@ GridLayout {
             height: effectLabel.height / 2
             width: height
             radius: height * .499
-            color: "grey"
+            color: "black"
         }
     }
+
+    ColorPickerCt {
+        id: colorPickerCt
+        enabled: effectCb.currentIndex != 1
+        Layout.fillWidth: true
+        height: effectLabel.height * 2
+        Layout.columnSpan: 2
+        ct: light.ct
+        active: light.colormode == LightInterface.ColorModeCT
+
+        onCtChanged: {
+            if (pressed) {
+                light.ct = ct;
+            }
+        }
+        touchDelegate: Rectangle {
+            height: colorPickerCt.height
+            width: effectLabel.height / 4
+            color: "transparent"
+            border.width: width / 3
+            border.color: "black"
+        }
+    }
+
     Label {
         id: effectLabel
         text: "Effect:"

@@ -28,6 +28,7 @@ Item {
     property bool pressed: mouseArea.pressed
     property Component touchDelegate
     property var lights
+    property bool active: true
 
     function calculateXy(color) {
         var point = new Object;
@@ -187,13 +188,10 @@ Item {
                     }
                 }
             } else {
-                if (mouseX > touchDelegateLoader.x && mouseX < (touchDelegateLoader.x + touchDelegateLoader.width)
-                        && mouseY > touchDelegateLoader.y && mouseY < (touchDelegateLoader.y + touchDelegateLoader.height)) {
-                    mouseArea.drag.target = dndItem;
-                    dndItem.x = touchDelegateLoader.x;
-                    dndItem.y = touchDelegateLoader.y;
-                    mouseArea.draggedItem = touchDelegateLoader;
-                }
+                mouseArea.drag.target = dndItem;
+                dndItem.x = Math.min(width - dndItem.width, Math.max(0, mouseX - dndItem.width / 2))
+                dndItem.y = Math.min(height - dndItem.height, Math.max(0, mouseY - dndItem.height / 2))
+                mouseArea.draggedItem = touchDelegateLoader;
             }
         }
         onPositionChanged: {
@@ -220,7 +218,7 @@ Item {
         x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
         y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
         sourceComponent: root.lights ? undefined : root.touchDelegate
-        visible: mouseArea.draggedItem != touchDelegateLoader
+        visible: mouseArea.draggedItem != touchDelegateLoader && root.active
     }
 
     Repeater {
@@ -244,7 +242,7 @@ Item {
     Loader {
         id: dndItem
         sourceComponent: root.touchDelegate
-        visible: mouseArea.draggedItem != undefined
+        visible: mouseArea.draggedItem != undefined && root.active
     }
 }
 

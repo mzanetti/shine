@@ -231,9 +231,9 @@ void Group::setEffect(const QString &effect)
     emit stateChanged();
 }
 
-QString Group::colorMode() const
+LightInterface::ColorMode Group::colorMode() const
 {
-    QString colormode;
+    ColorMode colormode = ColorModeHS;
     foreach (int lightId, m_lightIds) {
         //        if (!colormode.isEmpty() && Lights::get(lightId)->colormode() != colormode)
         //            return QString();
@@ -241,15 +241,6 @@ QString Group::colorMode() const
     }
 
     return colormode;
-}
-
-void Group::setColorMode(const QString &colorMode)
-{
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setColorMode(colorMode);
-    }
-
-    emit stateChanged();
 }
 
 bool Group::reachable() const

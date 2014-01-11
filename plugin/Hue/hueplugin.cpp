@@ -50,6 +50,7 @@ void HuePlugin::registerTypes(const char *uri)
 #endif
     qmlRegisterType<Lights>(uri, 0, 1, "Lights");
     qmlRegisterUncreatableType<Light>(uri, 0, 1, "Light", "Cannot create lights. Get them from the Lights model.");
+    qmlRegisterUncreatableType<LightInterface>(uri, 0, 1, "LightInterface", "Abstract interface.");
     qmlRegisterType<Groups>(uri, 0, 1, "Groups");
     //FIXME: eventually creatable
     qmlRegisterUncreatableType<Group>(uri, 0, 1, "Group", "Cannot create groups. Get them from the Groups model.");

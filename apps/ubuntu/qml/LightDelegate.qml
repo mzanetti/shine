@@ -167,19 +167,42 @@ Empty {
         UbuntuColorPicker {
             id: colorPicker
             anchors { left: parent.left; right: parent.right }
-            height: width / 2
+            height: width / 3
             color: light.color
+            active: light.colormode == LightInterface.ColorModeHS || light.colormode == LightInterface.ColorModeXY
 
             touchDelegate: UbuntuShape {
                 height: units.gu(3)
                 width: units.gu(3)
-                color: "grey"
+                color: "black"
             }
 
             onColorChanged: {
                 if (pressed) {
                     light.color = colorPicker.color;
                 }
+            }
+        }
+
+        UbuntuColorPickerCt {
+            id: colorPickerCt
+            anchors { left: parent.left; right: parent.right }
+            height: width / 6
+            ct: light.ct
+            active: light.colormode == LightInterface.ColorModeCT
+
+            onCtChanged: {
+                if (pressed) {
+                    light.ct = colorPickerCt.ct;
+                }
+            }
+
+            touchDelegate: Rectangle {
+                height: colorPickerCt.height
+                width: units.gu(.5)
+                color: "transparent"
+                border.color: "black"
+                border.width: units.dp(2)
             }
         }
 

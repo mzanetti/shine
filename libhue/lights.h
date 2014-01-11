@@ -39,6 +39,7 @@ public:
         RoleHue,
         RoleSaturation,
         RoleXY,
+        RoleCt,
         RoleAlert,
         RoleEffect,
         RoleColorMode,

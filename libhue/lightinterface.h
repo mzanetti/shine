@@ -37,13 +37,19 @@ class LightInterface: public QObject
     Q_PROPERTY(quint8 sat READ sat NOTIFY stateChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY stateChanged)
     Q_PROPERTY(QPointF xy READ xy NOTIFY stateChanged)
-    Q_PROPERTY(quint16 ct READ ct NOTIFY stateChanged)
+    Q_PROPERTY(quint16 ct READ ct WRITE setCt NOTIFY stateChanged)
     Q_PROPERTY(QString alert READ alert NOTIFY stateChanged)
     Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY stateChanged)
-    Q_PROPERTY(QString colormode READ colorMode NOTIFY stateChanged)
+    Q_PROPERTY(ColorMode colormode READ colorMode NOTIFY stateChanged)
     Q_PROPERTY(bool reachable READ reachable NOTIFY stateChanged)
 
 public:
+    enum ColorMode {
+        ColorModeHS,
+        ColorModeXY,
+        ColorModeCT
+    };
+
     LightInterface(QObject *parent)
         : QObject(parent)
     {}
@@ -57,7 +63,7 @@ public:
     virtual quint16 ct() const = 0;
     virtual QString alert() const = 0;
     virtual QString effect() const = 0;
-    virtual QString colorMode() const = 0;
+    virtual ColorMode colorMode() const = 0;
     virtual bool reachable() const = 0;
 
 public slots:
@@ -70,7 +76,6 @@ public slots:
     virtual void setCt(quint16 ct) = 0;
     virtual void setAlert(const QString &alert) = 0;
     virtual void setEffect(const QString &effect) = 0;
-    virtual void setColorMode(const QString &colormode) = 0;
 
 signals:
     void stateChanged();

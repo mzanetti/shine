@@ -51,7 +51,7 @@ public:
     quint16 ct() const;
     QString alert() const;
     QString effect() const;
-    QString colorMode() const;
+    ColorMode colorMode() const;
     bool reachable() const;
 
 public slots:
@@ -64,7 +64,6 @@ public slots:
     void setCt(quint16 ct);
     void setAlert(const QString &alert);
     void setEffect(const QString &effect);
-    void setColorMode(const QString &colormode);
 
 signals:
     void nameChanged();

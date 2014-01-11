@@ -65,6 +65,8 @@ QVariant Lights::data(const QModelIndex &index, int role) const
         return light->sat();
     case RoleXY:
         return light->xy();
+    case RoleCt:
+        return light->ct();
     case RoleAlert:
         return light->alert();
     case RoleEffect:
@@ -91,6 +93,7 @@ QHash<int, QByteArray> Lights::roleNames() const
     roles.insert(RoleHue, "hue");
     roles.insert(RoleSaturation, "sat");
     roles.insert(RoleXY, "xy");
+    roles.insert(RoleCt, "ct");
     roles.insert(RoleAlert, "alert");
     roles.insert(RoleEffect, "effect");
     roles.insert(RoleColorMode, "colormode");
@@ -159,6 +162,7 @@ void Lights::lightStateChanged()
             << RoleHue
             << RoleSaturation
             << RoleXY
+            << RoleCt
             << RoleAlert
             << RoleEffect
             << RoleColorMode

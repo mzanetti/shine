@@ -32,7 +32,8 @@ Light::Light(int id, const QString &name, QObject *parent):
     m_busyStateChangeId(-1),
     m_hueDirty(false),
     m_satDirty(false),
-    m_briDirty(false)
+    m_briDirty(false),
+    m_ctDirty(false)
 {
     HueBridgeConnection::instance()->get("lights/" + QString::number(id), this, "responseReceived");
 }
@@ -162,41 +163,40 @@ QColor Light::color() const
 
 void Light::setColor(const QColor &color)
 {
+    // Transform from RGB to Hue/Sat
     quint16 hue = color.hue() * 65535 / 360;
     quint8 sat = color.saturation();
 
-    qDebug() << "creating";
-    QGenericMatrix<3, 3, qreal> m;
-    m(0, 0) = 0.412453;    m(0, 1) = 0.357580;    m(0, 2) = 0.180423;
-    m(1, 0) = 0.212671;    m(1, 1) = 0.715160;    m(1, 2) = 0.072169;
-    m(2, 0) = 0.019334;    m(2, 1) = 0.119193;    m(2, 2) = 0.950227;
+    // Transform from RGB to XYZ
+    QGenericMatrix<3, 3, qreal> rgb2xyzMatrix;
+    rgb2xyzMatrix(0, 0) = 0.412453;    rgb2xyzMatrix(0, 1) = 0.357580;    rgb2xyzMatrix(0, 2) = 0.180423;
+    rgb2xyzMatrix(1, 0) = 0.212671;    rgb2xyzMatrix(1, 1) = 0.715160;    rgb2xyzMatrix(1, 2) = 0.072169;
+    rgb2xyzMatrix(2, 0) = 0.019334;    rgb2xyzMatrix(2, 1) = 0.119193;    rgb2xyzMatrix(2, 2) = 0.950227;
 
-    qDebug() << "creating 2";
     QGenericMatrix<1, 3, qreal> rgbMatrix;
     rgbMatrix(0, 0) = 1.0 * color.red() / 255;
     rgbMatrix(1, 0) = 1.0 * color.green() / 255;
     rgbMatrix(2, 0) = 1.0 * color.blue() / 255;
 
-    qDebug() << "multiplying";
-    QGenericMatrix<1, 3, qreal> xyzMatrix = m*rgbMatrix;
+    QGenericMatrix<1, 3, qreal> xyzMatrix = rgb2xyzMatrix * rgbMatrix;
 
+    // transform from XYZ to CIELUV u' and v'
     qreal u = 4*xyzMatrix(0, 0) / (xyzMatrix(0, 0) + 15*xyzMatrix(1, 0) + 3*xyzMatrix(2, 0));
     qreal v = 9*xyzMatrix(1, 0) / (xyzMatrix(0, 0) + 15*xyzMatrix(1, 0) + 3*xyzMatrix(2, 0));
 
+    // Transform from CIELUV to (x,y)
     qreal x = 27*u / (18*u - 48*v + 36);
     qreal y = 12*v / (18*u - 48*v + 36);
 
-    qDebug() << color << "(x,y) (" + QString::number(x) + "," + QString::number(y) + ")" ;
-
     if (m_busyStateChangeId == -1) {
         QVariantMap params;
+
 //        params.insert("hue", hue);
 //        params.insert("sat", sat);
 
         QVariantList xyList;
         xyList << x << y;
         params.insert("xy", xyList);
-        qDebug() << "******************sending hue" << hue << "sat" << sat;
 
         // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
         // Lets just assume it always succeeds
@@ -231,9 +231,13 @@ quint16 Light::ct() const
 
 void Light::setCt(quint16 ct)
 {
-    if (m_ct != ct) {
-        m_ct = ct;
-        emit stateChanged();
+    if (m_busyStateChangeId == -1) {
+        QVariantMap params;
+        params.insert("ct", ct);
+        m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+    } else {
+        m_dirtyCt = ct;
+        m_ctDirty = true;
     }
 }
 
@@ -264,17 +268,9 @@ void Light::setEffect(const QString &effect)
     }
 }
 
-QString Light::colorMode() const
+LightInterface::ColorMode Light::colorMode() const
 {
     return m_colormode;
-}
-
-void Light::setColorMode(const QString &colorMode)
-{
-    if (m_colormode != colorMode) {
-        m_colormode = colorMode;
-        emit stateChanged();
-    }
 }
 
 bool Light::reachable() const
@@ -308,7 +304,14 @@ void Light::responseReceived(int id, const QVariant &response)
     m_ct = stateMap.value("ct").toInt();
     m_alert = stateMap.value("alert").toString();
     m_effect = stateMap.value("effect").toString();
-    m_colormode = stateMap.value("colormode").toString();
+    QString colorModeString = stateMap.value("colormode").toString();
+    if (colorModeString == "hs") {
+        m_colormode = ColorModeHS;
+    } else if (colorModeString == "xy") {
+        m_colormode = ColorModeXY;
+    } else if (colorModeString == "ct") {
+        m_colormode = ColorModeCT;
+    }
     m_reachable = stateMap.value("reachable").toBool();
     emit stateChanged();
 
@@ -341,12 +344,22 @@ void Light::setStateFinished(int id, const QVariant &response)
         }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/hue")) {
             m_hue = successMap.value("/lights/" + QString::number(m_id) + "/state/hue").toInt();
+            m_colormode = ColorModeHS;
         }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
             m_bri = successMap.value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
         }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/sat")) {
             m_sat = successMap.value("/lights/" + QString::number(m_id) + "/state/sat").toInt();
+            m_colormode = ColorModeHS;
+        }
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/xy")) {
+            m_xy = successMap.value("/lights/" + QString::number(m_id) + "/state/xy").toPoint();
+            m_colormode = ColorModeXY;
+        }
+        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/ct")) {
+            m_ct = successMap.value("/lights/" + QString::number(m_id) + "/state/ct").toInt();
+            m_colormode = ColorModeCT;
         }
         if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
             m_effect = successMap.value("/lights/" + QString::number(m_id) + "/state/effect").toString();
@@ -374,6 +387,12 @@ void Light::setStateFinished(int id, const QVariant &response)
             // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
             // Lets just assume it always succeeds
             m_sat = m_dirtySat;
+
+            m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+        } else if(m_ctDirty) {
+            QVariantMap params;
+            params.insert("ct", m_dirtyCt);
+            m_ctDirty = false;
 
             m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
         }
