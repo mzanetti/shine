@@ -22,6 +22,7 @@
 
 #include <QColor>
 #include <QDebug>
+#include <QGenericMatrix>
 
 Light::Light(int id, const QString &name, QObject *parent):
     LightInterface(parent),
@@ -164,10 +165,37 @@ void Light::setColor(const QColor &color)
     quint16 hue = color.hue() * 65535 / 360;
     quint8 sat = color.saturation();
 
+    qDebug() << "creating";
+    QGenericMatrix<3, 3, qreal> m;
+    m(0, 0) = 0.412453;    m(0, 1) = 0.357580;    m(0, 2) = 0.180423;
+    m(1, 0) = 0.212671;    m(1, 1) = 0.715160;    m(1, 2) = 0.072169;
+    m(2, 0) = 0.019334;    m(2, 1) = 0.119193;    m(2, 2) = 0.950227;
+
+    qDebug() << "creating 2";
+    QGenericMatrix<1, 3, qreal> rgbMatrix;
+    rgbMatrix(0, 0) = 1.0 * color.red() / 255;
+    rgbMatrix(1, 0) = 1.0 * color.green() / 255;
+    rgbMatrix(2, 0) = 1.0 * color.blue() / 255;
+
+    qDebug() << "multiplying";
+    QGenericMatrix<1, 3, qreal> xyzMatrix = m*rgbMatrix;
+
+    qreal u = 4*xyzMatrix(0, 0) / (xyzMatrix(0, 0) + 15*xyzMatrix(1, 0) + 3*xyzMatrix(2, 0));
+    qreal v = 9*xyzMatrix(1, 0) / (xyzMatrix(0, 0) + 15*xyzMatrix(1, 0) + 3*xyzMatrix(2, 0));
+
+    qreal x = 27*u / (18*u - 48*v + 36);
+    qreal y = 12*v / (18*u - 48*v + 36);
+
+    qDebug() << color << "(x,y) (" + QString::number(x) + "," + QString::number(y) + ")" ;
+
     if (m_busyStateChangeId == -1) {
         QVariantMap params;
-        params.insert("hue", hue);
-        params.insert("sat", sat);
+//        params.insert("hue", hue);
+//        params.insert("sat", sat);
+
+        QVariantList xyList;
+        xyList << x << y;
+        params.insert("xy", xyList);
         qDebug() << "******************sending hue" << hue << "sat" << sat;
 
         // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
