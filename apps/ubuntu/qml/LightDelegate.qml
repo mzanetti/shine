@@ -23,11 +23,53 @@ import Ubuntu.Components.ListItems 0.1
 import Hue 0.1
 
 Empty {
+    id: root
     clip: true
     opacity: light.reachable ? 1 : .5
 
     property int expandedHeight: delegateColumn.height
     property var light
+
+    property bool __isExpanded: ListView.view.expandedItem == root
+
+    states: [
+        State {
+            name: "expanded"; when: root.__isExpanded
+            PropertyChanges { target: root; height: root.expandedHeight + units.gu(2) }
+        },
+        State {
+            name: "rename"
+            PropertyChanges { target: mainRow; opacity: 0 }
+            PropertyChanges { target: renameRow; opacity: 1 }
+        }
+
+    ]
+    transitions: [
+        Transition {
+            from: "*"; to: "*"
+            UbuntuNumberAnimation { properties: "height" }
+            UbuntuNumberAnimation { properties: "opacity" }
+        }
+    ]
+
+
+
+    onClicked: {
+        if (light.reachable) {
+            if (ListView.view.expandedItem == root) {
+                ListView.view.expandedItem = null;
+            } else {
+                ListView.view.expandedItem = root;
+            }
+        }
+    }
+    onPressAndHold: {
+        if (delegateItem.state == "rename") {
+            delegateItem.state = ""
+        } else {
+            delegateItem.state = "rename"
+        }
+    }
 
     Column {
         id: delegateColumn
