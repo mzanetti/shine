@@ -29,6 +29,8 @@ MainView {
     width: units.gu(50)
     height: units.gu(75)
 
+//    applicationName: "com.ubuntu.developer.mzanetti.shine"
+
     automaticOrientation: true
     property string orientation: pageStack.width > pageStack.height ? "landscape" : "portrait"
 
@@ -44,6 +46,8 @@ MainView {
     }
 
     Component.onCompleted: {
+        HueBridge.apiKey = keystore.apiKey;
+
         if (HueBridge.discoveryError) {
             PopupUtils.open(errorComponent, root)
         } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
@@ -62,6 +66,9 @@ MainView {
             if (HueBridge.discoveryError) {
                 PopupUtils.open(errorComponent, root)
             }
+        }
+        onApiKeyChanged: {
+            keystore.apiKey = HueBridge.apiKey;
         }
     }
 
@@ -90,12 +97,12 @@ MainView {
         Dialog {
             id: connectDialog
             title: "Connect to Hue bridge"
-            text: "Please press the button on the hue bridge and then \"Connect...\""
+            text: "Please press the button on the Hue bridge and then \"Connect...\""
 
             Connections {
                 target: HueBridge
                 onCreateUserFailed: {
-                    connectDialog.text = "Error creating user: " + errorMessage;
+                    connectDialog.text = "Error authenticating to Hue bridge: " + errorMessage;
                     connectButton.text = "Try again!";
                 }
                 onConnectedBridgeChanged: {
@@ -111,6 +118,12 @@ MainView {
                 onClicked: {
                     HueBridge.createUser("Ubuntu touch", "abcdef1234567890")
                     connectDialog.text = "Waiting for the connection to establish..."
+                }
+            }
+            Button {
+                text: "Quit"
+                onClicked: {
+                    Qt.quit();
                 }
             }
         }

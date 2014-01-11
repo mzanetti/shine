@@ -17,9 +17,13 @@
  *      Michael Zanetti <michael_zanetti@gmx.net>
  */
 
+#include "keystore.h"
+
 #include <QtGui/QGuiApplication>
 #include <QQuickView>
 #include <QQmlEngine>
+#include <QQmlContext>
+#include <QObject>
 
 #include <QDir>
 #include <QDebug>
@@ -30,15 +34,21 @@ int main(int argc, char *argv[])
 
     QQuickView view;
 
-    // For easy running
     QStringList imports = view.engine()->importPathList();
+    // For easy running in build dir
     imports.append(QDir::currentPath() + "/../../plugin/");
+    // For finding plugins in the click package
+    imports.append(QDir::currentPath());
+
     view.engine()->setImportPathList(imports);
+
+    view.engine()->rootContext()->setContextProperty("keystore", new KeyStore());
+
+    QObject::connect(view.engine(), SIGNAL(quit()), &app, SLOT(quit()));
 
     view.setSource(QStringLiteral("qml/Shine.qml"));
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
-
 
     return app.exec();
 }

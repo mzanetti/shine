@@ -69,14 +69,17 @@ build() {
 build_click_package() {
     exec_with_ssh mkdir -p $CODE_DIR/$BUILD_DIR/install
     exec_with_ssh rm -rf $CODE_DIR/$BUILD_DIR/install/*
-    exec_with_ssh cp -r $CODE_DIR/src/app/qml $CODE_DIR/$BUILD_DIR/install
-    exec_with_ssh cp $CODE_DIR/*.json $CODE_DIR/$BUILD_DIR/install
-    exec_with_ssh cp $CODE_DIR/apparmor/*.json $CODE_DIR/$BUILD_DIR/install
-    exec_with_ssh cp $CODE_DIR/$PACKAGE.desktop $CODE_DIR/$BUILD_DIR/install
-    exec_with_ssh cp $CODE_DIR/$PACKAGE.png $CODE_DIR/$BUILD_DIR/install
-    exec_with_ssh cp -r $CODE_DIR/$BUILD_DIR/src/plugin/Evernote $CODE_DIR/$BUILD_DIR/install/
+    exec_with_ssh cp $CODE_DIR/$BUILD_DIR/apps/ubuntu/shine_ubuntu $CODE_DIR/$BUILD_DIR/install
+    exec_with_ssh cp -r $CODE_DIR/apps/ubuntu/qml $CODE_DIR/$BUILD_DIR/install
+    exec_with_ssh cp $CODE_DIR/apps/ubuntu/*.json $CODE_DIR/$BUILD_DIR/install
+    exec_with_ssh cp $CODE_DIR/apps/ubuntu/$PACKAGE.desktop $CODE_DIR/$BUILD_DIR/install
+    exec_with_ssh cp $CODE_DIR/apps/ubuntu/$PACKAGE.svg $CODE_DIR/$BUILD_DIR/install
+    exec_with_ssh mkdir -p $CODE_DIR/$BUILD_DIR/install/Hue
+    exec_with_ssh cp -r $CODE_DIR/$BUILD_DIR/plugin/Hue/*.so $CODE_DIR/$BUILD_DIR/install/Hue
+    exec_with_ssh cp -r $CODE_DIR/$BUILD_DIR/plugin/Hue/*.qml $CODE_DIR/$BUILD_DIR/install/Hue
+    exec_with_ssh cp -r $CODE_DIR/$BUILD_DIR/plugin/Hue/qmldir $CODE_DIR/$BUILD_DIR/install/Hue
     exec_with_ssh click build $CODE_DIR/$BUILD_DIR/install
-    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P $TARGET_SSH_PORT $USER@$TARGET_IP:/home/phablet/com.ubuntu*$PACKAGE*.click .
+    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P $TARGET_SSH_PORT $USER@$TARGET_IP:/home/phablet/com.ubuntu*shine*.click .
 }
 
 run() {

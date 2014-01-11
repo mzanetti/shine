@@ -48,6 +48,7 @@ class HueBridgeConnection: public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString apiKey READ apiKey WRITE setApiKey NOTIFY apiKeyChanged)
     Q_PROPERTY(bool discoveryError READ discoveryError NOTIFY discoveryErrorChanged)
     // TODO: Convert this to a model holding all the discovered bridges
     Q_PROPERTY(bool bridgeFound READ bridgeFound NOTIFY bridgeFoundChanged)
@@ -55,6 +56,9 @@ class HueBridgeConnection: public QObject
 
 public:
     static HueBridgeConnection* instance();
+
+    QString apiKey() const;
+    void setApiKey(const QString &apiKey);
 
     bool discoveryError() const;
     bool bridgeFound() const;
@@ -68,6 +72,7 @@ public:
     int put(const QString &path, const QVariantMap &params, QObject *sender, const QString &slot);
 
 signals:
+    void apiKeyChanged();
     void discoveryErrorChanged();
     void bridgeFoundChanged();
     void connectedBridgeChanged();
@@ -90,7 +95,7 @@ private:
 
     QHostAddress m_bridge;
     bool m_discoveryError;
-    QString m_username;
+    QString m_apiKey;
     QString m_baseApiUrl;
 
     int m_requestCounter;

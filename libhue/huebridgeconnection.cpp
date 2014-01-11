@@ -25,7 +25,6 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include <QSettings>
 #include <QDebug>
 #if QT_VERSION >= 0x050000
 #include <QJsonDocument>
@@ -46,6 +45,19 @@ HueBridgeConnection *HueBridgeConnection::instance()
     return s_instance;
 }
 
+QString HueBridgeConnection::apiKey() const
+{
+    return m_apiKey;
+}
+
+void HueBridgeConnection::setApiKey(const QString &apiKey)
+{
+    if (m_apiKey != apiKey) {
+        m_apiKey = apiKey;
+        emit apiKeyChanged();
+    }
+}
+
 bool HueBridgeConnection::discoveryError() const
 {
     return m_discoveryError;
@@ -58,7 +70,7 @@ bool HueBridgeConnection::bridgeFound() const
 
 QString HueBridgeConnection::connectedBridge() const
 {
-    return m_username.isEmpty() ? "" : m_bridge.toString();
+    return m_apiKey.isEmpty() ? "" : m_bridge.toString();
 }
 
 HueBridgeConnection::HueBridgeConnection():
@@ -86,11 +98,8 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     disconnect(sender());
     m_bridge = bridge;
 
-    QSettings settings;
-    qDebug() << "Using settings file:" << settings.fileName();
-    if (settings.contains("username")) {
-        m_username = settings.value("username").toString();
-        m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_username + "/";
+    if (!m_apiKey.isEmpty()) {
+        m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_apiKey + "/";
         emit connectedBridgeChanged();
     }
 
@@ -251,13 +260,11 @@ void HueBridgeConnection::createUserFinished()
         return;
     }
 
-    m_username = map.value("success").toMap().value("username").toString();
-    m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_username + "/";
+    m_apiKey = map.value("success").toMap().value("username").toString();
+    emit apiKeyChanged();
 
+    m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_apiKey + "/";
     emit connectedBridgeChanged();
-
-    QSettings settings;
-    settings.setValue("username", m_username);
 }
 
 void HueBridgeConnection::slotOpFinished()
