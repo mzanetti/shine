@@ -19,9 +19,12 @@
  *      Christian Muehlhaeuser <muesli@gmail.com>
  */
 
+#include "keystore.h"
+
 #include <QtWidgets/QApplication>
 #include <QQuickView>
 #include <QQmlEngine>
+#include <QQmlContext>
 
 #include <QDir>
 #include <QDebug>
@@ -39,6 +42,8 @@ int main(int argc, char *argv[])
     QQmlEngine engine;
     QObject::connect(&engine, SIGNAL(quit()), QCoreApplication::instance(), SLOT(quit()));
     engine.addImportPath(QDir::currentPath() + "/../../plugin/");
+
+    engine.rootContext()->setContextProperty("keystore", new KeyStore());
 
     QQmlComponent *component = new QQmlComponent(&engine);
     component->loadUrl(QStringLiteral("qml/Shine.qml"));

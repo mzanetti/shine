@@ -44,16 +44,26 @@ ApplicationWindow {
         Label {
             id: statusLabel
             text: HueBridge.discoveryError ? "Error while discovering bridge... This will not work."
-                : HueBridge.foundHost && HueBridge.connectedBridge ? "Waiting for authentication"
+                : HueBridge.bridgeFound && !HueBridge.connectedBridge ? "Waiting for authentication"
                 : HueBridge.connectedBridge ? "Connected to " + HueBridge.connectedBridge
                 : "Searching for bridges..."
         }
+    }
+
+    Component.onCompleted: {
+        HueBridge.apiKey = keystore.apiKey;
     }
 
     Connections {
         target: HueBridge
         onCreateUserFailed: {
             statusLabel.text = errorMessage
+        }
+        onBridgeFoundChanged: {
+            print("found bridge", HueBridge.bridgeFound)
+        }
+        onApiKeyChanged: {
+            keystore.apiKey = HueBridge.apiKey;
         }
     }
 
