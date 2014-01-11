@@ -22,12 +22,13 @@ import Ubuntu.Components 0.1
 import Hue 0.1
 
 Page {
+    property alias lights: bigColorPicker.lights
+
     UbuntuColorPicker {
         id: bigColorPicker
         anchors.fill: parent
         anchors.margins: units.gu(2)
         visible: root.orientation == "landscape"
-        showAll: true
 
         touchDelegate: UbuntuShape {
             id: lightDelegate

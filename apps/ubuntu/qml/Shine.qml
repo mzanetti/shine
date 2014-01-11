@@ -28,22 +28,18 @@ MainView {
     id: root
     width: units.gu(50)
     height: units.gu(75)
-    onHeightChanged: print("aaaaaaaaaaaaaa", height)
-    onWidthChanged: print("bbbbbbbbbbbbbbbb", width)
 
     automaticOrientation: true
+    property string orientation: pageStack.width > pageStack.height ? "landscape" : "portrait"
 
-    property string orientation: Screen.width == root.width
-                                 && Screen.orientation == Qt.LandscapeOrientation
-                                 ? "landscape" : "portrait"
     onOrientationChanged: {
         if (orientation == "portrait") {
             pageStack.pop();
 //            pageStack.push(Qt.resolvedUrl("MainTabs.qml"))
-            pageStack.push(Qt.resolvedUrl("LightsPage.qml"))
+            pageStack.push(lightsPage)
         } else {
             pageStack.pop();
-            pageStack.push(Qt.resolvedUrl("BigColorPicker.qml"))
+            pageStack.push(bigColorPicker)
         }
     }
 
@@ -71,6 +67,22 @@ MainView {
 
     PageStack {
         id: pageStack
+    }
+
+    LightsPage {
+        id: lightsPage
+        visible: false
+        lights: lights
+    }
+
+    BigColorPicker {
+        id: bigColorPicker
+        visible: false
+        lights: lights
+    }
+
+    Lights {
+        id: lights
     }
 
     Component {

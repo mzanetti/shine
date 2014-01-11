@@ -27,7 +27,7 @@ Item {
     property color color
     property bool pressed: mouseArea.pressed
     property Component touchDelegate
-    property bool showAll: false
+    property var lights
 
     function calculateXy(color) {
         var point = new Object;
@@ -160,7 +160,7 @@ Item {
         property var draggedLight
 
         onPressed: {
-            if (showAll) {
+            if (root.lights) {
                 for (var i = 0; i < lightsDraghandleRepeater.count; i++) {
                     var item = lightsDraghandleRepeater.itemAt(i);
                     if (mouseX > item.x && mouseX < (item.x + item.width) && mouseY > item.y && mouseY < (item.y + item.height)) {
@@ -199,7 +199,9 @@ Item {
         onPositionChanged: {
             if (mouseArea.draggedItem) {
                 root.color = root.calculateColor(mouseX, mouseY);
-                mouseArea.draggedLight.color = root.calculateColor(mouseX, mouseY);
+                if (mouseArea.draggedLight) {
+                    mouseArea.draggedLight.color = root.calculateColor(mouseX, mouseY);
+                }
             }
         }
 
@@ -217,16 +219,13 @@ Item {
         property var point: calculateXy(root.color);
         x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
         y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
-        sourceComponent: root.showAll ? undefined : root.touchDelegate
+        sourceComponent: root.lights ? undefined : root.touchDelegate
         visible: mouseArea.draggedItem != touchDelegateLoader
     }
 
-    Lights {
-        id: lights
-    }
     Repeater {
         id: lightsDraghandleRepeater
-        model: root.showAll ? lights : undefined
+        model: root.lights ? lights : undefined
 
         delegate: Loader {
             id: lightDelegate

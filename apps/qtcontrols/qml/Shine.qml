@@ -57,6 +57,9 @@ ApplicationWindow {
         }
     }
 
+    Lights {
+        id: lightsModel
+    }
 
     TabView {
         id: tabView
@@ -64,7 +67,7 @@ ApplicationWindow {
 
         LightsTab {
             title: "Lights"
-
+            lights: lightsModel
         }
 
         GroupsTab {
@@ -76,7 +79,7 @@ ApplicationWindow {
             ColorPicker {
                 id: colorPicker
                 anchors.fill: parent
-                showAll: true
+                lights: lightsModel
                 touchDelegate: Rectangle {
                     height: colorPicker.height / 10
                     width: height

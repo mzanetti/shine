@@ -23,16 +23,16 @@ import Ubuntu.Components.ListItems 0.1
 import Hue 0.1
 
 Page {
+    id: root
     title: "Lights"
+
+    property alias lights: lightsListView.model
+
     ListView {
         id: lightsListView
         anchors.fill: parent
 
         property var expandedItem: null
-
-        model: Lights {
-            id: lights
-        }
 
         delegate: LightDelegate {
             id: delegateItem

@@ -114,14 +114,14 @@ void Lights::refresh()
 void Lights::lightsReceived(int id, const QVariant &variant)
 {
     Q_UNUSED(id)
-    qDebug() << "got lights" << variant;
+//    qDebug() << "got lights" << variant;
     QVariantMap lights = variant.toMap();
 
     beginResetModel();
     foreach (const QString &lightId, lights.keys()) {
         Light *light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
         m_list.append(light);
-        qDebug() << "got light" << light->name() << light->id();
+//        qDebug() << "got light" << light->name() << light->id();
     }
     endResetModel();
 }

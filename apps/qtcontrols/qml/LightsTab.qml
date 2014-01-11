@@ -25,6 +25,8 @@ import QtQuick.Layouts 1.1
 import Hue 0.1
 
 Tab {
+    id: root
+    property var lights
 
     SplitView {
         anchors.fill: parent
@@ -32,9 +34,7 @@ Tab {
         TableView {
             id: lightsView
 
-            model: Lights {
-                id: lights
-            }
+            model: root.lights
 
             TableViewColumn {
                 role: "name"
@@ -47,7 +47,7 @@ Tab {
                 anchors.fill: parent
                 anchors.margins: 20
                 visible: lightsView.currentRow > -1
-                light: lights.get(lightsView.currentRow)
+                light: root.lights.get(lightsView.currentRow)
             }
         }
     }

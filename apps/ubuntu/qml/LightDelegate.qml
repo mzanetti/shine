@@ -111,7 +111,6 @@ Empty {
                 maximumValue: 255
                 value: light.bri
                 onValueChanged: {
-                    print("val changed")
                     light.bri = value
                 }
             }
@@ -154,6 +153,7 @@ Empty {
                         return i;
                     }
                 }
+                return 0;
             }
 
             onSelectedIndexChanged: {

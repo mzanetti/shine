@@ -26,7 +26,7 @@ Item {
     property alias color: colorPicker.color
     property alias pressed: colorPicker.pressed
     property alias touchDelegate: colorPicker.touchDelegate
-    property alias showAll: colorPicker.showAll
+    property alias lights: colorPicker.lights
 
     function calculateColor(x, y) {
         return colorPicker.calculateColor(x, y);
