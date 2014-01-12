@@ -115,6 +115,8 @@ void Groups::groupsReceived(int id, const QVariant &variant)
     QVariantMap groups = variant.toMap();
 
     beginResetModel();
+    Group *group = createGroupInternal(0, "All");
+    connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
     foreach (const QString &groupId, groups.keys()) {
         Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
         qDebug() << "got group" << group->name() << group->id();

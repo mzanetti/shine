@@ -31,14 +31,32 @@ Tab {
     SplitView {
         anchors.fill: parent
 
-        TableView {
-            id: lightsView
 
-            model: root.lights
+        ColumnLayout {
+            ComboBox {
+                Layout.fillWidth: true
+                model: Groups {
+                    id: groups
+                }
+                textRole: "name"
+                onCurrentIndexChanged: {
+                    lightsFilterModel.groupId = groups.get(currentIndex).id
+                }
+            }
 
-            TableViewColumn {
-                role: "name"
-                title: "Hue bulbs"
+            TableView {
+
+                id: lightsView
+                model: LightsFilterModel {
+                    id: lightsFilterModel
+                    lights: root.lights
+                }
+                Layout.fillHeight: true
+
+                TableViewColumn {
+                    role: "name"
+                    title: "Hue bulbs"
+                }
             }
         }
 
