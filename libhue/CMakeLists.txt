@@ -9,6 +9,7 @@ set(libhue_SRCS
     groups.cpp
     group.cpp
     lights.cpp
+    lightsfiltermodel.cpp
     light.cpp
     lightinterface.h
 )

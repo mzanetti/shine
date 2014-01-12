@@ -253,6 +253,11 @@ bool Group::reachable() const
     return false;
 }
 
+QList<int> Group::lightIds() const
+{
+    return m_lightIds;
+}
+
 void Group::responseReceived(int id, const QVariant &response)
 {
     Q_UNUSED(id)
@@ -265,7 +270,7 @@ void Group::responseReceived(int id, const QVariant &response)
         m_lightIds << lightId.toUInt();
     }
 
-    emit stateChanged();
+    emit lightsChanged();
 
     qDebug() << "got group response" << m_id << m_name << on() << bri() << reachable();
 }

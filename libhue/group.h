@@ -54,6 +54,8 @@ public:
     ColorMode colorMode() const;
     bool reachable() const;
 
+    QList<int> lightIds() const;
+
 public slots:
     void setOn(bool on);
     void setBri(quint8 bri);
@@ -67,6 +69,7 @@ public slots:
 
 signals:
     void nameChanged();
+    void lightsChanged();
 
 private slots:
     void responseReceived(int id, const QVariant &response);

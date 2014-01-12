@@ -25,6 +25,7 @@
 #include "../../libhue/light.h"
 #include "../../libhue/groups.h"
 #include "../../libhue/group.h"
+#include "../../libhue/lightsfiltermodel.h"
 
 #if QT_VERSION >= 0x050000
 #include <QtQml/qqml.h>
@@ -54,6 +55,7 @@ void HuePlugin::registerTypes(const char *uri)
     qmlRegisterType<Groups>(uri, 0, 1, "Groups");
     //FIXME: eventually creatable
     qmlRegisterUncreatableType<Group>(uri, 0, 1, "Group", "Cannot create groups. Get them from the Groups model.");
+    qmlRegisterType<LightsFilterModel>(uri, 0, 1, "LightsFilterModel");
 }
 
 

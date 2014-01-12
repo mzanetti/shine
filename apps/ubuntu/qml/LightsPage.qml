@@ -26,17 +26,40 @@ Page {
     id: root
     title: "Lights"
 
-    property alias lights: lightsListView.model
+    property alias lights: lightsFilterModel.lights
 
-    ListView {
-        id: lightsListView
+    Column {
         anchors.fill: parent
 
-        property var expandedItem: null
+        OptionSelector {
+            model: Groups {
+                id: groups
+            }
 
-        delegate: LightDelegate {
-            id: delegateItem
-            light: lights.get(index)
+            delegate: OptionSelectorDelegate {
+                text: name
+            }
+
+            onSelectedIndexChanged: {
+                lightsFilterModel.groupId = groups.get(selectedIndex).id
+            }
+        }
+
+        ListView {
+            id: lightsListView
+            anchors {left: parent.left; right: parent.right }
+            height: parent.height - y
+
+            model: LightsFilterModel {
+                id: lightsFilterModel
+            }
+
+            property var expandedItem: null
+
+            delegate: LightDelegate {
+                id: delegateItem
+                light: lightsFilterModel.get(index)
+            }
         }
     }
 }

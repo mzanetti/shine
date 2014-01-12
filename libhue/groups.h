@@ -39,7 +39,8 @@ public:
         RoleAlert,
         RoleEffect,
         RoleColorMode,
-        RoleReachable
+        RoleReachable,
+        RoleLightIds
     };
 
     explicit Groups(QObject *parent = 0);
@@ -61,6 +62,7 @@ private slots:
     void groupsReceived(int id, const QVariant &variant);
     void groupDescriptionChanged();
     void groupStateChanged();
+    void groupLightsChanged();
 
 private:
     Group* createGroupInternal(int id, const QString &name);

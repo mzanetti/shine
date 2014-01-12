@@ -118,6 +118,7 @@ void Groups::groupsReceived(int id, const QVariant &variant)
     foreach (const QString &groupId, groups.keys()) {
         Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
         qDebug() << "got group" << group->name() << group->id();
+        connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
     }
     endResetModel();
 }
@@ -157,6 +158,21 @@ void Groups::groupStateChanged()
             << RoleColorMode
             << RoleReachable;
 
+    emit dataChanged(modelIndex, modelIndex, roles);
+#else
+    emit dataChanged(modelIndex, modelIndex);
+#endif
+}
+
+void Groups::groupLightsChanged()
+{
+    Group *group = static_cast<Group*>(sender());
+    int idx = m_list.indexOf(group);
+    QModelIndex modelIndex = index(idx);
+
+#if QT_VERSION >= 0x050000
+    qDebug() << "groupLightschanged";
+    QVector<int> roles = QVector<int>() << RoleLightIds;
     emit dataChanged(modelIndex, modelIndex, roles);
 #else
     emit dataChanged(modelIndex, modelIndex);
