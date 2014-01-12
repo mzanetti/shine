@@ -51,7 +51,7 @@ public:
     Q_INVOKABLE Group* get(int index) const;
 
 public slots:
-    Q_INVOKABLE void createGroup(const QString &name);
+    Q_INVOKABLE void createGroup(const QString &name, const QList<int> &lights);
     Q_INVOKABLE void deleteGroup(int id);
 
     void refresh();

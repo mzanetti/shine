@@ -20,6 +20,7 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1
+import Ubuntu.Components.Popups 0.1
 import Hue 0.1
 
 Page {
@@ -28,22 +29,62 @@ Page {
 
     property alias lights: lightsFilterModel.lights
 
+    tools: ToolbarItems {
+        ToolbarButton {
+            text: "group"
+            iconName: "remove"
+            enabled: groupSelector.selectedIndex > 0
+            onTriggered: {
+                groups.deleteGroup(groups.get(groupSelector.selectedIndex).id)
+                groupSelector.selectedIndex = 0;
+            }
+        }
+        ToolbarButton {
+            text: "group"
+            iconName: "add"
+            onTriggered: PopupUtils.open(addGroupComponent, root)
+        }
+    }
+
+    Groups {
+        id: groups
+    }
+
     Column {
         anchors.fill: parent
 
-        OptionSelector {
-            model: Groups {
-                id: groups
-            }
+        Row {
+            anchors { left: parent.left; right: parent.right; margins: units.gu(2) }
+            height: groupSelector.height + units.gu(2)
+            spacing: units.gu(2)
 
-            delegate: OptionSelectorDelegate {
-                text: name
-            }
+            OptionSelector {
+                id: groupSelector
+                anchors { top: parent.top; margins: units.gu(1) }
+                width: parent.width - groupSwitch.width - parent.spacing
+                model: groups
 
-            onSelectedIndexChanged: {
-                lightsFilterModel.groupId = groups.get(selectedIndex).id
+                delegate: OptionSelectorDelegate {
+                    text: name
+                    height: units.gu(5)
+                }
+
+                onSelectedIndexChanged: {
+                    lightsFilterModel.groupId = groups.get(selectedIndex).id
+                }
+            }
+            Switch {
+                id: groupSwitch
+                anchors { top: parent.top; margins: units.gu(1) }
+                iconSource: "image://theme/torch-off"
+                checked: groups.get(groupSelector.selectedIndex).on
+                onClicked: {
+                    groups.get(groupSelector.selectedIndex).on = checked;
+                }
             }
         }
+
+        Divider {}
 
         ListView {
             id: lightsListView
@@ -59,6 +100,68 @@ Page {
             delegate: LightDelegate {
                 id: delegateItem
                 light: lightsFilterModel.get(index)
+            }
+        }
+    }
+
+    Component {
+        id: addGroupComponent
+        ComposerSheet {
+            title: "Add group"
+
+            onConfirmClicked: {
+                var lightsList = new Array;
+                for (var i = 0; i < lightsCheckboxes.count; ++i) {
+                    if (lightsCheckboxes.itemAt(i).checked) {
+                        print("adding light", i)
+                        lightsList.push(lights.get(i).id);
+                        print("list is now", lightsList.length)
+                    }
+                }
+
+                groups.createGroup(nameTextField.text, lightsList);
+            }
+
+            Column {
+                anchors { fill: parent; margins: units.gu(2) }
+                spacing: units.gu(1)
+
+                Row {
+                    anchors { left: parent.left; right: parent.right }
+                    spacing: units.gu(1)
+
+                    Label {
+                        text: "Name"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    TextField {
+                        id: nameTextField
+                        width: parent.width - x
+                    }
+                }
+                ThinDivider {}
+                Column {
+                    anchors { left: parent.left; right: parent.right }
+                    spacing: units.gu(1)
+
+                    Repeater {
+                        id: lightsCheckboxes
+                        model: root.lights
+                        delegate: Row {
+                            width: parent.width
+                            spacing: units.gu(1)
+                            property alias checked: checkBox.checked
+                            CheckBox {
+                                id: checkBox
+                            }
+                            Label {
+                                text: name
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+                    }
+                }
             }
         }
     }

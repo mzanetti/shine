@@ -181,14 +181,18 @@ void Groups::groupLightsChanged()
 #endif
 }
 
-void Groups::createGroup(const QString &name)
+void Groups::createGroup(const QString &name, const QList<int> &lights)
 {
+    qDebug() << "create group" << name << lights;
     QVariantMap params;
-    QVariantList lights;
-    lights << "1";
-
+    QVariantList lightsList;
+    foreach (int lightId, lights) {
+        qDebug() << "got light" << lightId;
+        lightsList.append(QString::number(lightId));
+    }
+    qDebug() << "lightslist" << lightsList;
     params.insert("name", name);
-    params.insert("lights", lights);
+    params.insert("lights", lightsList);
     HueBridgeConnection::instance()->post("groups", params, this, "createGroupFinished");
 }
 
