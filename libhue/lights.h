@@ -21,6 +21,7 @@
 #define LIGHTS_H
 
 #include <QAbstractListModel>
+#include <QTimer>
 
 class Light;
 
@@ -66,6 +67,7 @@ private:
 
 private:
     QList<Light*> m_list;
+    QTimer m_timer;
 };
 
 #endif // LIGHTS_H

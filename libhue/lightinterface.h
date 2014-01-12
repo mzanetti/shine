@@ -25,11 +25,15 @@
 #include <QObject>
 #include <QPointF>
 #include <QColor>
+#include <QTimer>
 
 class LightInterface: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ColorMode)
+
+    Q_PROPERTY(int id READ id CONSTANT)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
     Q_PROPERTY(bool on READ on WRITE setOn NOTIFY stateChanged)
     Q_PROPERTY(quint8 bri READ bri WRITE setBri NOTIFY stateChanged)
@@ -52,7 +56,15 @@ public:
 
     LightInterface(QObject *parent)
         : QObject(parent)
-    {}
+    {
+        connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
+        m_timer.start(10000);
+    }
+
+    virtual int id() const = 0;
+
+    virtual QString name() const = 0;
+    virtual void setName(const QString &name) = 0;
 
     virtual bool on() const = 0;
     virtual quint8 bri() const = 0;
@@ -67,6 +79,7 @@ public:
     virtual bool reachable() const = 0;
 
 public slots:
+    virtual void refresh() = 0;
     virtual void setOn(bool on) = 0;
     virtual void setBri(quint8 bri) = 0;
     virtual void setHue(quint16 hue) = 0;
@@ -78,9 +91,11 @@ public slots:
     virtual void setEffect(const QString &effect) = 0;
 
 signals:
+    void nameChanged();
     void stateChanged();
 
 private:
+    QTimer m_timer;
 };
 
 #endif

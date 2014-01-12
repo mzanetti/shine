@@ -35,7 +35,7 @@ Light::Light(int id, const QString &name, QObject *parent):
     m_briDirty(false),
     m_ctDirty(false)
 {
-    HueBridgeConnection::instance()->get("lights/" + QString::number(id), this, "responseReceived");
+    refresh();
 }
 
 int Light::id() const
@@ -276,6 +276,11 @@ LightInterface::ColorMode Light::colorMode() const
 bool Light::reachable() const
 {
     return m_reachable;
+}
+
+void Light::refresh()
+{
+    HueBridgeConnection::instance()->get("lights/" + QString::number(m_id), this, "responseReceived");
 }
 
 void Light::setReachable(bool reachable)

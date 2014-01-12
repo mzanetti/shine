@@ -65,12 +65,9 @@ Light *LightsFilterModel::get(int row) const
 
 bool LightsFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    qDebug() << "checking row" << sourceRow << "groupid" << groupId();
     if (m_groupId == 0) {
         return true;
     }
-    qDebug() << "group is" << m_group;
-    if (m_group) qDebug() << "group" << m_group->name() << "has ids" << m_group->lightIds();
 
     Light *light = m_lights->get(sourceRow);
     if (m_group && m_group->lightIds().contains(light->id())) {
@@ -87,7 +84,6 @@ void LightsFilterModel::groupChanged(const QModelIndex &first, const QModelIndex
     }
 
     for (int i = first.row(); i <= last.row(); ++i) {
-        qDebug() << "group changed";
         if (m_group == m_groups->get(i)) {
             invalidateFilter();
         }
@@ -96,7 +92,6 @@ void LightsFilterModel::groupChanged(const QModelIndex &first, const QModelIndex
 
 void LightsFilterModel::groupsAdded(const QModelIndex &parent, int first, int last)
 {
-    qDebug() << "groups added";
     if (!m_group) {
         m_group = findGroup();
     }

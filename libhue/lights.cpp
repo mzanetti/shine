@@ -33,6 +33,9 @@ Lights::Lights(QObject *parent) :
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
 #endif
+
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
+    m_timer.start(10000);
 }
 
 int Lights::rowCount(const QModelIndex &parent) const
@@ -117,16 +120,49 @@ void Lights::refresh()
 void Lights::lightsReceived(int id, const QVariant &variant)
 {
     Q_UNUSED(id)
-//    qDebug() << "got lights" << variant;
     QVariantMap lights = variant.toMap();
 
-    beginResetModel();
-    foreach (const QString &lightId, lights.keys()) {
-        Light *light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
-        m_list.append(light);
-//        qDebug() << "got light" << light->name() << light->id();
+    qDebug() << "got lights" << lights;
+
+    // Find removed lights
+    QList<Light*> removedLights;
+    foreach (Light *light, m_list) {
+        if (!lights.keys().contains(QString::number(light->id()))) {
+            removedLights.append(light);
+        }
     }
-    endResetModel();
+
+    // Remove removed lights from the model
+    foreach (Light *light, removedLights) {
+        int index = m_list.indexOf(light);
+        beginRemoveRows(QModelIndex(), index, index);
+        m_list.takeAt(index)->deleteLater();
+        endRemoveRows();
+    }
+
+    // Update existing lights's name and keep track of newly added lights
+    QList <Light*> newLights;
+    foreach (const QString &lightId, lights.keys()) {
+        bool existing = false;
+        foreach (Light *light, m_list) {
+            if (light->id() == lightId.toInt()) {
+                existing = true;
+                light->setName(lights.value(lightId).toMap().value("name").toString());
+                break;
+            }
+        }
+        if (!existing) {
+            Light *light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
+            newLights.append(light);
+        }
+    }
+
+    // insert newly added lights into the model
+    if (newLights.count() > 0) {
+        beginInsertRows(QModelIndex(), m_list.count(), m_list.count() + newLights.count() - 1);
+        m_list.append(newLights);
+        endInsertRows();
+    }
 }
 
 void Lights::lightDescriptionChanged()

@@ -228,7 +228,8 @@ Item {
         delegate: Loader {
             id: lightDelegate
             sourceComponent: root.touchDelegate
-            property var point: root.calculateXy(lights.get(index).color)
+            property var light: lights.get(index)
+            property var point: light ? root.calculateXy(light.color) : [0, 0]
             x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
             y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
             visible: mouseArea.draggedItem != lightDelegate

@@ -30,9 +30,6 @@ class Light: public LightInterface
 {
     Q_OBJECT
 
-    Q_PROPERTY(int id READ id CONSTANT)
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-
     Q_PROPERTY(QString modelId READ modelId NOTIFY modelIdChanged)
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
     Q_PROPERTY(QString swversion READ swversion NOTIFY swversionChanged)
@@ -68,6 +65,8 @@ public:
     bool reachable() const;
 
 public slots:
+    void refresh();
+
     void setOn(bool on);
     void setBri(quint8 bri);
     void setHue(quint16 hue);
@@ -79,8 +78,6 @@ public slots:
     void setEffect(const QString &effect);
 
 signals:
-    void nameChanged();
-
     void modelIdChanged();
     void typeChanged();
     void swversionChanged();

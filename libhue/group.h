@@ -30,7 +30,6 @@ class Group: public LightInterface
 {
     Q_OBJECT
 
-    Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 public:
@@ -57,6 +56,7 @@ public:
     QList<int> lightIds() const;
 
 public slots:
+    void refresh();
     void setOn(bool on);
     void setBri(quint8 bri);
     void setHue(quint16 hue);

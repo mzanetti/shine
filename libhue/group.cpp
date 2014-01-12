@@ -258,6 +258,11 @@ QList<int> Group::lightIds() const
     return m_lightIds;
 }
 
+void Group::refresh()
+{
+    // TODO
+}
+
 void Group::responseReceived(int id, const QVariant &response)
 {
     Q_UNUSED(id)
