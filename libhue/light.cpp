@@ -122,6 +122,7 @@ void Light::setBri(quint8 bri)
         if (m_busyStateChangeId == -1) {
             QVariantMap params;
             params.insert("bri", bri);
+            params.insert("on", true);
             m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
         } else {
             m_dirtyBri = bri;
@@ -202,6 +203,7 @@ void Light::setColor(const QColor &color)
         // Lets just assume it always succeeds
         m_sat = m_dirtySat;
 
+        params.insert("on", true);
         m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     } else {
         m_dirtyHue = hue;
@@ -234,6 +236,7 @@ void Light::setCt(quint16 ct)
     if (m_busyStateChangeId == -1) {
         QVariantMap params;
         params.insert("ct", ct);
+        params.insert("on", true);
         m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     } else {
         m_dirtyCt = ct;
@@ -264,6 +267,9 @@ void Light::setEffect(const QString &effect)
     if (m_effect != effect) {
         QVariantMap params;
         params.insert("effect", effect);
+        if (effect != "none") {
+            params.insert("on", true);
+        }
         HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     }
 }
@@ -326,7 +332,6 @@ void Light::responseReceived(int id, const QVariant &response)
 void Light::setDescriptionFinished(int id, const QVariant &response)
 {
     Q_UNUSED(id)
-    qDebug() << "setDescription finished" << response;
     QVariantMap result = response.toList().first().toMap();
 
     if (result.contains("success")) {
@@ -340,37 +345,38 @@ void Light::setDescriptionFinished(int id, const QVariant &response)
 
 void Light::setStateFinished(int id, const QVariant &response)
 {
-    QVariantMap result = response.toList().first().toMap();
-
-    if (result.contains("success")) {
-        QVariantMap successMap = result.value("success").toMap();
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/on")) {
-            m_on = successMap.value("/lights/" + QString::number(m_id) + "/state/on").toBool();
+    foreach (const QVariant &resultVariant, response.toList()) {
+        QVariantMap result = resultVariant.toMap();
+        if (result.contains("success")) {
+            QVariantMap successMap = result.value("success").toMap();
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/on")) {
+                m_on = successMap.value("/lights/" + QString::number(m_id) + "/state/on").toBool();
+            }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/hue")) {
+                m_hue = successMap.value("/lights/" + QString::number(m_id) + "/state/hue").toInt();
+                m_colormode = ColorModeHS;
+            }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
+                m_bri = successMap.value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
+            }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/sat")) {
+                m_sat = successMap.value("/lights/" + QString::number(m_id) + "/state/sat").toInt();
+                m_colormode = ColorModeHS;
+            }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/xy")) {
+                m_xy = successMap.value("/lights/" + QString::number(m_id) + "/state/xy").toPoint();
+                m_colormode = ColorModeXY;
+            }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/ct")) {
+                m_ct = successMap.value("/lights/" + QString::number(m_id) + "/state/ct").toInt();
+                m_colormode = ColorModeCT;
+            }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
+                m_effect = successMap.value("/lights/" + QString::number(m_id) + "/state/effect").toString();
+            }
         }
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/hue")) {
-            m_hue = successMap.value("/lights/" + QString::number(m_id) + "/state/hue").toInt();
-            m_colormode = ColorModeHS;
-        }
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/bri")) {
-            m_bri = successMap.value("/lights/" + QString::number(m_id) + "/state/bri").toInt();
-        }
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/sat")) {
-            m_sat = successMap.value("/lights/" + QString::number(m_id) + "/state/sat").toInt();
-            m_colormode = ColorModeHS;
-        }
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/xy")) {
-            m_xy = successMap.value("/lights/" + QString::number(m_id) + "/state/xy").toPoint();
-            m_colormode = ColorModeXY;
-        }
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/ct")) {
-            m_ct = successMap.value("/lights/" + QString::number(m_id) + "/state/ct").toInt();
-            m_colormode = ColorModeCT;
-        }
-        if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
-            m_effect = successMap.value("/lights/" + QString::number(m_id) + "/state/effect").toString();
-        }
-        emit stateChanged();
     }
+    emit stateChanged();
 
     if (m_busyStateChangeId == id) {
         m_busyStateChangeId = -1;
