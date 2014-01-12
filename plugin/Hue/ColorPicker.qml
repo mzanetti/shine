@@ -29,6 +29,7 @@ Item {
     property Component touchDelegate
     property var lights
     property bool active: true
+    property real fullColorHeight: 0.33
 
     function calculateXy(color) {
         var point = new Object;
@@ -90,7 +91,8 @@ Item {
         var sectionVal = (1.0 * sectionX / sectionWidth)
 
         // brightnessVal : 1.0 = mouseY : height
-        var brightness = 1.0 * y / height
+        var brightness = 1.0 * (y - height * root.fullColorHeight) / (height * (1-root.fullColorHeight))
+        print("brightness", brightness)
 
 
         switch (section) {
@@ -119,6 +121,7 @@ Item {
             color = Qt.rgba(1, brightness, 1 - sectionVal + brightness, 1)
             break;
         }
+        print("got color", color.r, color.g, color.b)
         return color
     }
 
@@ -143,6 +146,7 @@ Item {
         anchors.fill: parent
         gradient: Gradient {
             GradientStop { position: 0.0; color: "transparent" }
+            GradientStop { position: root.fullColorHeight; color: "transparent" }
             GradientStop { position: 1.0; color: "white" }
         }
     }
