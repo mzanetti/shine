@@ -34,6 +34,7 @@ ApplicationWindow {
     title: "Add Group"
 
     property int spacing: rowLayout.height / 4
+    property alias lights: lightsRepeater.model
 
     signal accepted(string name, var lights)
     signal rejected()
@@ -68,7 +69,6 @@ ApplicationWindow {
 
                 Repeater {
                     id: lightsRepeater
-                    model: Lights {}
 
                     delegate: Row {
                         property alias checked: checkBox.checked
@@ -92,7 +92,9 @@ ApplicationWindow {
                 onClicked: {
                     var lights = new Array
                     for (var i = 0; i < lightsRepeater.count; i++) {
-                        lights[i] = lightsRepeater.itemAt(i).checked;
+                        if (lightsRepeater.itemAt(i).checked) {
+                            lights.push(root.lights.get(i).id);
+                        }
                     }
                     root.accepted(nameInput.text, lights);
                     root.destroy();

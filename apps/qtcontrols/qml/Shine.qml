@@ -80,9 +80,9 @@ ApplicationWindow {
             lights: lightsModel
         }
 
-        GroupsTab {
-            title: "Groups"
-        }
+//        GroupsTab {
+//            title: "Groups"
+//        }
 
         Tab {
             title: "Colors"

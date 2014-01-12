@@ -34,6 +34,7 @@ Tab {
 
         ColumnLayout {
             ComboBox {
+                id: groupsComboBox
                 Layout.fillWidth: true
                 model: Groups {
                     id: groups
@@ -56,6 +57,31 @@ Tab {
                 TableViewColumn {
                     role: "name"
                     title: "Hue bulbs"
+                }
+            }
+
+            Button {
+                id: deleteButton
+                Layout.fillWidth: true
+                property var group: groups.get(groupsView.currentRow)
+                text: "Delete Group"
+                enabled: groupsComboBox.currentIndex > 0
+                onClicked: {
+                    groups.deleteGroup(groups.get(groupsComboBox.currentIndex).id);
+                    groupsComboBox.currentIndex = 0;
+                }
+            }
+            Button {
+                id: addButton
+                Layout.fillWidth: true
+                text: "Add"
+                onClicked: {
+                    var component = Qt.createComponent("NewGroupWindow.qml");
+                    var window = component.createObject(root, {lights: root.lights});
+                    window.show();
+                    window.accepted.connect(function(name, lights) {
+                        groups.createGroup(name, lights)
+                    });
                 }
             }
         }
