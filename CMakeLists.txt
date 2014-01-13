@@ -8,6 +8,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-permissive -pedantic -Wall -Wextra 
 
 include(FindPkgConfig)
 
+if(HARMATTAN_BUILD)
+    set(QT4_BUILD 1)
+endif()
+
 if(NOT QT4_BUILD)
     find_package(Qt5Core)
     find_package(Qt5Qml)

@@ -7,6 +7,7 @@ PageStackWindow {
 
     Component.onCompleted: {
         theme.inverted = true
+        hueBridge.apiKey = keystore.apiKey;
 
         if (hueBridge.discoveryError) {
             print("TODO: handle discovery error")
@@ -30,6 +31,11 @@ PageStackWindow {
             if (hueBridge.discoveryError) {
                 PopupUtils.open(errorComponent, root)
             }
+        }
+
+        onApiKeyChanged: {
+            print("got api key", hueBridge.apiKey)
+            keystore.apiKey = hueBridge.apiKey;
         }
     }
 

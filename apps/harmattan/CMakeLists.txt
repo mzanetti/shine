@@ -2,6 +2,7 @@ file(GLOB_RECURSE QML_SRCS *.qml *.js)
 
 set(shine_harmattan_SRCS
     main.cpp
+    keystore.cpp
     ${QML_SRCS}
 )
 

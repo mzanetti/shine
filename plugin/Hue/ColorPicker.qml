@@ -27,11 +27,22 @@ Item {
     property color color
     property bool pressed: mouseArea.pressed
     property Component touchDelegate
-    property var lights
+    property variant lights
     property bool active: true
     property real fullColorHeight: 0.33
 
     function calculateXy(color) {
+        if (!color.hasOwnProperty("r")) {
+            // Qt 4.8 around :/ color doesn't have r,g,b properties
+            var colorString = color.toString();
+            color = new Object;
+            color.r = 1.0 * parseInt("0x" + colorString.substring(1,3), 16) / 256;
+            color.g = 1.0 * parseInt("0x" + colorString.substring(3,5), 16) / 256;
+            color.b = 1.0 * parseInt("0x" + colorString.substring(5,7), 16) / 256;
+
+
+        }
+
         var point = new Object;
         var brightness = Math.min(color.r, color.g, color.b);
         point.y = Math.round(root.height * brightness);
@@ -161,8 +172,8 @@ Item {
         drag.minimumY: 0
         drag.maximumY: height - dndItem.height
 
-        property var draggedItem
-        property var draggedLight
+        property variant draggedItem
+        property variant draggedLight
 
         onPressed: {
             if (root.lights) {
@@ -218,7 +229,7 @@ Item {
 
     Loader {
         id: touchDelegateLoader
-        property var point: calculateXy(root.color);
+        property variant point: calculateXy(root.color);
         x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
         y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
         sourceComponent: root.lights ? undefined : root.touchDelegate
@@ -232,8 +243,8 @@ Item {
         delegate: Loader {
             id: lightDelegate
             sourceComponent: root.touchDelegate
-            property var light: lights.get(index)
-            property var point: light ? root.calculateXy(light.color) : [0, 0]
+            property variant light: lights.get(index)
+            property variant point: light ? root.calculateXy(light.color) : [0, 0]
             x: item ? Math.max(0, Math.min(point.x - width * .5, parent.width - item.width)) : 0
             y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
             visible: mouseArea.draggedItem != lightDelegate

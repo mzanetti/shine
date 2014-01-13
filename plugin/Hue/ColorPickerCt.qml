@@ -47,8 +47,8 @@ Item {
         id: touchDelegateLoader
         // 0 : width = minCt : maxCt
         // x = (width * (ct - minCt) / (maxCt-minCt))
-        property int pos: (root.width * (root.ct - root.minCt) / (root.maxCt - root.minCt));
-        x: item ? Math.max(0, Math.min(pos - width * .5, parent.width - item.width)) : 0
+        property int position: (root.width * (root.ct - root.minCt) / (root.maxCt - root.minCt));
+        x: item ? Math.max(0, Math.min(position - width * .5, parent.width - item.width)) : 0
         sourceComponent: root.touchDelegate
         visible: !mouseArea.pressed && root.active
     }
