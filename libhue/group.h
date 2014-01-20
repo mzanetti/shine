@@ -75,10 +75,14 @@ private slots:
     void responseReceived(int id, const QVariant &response);
     void setDescriptionFinished(int id, const QVariant &response);
 
+    void setStateFinished(int id, const QVariant &response);
+
 private:
     int m_id;
     QString m_name;
     QList<int> m_lightIds;
+
+    bool m_on;
 };
 
 #endif

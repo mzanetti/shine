@@ -22,6 +22,8 @@
 #ifndef LIGHTINTERFACE_H
 #define LIGHTINTERFACE_H
 
+#include "huebridgeconnection.h"
+
 #include <QObject>
 #include <QPointF>
 #include <QColor>
@@ -59,6 +61,7 @@ public:
     {
         connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
         m_timer.start(10000);
+        connect(HueBridgeConnection::instance(), SIGNAL(stateChanged()), this, SLOT(refresh()));
     }
 
     virtual int id() const = 0;

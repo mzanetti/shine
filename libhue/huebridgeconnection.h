@@ -77,6 +77,7 @@ signals:
     void discoveryErrorChanged();
     void bridgeFoundChanged();
     void connectedBridgeChanged();
+    void stateChanged();
 
     void createUserFailed(const QString &errorMessage);
 
@@ -102,6 +103,9 @@ private:
     int m_requestCounter;
     QHash<QNetworkReply*, int> m_requestIdMap;
     QHash<int, CallbackObject> m_requestSenderMap;
+
+    // This is used to store write operations so clients can be notfied to refresh after those succeed.
+    QList<QNetworkReply*> m_writeOperationList;
 };
 
 #endif

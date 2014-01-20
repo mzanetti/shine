@@ -82,6 +82,13 @@ Page {
                 onClicked: {
                     groups.get(groupSelector.selectedIndex).on = checked;
                 }
+
+                Connections {
+                    target: groups.get(groupSelector.selectedIndex)
+                    onStateChanged: {
+                        groupSwitch.checked = groups.get(groupSelector.selectedIndex).on;
+                    }
+                }
             }
         }
 

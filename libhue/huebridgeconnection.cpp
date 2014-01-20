@@ -163,6 +163,7 @@ int HueBridgeConnection::deleteResource(const QString &path, QObject *sender, co
     QNetworkReply *reply = m_nam->deleteResource(request);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
+    m_writeOperationList.append(reply);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
     return m_requestCounter++;
@@ -190,6 +191,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
     QNetworkReply *reply = m_nam->post(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
+    m_writeOperationList.append(reply);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
     return m_requestCounter++;
@@ -217,6 +219,7 @@ int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QOb
     QNetworkReply *reply = m_nam->put(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
+    m_writeOperationList.append(reply);
     CallbackObject co(sender, slot);
     m_requestSenderMap.insert(m_requestCounter, co);
     return m_requestCounter++;
@@ -276,10 +279,6 @@ void HueBridgeConnection::slotOpFinished()
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
 
-    if (co.sender().isNull()) {
-        return; // No need to parse response... sender not here any more.
-    }
-
 #if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
@@ -298,6 +297,13 @@ void HueBridgeConnection::slotOpFinished()
     }
 #endif
 
-    QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
+    if (m_writeOperationList.contains(reply)) {
+        m_writeOperationList.removeAll(reply);
+        emit stateChanged();
+    }
+
+    if (!co.sender().isNull()) {
+        QMetaObject::invokeMethod(co.sender(), co.slot().toLatin1().data(), Q_ARG(int, id), Q_ARG(QVariant, rsp));
+    }
 }
 

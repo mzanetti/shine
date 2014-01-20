@@ -29,7 +29,7 @@ Group::Group(int id, const QString &name, QObject *parent)
     , m_id(id)
     , m_name(name)
 {
-    HueBridgeConnection::instance()->get("groups/" + QString::number(id), this, "responseReceived");
+    refresh();
 }
 
 int Group::id() const
@@ -53,21 +53,14 @@ void Group::setName(const QString &name)
 
 bool Group::on() const
 {
-    foreach (int lightId, m_lightIds) {
-//        if (Lights::get(lightId)->on())
-//            return true;
-    }
-
-    return false;
+    return m_on;
 }
 
 void Group::setOn(bool on)
 {
-    foreach (int lightId, m_lightIds) {
-//        Lights::get(lightId)->setOn(on);
-    }
-
-    emit stateChanged();
+    QVariantMap params;
+    params.insert("on", on);
+    HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
 }
 
 quint8 Group::bri() const
@@ -260,7 +253,7 @@ QList<int> Group::lightIds() const
 
 void Group::refresh()
 {
-    // TODO
+    HueBridgeConnection::instance()->get("groups/" + QString::number(m_id), this, "responseReceived");
 }
 
 void Group::responseReceived(int id, const QVariant &response)
@@ -271,11 +264,16 @@ void Group::responseReceived(int id, const QVariant &response)
 
     QVariantMap attributes = response.toMap();
     QVariantList lightsMap = attributes.value("lights").toList();
+    qDebug() << "got groups response:" << attributes;
     foreach (const QVariant &lightId, lightsMap) {
         m_lightIds << lightId.toUInt();
     }
 
     emit lightsChanged();
+
+    QVariantMap action = attributes.value("action").toMap();
+    m_on = action.value("on").toBool();
+    emit stateChanged();
 
     qDebug() << "got group response" << m_id << m_name << on() << bri() << reachable();
 }
@@ -293,4 +291,18 @@ void Group::setDescriptionFinished(int id, const QVariant &response)
             emit nameChanged();
         }
     }
+}
+
+void Group::setStateFinished(int id, const QVariant &response)
+{
+    foreach (const QVariant &resultVariant, response.toList()) {
+        QVariantMap result = resultVariant.toMap();
+        if (result.contains("success")) {
+            QVariantMap successMap = result.value("success").toMap();
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/state/on")) {
+                m_on = successMap.value("/groups/" + QString::number(m_id) + "/state/on").toBool();
+            }
+        }
+    }
+    emit stateChanged();
 }
