@@ -104,20 +104,12 @@ Group *Groups::get(int index) const
 
 void Groups::refresh()
 {
-    beginResetModel();
-    QList<Group*> tmp = m_list;
-    m_list.clear();
-    endResetModel();
-    emit countChanged();
-    qDeleteAll(tmp);
-
     HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
 }
 
 void Groups::groupsReceived(int id, const QVariant &variant)
 {
     Q_UNUSED(id)
-    qDebug() << "got groups" << variant;
     QVariantMap groups = variant.toMap();
 
     beginResetModel();
@@ -125,7 +117,6 @@ void Groups::groupsReceived(int id, const QVariant &variant)
     connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
     foreach (const QString &groupId, groups.keys()) {
         Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
-        qDebug() << "got group" << group->name() << group->id();
         connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
     }
     endResetModel();

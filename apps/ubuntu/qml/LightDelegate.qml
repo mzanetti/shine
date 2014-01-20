@@ -35,7 +35,7 @@ Empty {
     states: [
         State {
             name: "expanded"; when: root.__isExpanded
-            PropertyChanges { target: root; height: root.expandedHeight + units.gu(2) }
+            PropertyChanges { target: root; implicitHeight: root.expandedHeight + units.gu(2) }
         },
         State {
             name: "rename"
@@ -47,7 +47,7 @@ Empty {
     transitions: [
         Transition {
             from: "*"; to: "*"
-            UbuntuNumberAnimation { properties: "height" }
+            UbuntuNumberAnimation { properties: "implicitHeight" }
             UbuntuNumberAnimation { properties: "opacity" }
         }
     ]

@@ -32,7 +32,7 @@ Page {
     tools: ToolbarItems {
         ToolbarButton {
             text: "group"
-            iconName: "remove"
+            iconName: "delete"
             enabled: groupSelector.selectedIndex > 0
             onTriggered: {
                 groups.deleteGroup(groups.get(groupSelector.selectedIndex).id)
@@ -71,6 +71,7 @@ Page {
 
                 onSelectedIndexChanged: {
                     lightsFilterModel.groupId = groups.get(selectedIndex).id
+                    groupSwitch.reload();
                 }
             }
             Switch {
@@ -85,9 +86,10 @@ Page {
 
                 Connections {
                     target: groups.get(groupSelector.selectedIndex)
-                    onStateChanged: {
-                        groupSwitch.checked = groups.get(groupSelector.selectedIndex).on;
-                    }
+                    onStateChanged: groupSwitch.reload();
+                }
+                function reload() {
+                    groupSwitch.checked = groups.get(groupSelector.selectedIndex).on;
                 }
             }
         }
@@ -108,6 +110,13 @@ Page {
             delegate: LightDelegate {
                 id: delegateItem
                 light: lightsFilterModel.get(index)
+            }
+
+            add: Transition {
+                UbuntuNumberAnimation { properties: "opacity"; from: 0; to: 1 }
+            }
+            displaced: Transition {
+                UbuntuNumberAnimation { properties: "x,y" }
             }
         }
     }
