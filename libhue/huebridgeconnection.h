@@ -26,6 +26,7 @@
 #include <QHash>
 #include <QHostAddress>
 #include <QVariantMap>
+#include <QPointer>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -33,14 +34,14 @@ class QNetworkReply;
 class CallbackObject
 {
 public:
-    CallbackObject(QObject *sender = 0, const QString &slot = QString()):
+    CallbackObject(QPointer<QObject> sender = 0, const QString &slot = QString()):
         m_sender(sender),
         m_slot(slot)
     {}
-    QObject *sender() const { return m_sender; }
+    QPointer<QObject> sender() const { return m_sender; }
     QString slot() const { return m_slot; }
 private:
-    QObject *m_sender;
+    QPointer<QObject> m_sender;
     QString m_slot;
 };
 
