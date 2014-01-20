@@ -78,6 +78,7 @@ Page {
                 anchors { top: parent.top; margins: units.gu(1) }
                 iconSource: "image://theme/torch-off"
                 checked: groups.get(groupSelector.selectedIndex).on
+                visible: groups.count > 0
                 onClicked: {
                     groups.get(groupSelector.selectedIndex).on = checked;
                 }

@@ -41,6 +41,11 @@ int Groups::rowCount(const QModelIndex &parent) const
     return m_list.count();
 }
 
+int Groups::count() const
+{
+    return m_list.count();
+}
+
 QVariant Groups::data(const QModelIndex &index, int role) const
 {
     Group *group = m_list.at(index.row());
@@ -103,6 +108,7 @@ void Groups::refresh()
     QList<Group*> tmp = m_list;
     m_list.clear();
     endResetModel();
+    emit countChanged();
     qDeleteAll(tmp);
 
     HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
@@ -123,6 +129,7 @@ void Groups::groupsReceived(int id, const QVariant &variant)
         connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
     }
     endResetModel();
+    emit countChanged();
 }
 
 void Groups::groupDescriptionChanged()

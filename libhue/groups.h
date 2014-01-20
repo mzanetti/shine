@@ -27,6 +27,8 @@ class Group;
 class Groups : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
+
 public:
     enum Roles {
         RoleId,
@@ -46,6 +48,7 @@ public:
     explicit Groups(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent) const;
+    int count() const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Group* get(int index) const;
@@ -55,6 +58,9 @@ public slots:
     Q_INVOKABLE void deleteGroup(int id);
 
     void refresh();
+
+signals:
+    void countChanged();
 
 private slots:
     void createGroupFinished(int id, const QVariant &variant);
