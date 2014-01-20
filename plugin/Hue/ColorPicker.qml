@@ -219,6 +219,12 @@ Item {
         }
 
         onReleased: {
+            if (mouseArea.draggedItem) {
+                root.color = root.calculateColor(mouseX, mouseY);
+                if (mouseArea.draggedLight) {
+                    mouseArea.draggedLight.color = root.calculateColor(mouseX, mouseY);
+                }
+            }
             mouseArea.draggedItem = undefined;
             mouseArea.draggedLight = undefined;
             mouseArea.drag.target = undefined;
@@ -234,6 +240,10 @@ Item {
         y: item ? Math.max(0, Math.min(point.y - height * .5, parent.height - item.height)) : 0
         sourceComponent: root.lights ? undefined : root.touchDelegate
         visible: mouseArea.draggedItem != touchDelegateLoader && root.active
+//        Behavior on x {
+//            enabled: !mouseArea.pressed
+//            NumberAnimation {}
+//        }
     }
 
     Repeater {
@@ -251,6 +261,10 @@ Item {
             onLoaded: {
                 if (item.hasOwnProperty("text")) item.text = index + 1;
                 item.light = lights.get(index)
+            }
+            Behavior on x {
+                enabled: !mouseArea.pressed
+                NumberAnimation {}
             }
         }
     }

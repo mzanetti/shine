@@ -276,6 +276,10 @@ void HueBridgeConnection::slotOpFinished()
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
 
+    if (co.sender().isNull()) {
+        return; // No need to parse response... sender not here any more.
+    }
+
 #if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);

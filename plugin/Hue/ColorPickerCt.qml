@@ -51,6 +51,10 @@ Item {
         x: item ? Math.max(0, Math.min(position - width * .5, parent.width - item.width)) : 0
         sourceComponent: root.touchDelegate
         visible: !mouseArea.pressed && root.active
+        Behavior on x {
+            enabled: !mouseArea.pressed
+            NumberAnimation {}
+        }
     }
 
     MouseArea {
@@ -75,6 +79,7 @@ Item {
         }
 
         onReleased: {
+            root.ct = Math.min(root.maxCt, Math.max(root.minCt, (mouseX * (root.maxCt - root.minCt) / width) + root.minCt))
             mouseArea.drag.target = undefined;
         }
 
