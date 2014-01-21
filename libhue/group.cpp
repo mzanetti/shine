@@ -264,7 +264,6 @@ void Group::responseReceived(int id, const QVariant &response)
 
     QVariantMap attributes = response.toMap();
     QVariantList lightsMap = attributes.value("lights").toList();
-    qDebug() << "got groups response:" << attributes;
     foreach (const QVariant &lightId, lightsMap) {
         m_lightIds << lightId.toUInt();
     }
@@ -274,8 +273,6 @@ void Group::responseReceived(int id, const QVariant &response)
     QVariantMap action = attributes.value("action").toMap();
     m_on = action.value("on").toBool();
     emit stateChanged();
-
-    qDebug() << "got group response" << m_id << m_name << on() << bri() << reachable();
 }
 
 void Group::setDescriptionFinished(int id, const QVariant &response)

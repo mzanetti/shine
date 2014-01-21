@@ -171,7 +171,6 @@ void Groups::groupLightsChanged()
     QModelIndex modelIndex = index(idx);
 
 #if QT_VERSION >= 0x050000
-    qDebug() << "groupLightschanged";
     QVector<int> roles = QVector<int>() << RoleLightIds;
     emit dataChanged(modelIndex, modelIndex, roles);
 #else

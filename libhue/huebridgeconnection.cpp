@@ -215,6 +215,7 @@ int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QOb
     QJson::Serializer serializer;
     QByteArray data = serializer.serialize(params);
 #endif
+    qDebug() << "putting" << url << data;
 
     QNetworkReply *reply = m_nam->put(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));

@@ -29,18 +29,15 @@ Item {
     property Component touchDelegate
     property variant lights
     property bool active: true
-    property real fullColorHeight: 0.33
 
     function calculateXy(color) {
         if (!color.hasOwnProperty("r")) {
-            // Qt 4.8 around :/ color doesn't have r,g,b properties
+            // Qt 4.8's color doesn't have r,g,b properties
             var colorString = color.toString();
             color = new Object;
             color.r = 1.0 * parseInt("0x" + colorString.substring(1,3), 16) / 256;
             color.g = 1.0 * parseInt("0x" + colorString.substring(3,5), 16) / 256;
             color.b = 1.0 * parseInt("0x" + colorString.substring(5,7), 16) / 256;
-
-
         }
 
         var point = new Object;
@@ -102,9 +99,7 @@ Item {
         var sectionVal = (1.0 * sectionX / sectionWidth)
 
         // brightnessVal : 1.0 = mouseY : height
-        var brightness = 1.0 * (y - height * root.fullColorHeight) / (height * (1-root.fullColorHeight))
-        print("brightness", brightness)
-
+        var brightness = 1.0 * y / height
 
         switch (section) {
         case 0:
@@ -132,7 +127,7 @@ Item {
             color = Qt.rgba(1, brightness, 1 - sectionVal + brightness, 1)
             break;
         }
-        print("got color", color.r, color.g, color.b)
+//        print("got color", color.r, color.g, color.b)
         return color
     }
 
@@ -157,7 +152,6 @@ Item {
         anchors.fill: parent
         gradient: Gradient {
             GradientStop { position: 0.0; color: "transparent" }
-            GradientStop { position: root.fullColorHeight; color: "transparent" }
             GradientStop { position: 1.0; color: "white" }
         }
     }

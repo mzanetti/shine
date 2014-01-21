@@ -100,6 +100,7 @@ Page {
             id: lightsListView
             anchors {left: parent.left; right: parent.right }
             height: parent.height - y
+            clip: true
 
             model: LightsFilterModel {
                 id: lightsFilterModel

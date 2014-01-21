@@ -117,6 +117,8 @@ private:
     quint8 m_dirtyBri;
     bool m_ctDirty;
     quint16 m_dirtyCt;
+    bool m_xyDirty;
+    QPointF m_dirtyXy;
 };
 
 #endif

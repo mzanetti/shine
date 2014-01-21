@@ -83,9 +83,13 @@ Empty {
                 brightnessSlider.value = root.light.bri;
                 onOffSwitch.checked = root.light.on;
                 effectSelector.selectedIndex = effectSelector.findIndex();
-                colorPicker.color = root.light.color;
+                if (!colorPicker.pressed || !colorPicker.active) {
+                    colorPicker.color = root.light.color;
+                }
                 colorPicker.active = light ? (light.colormode == LightInterface.ColorModeHS || light.colormode == LightInterface.ColorModeXY) : false
-                colorPickerCt.ct = root.light.ct;
+                if (!colorPickerCt.pressed) {
+                    colorPickerCt.ct = root.light.ct;
+                }
                 colorPickerCt.active = !colorPicker.active
             }
             onNameChanged: {

@@ -122,8 +122,6 @@ void Lights::lightsReceived(int id, const QVariant &variant)
     Q_UNUSED(id)
     QVariantMap lights = variant.toMap();
 
-    qDebug() << "got lights" << lights;
-
     // Find removed lights
     QList<Light*> removedLights;
     foreach (Light *light, m_list) {

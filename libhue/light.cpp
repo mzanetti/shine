@@ -33,7 +33,8 @@ Light::Light(int id, const QString &name, QObject *parent):
     m_hueDirty(false),
     m_satDirty(false),
     m_briDirty(false),
-    m_ctDirty(false)
+    m_ctDirty(false),
+    m_xyDirty(false)
 {
     refresh();
 }
@@ -189,19 +190,20 @@ void Light::setColor(const QColor &color)
     qreal x = 27*u / (18*u - 48*v + 36);
     qreal y = 12*v / (18*u - 48*v + 36);
 
+    qDebug() << "setting color" << color;
     if (m_busyStateChangeId == -1) {
         QVariantMap params;
 
-//        params.insert("hue", hue);
-//        params.insert("sat", sat);
-
-        QVariantList xyList;
-        xyList << x << y;
-        params.insert("xy", xyList);
-
+        params.insert("hue", hue);
+        params.insert("sat", sat);
         // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
         // Lets just assume it always succeeds
-        m_sat = m_dirtySat;
+        m_sat = sat;
+
+//        QVariantList xyList;
+//        xyList << x << y;
+//        params.insert("xy", xyList);
+
 
         params.insert("on", true);
         m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
@@ -210,6 +212,8 @@ void Light::setColor(const QColor &color)
         m_hueDirty = true;
         m_dirtySat = sat;
         m_satDirty = true;
+//        m_xyDirty = true;
+//        m_dirtyXy = QPointF(x, y);
     }
 }
 
@@ -404,6 +408,14 @@ void Light::setStateFinished(int id, const QVariant &response)
             QVariantMap params;
             params.insert("ct", m_dirtyCt);
             m_ctDirty = false;
+
+            m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+        } else if (m_xyDirty) {
+            QVariantMap params;
+            QVariantList xyList;
+            xyList << m_dirtyXy.x() << m_dirtyXy.y();
+            params.insert("xy", xyList);
+            m_xyDirty = false;
 
             m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
         }
