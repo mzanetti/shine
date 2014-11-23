@@ -217,7 +217,7 @@ void Groups::createGroup(const QString &name, const QList<int> &lights)
 
 Group *Groups::createGroupInternal(int id, const QString &name)
 {
-    Group *group = new Group(id, name);
+    Group *group = new Group(id, name, this);
 
     connect(group, SIGNAL(nameChanged()), this, SLOT(groupDescriptionChanged()));
     connect(group, SIGNAL(stateChanged()), this, SLOT(groupStateChanged()));

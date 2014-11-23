@@ -210,7 +210,7 @@ void Lights::lightStateChanged()
 
 Light *Lights::createLight(int id, const QString &name)
 {
-    Light *light = new Light(id, name);
+    Light *light = new Light(id, name, this);
 
     connect(light, SIGNAL(nameChanged()), this, SLOT(lightDescriptionChanged()));
     connect(light, SIGNAL(modelIdChanged()), this, SLOT(lightDescriptionChanged()));
