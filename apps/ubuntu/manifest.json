@@ -1,6 +1,6 @@
 {
     "description": "A control app for Philips Hue lights.",
-    "framework": "ubuntu-sdk-13.10",
+    "framework": "ubuntu-sdk-14.10",
     "architecture": "armhf",
     "hooks": {
         "shine": {
@@ -11,5 +11,5 @@
     "maintainer": "Michael Zanetti <michael_zanetti@gmx.net>",
     "name": "com.ubuntu.developer.mzanetti.shine",
     "title": "Shine",
-    "version": "0.1.3"
+    "version": "0.2.0"
 }
