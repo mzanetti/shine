@@ -15,7 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="shine.svg">
+   sodipodi:docname="shine.svg"
+   inkscape:export-filename="/home/micha/Develop/shine/apps/ubuntu/shine256.png"
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
   <defs
      id="defs4">
     <linearGradient
@@ -659,7 +662,7 @@
      inkscape:cx="31.576324"
      inkscape:cy="34.469671"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="2880"
      inkscape:window-height="1733"
@@ -674,14 +677,15 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:groupmode="layer"
      id="layer2"
-     inkscape:label="colors">
+     inkscape:label="colors"
+     sodipodi:insensitive="true">
     <rect
        style="fill:url(#linearGradient4877);fill-opacity:1;stroke:none"
        id="rect3753"
@@ -689,14 +693,15 @@
        height="128"
        x="-128"
        y="0"
-       transform="scale(-1,1)" />
+       transform="scale(-1,1)"
+       rx="10"
+       ry="10" />
   </g>
   <g
      inkscape:label="white gradient"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-924.36218)"
-     sodipodi:insensitive="true">
+     transform="translate(0,-924.36218)">
     <rect
        style="fill:url(#linearGradient3799);fill-opacity:1;stroke:none"
        id="rect3791"
@@ -704,7 +709,9 @@
        height="128"
        x="-1052.3622"
        y="0"
-       transform="matrix(0,-1,1,0,0,0)" />
+       transform="matrix(0,-1,1,0,0,0)"
+       rx="10"
+       ry="10" />
     <text
        xml:space="preserve"
        style="font-size:87.91662598px;font-style:normal;font-weight:bold;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"

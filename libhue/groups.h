@@ -52,6 +52,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Group* get(int index) const;
+    Q_INVOKABLE Group *findGroup(int id) const;
 
 public slots:
     Q_INVOKABLE void createGroup(const QString &name, const QList<int> &lights);

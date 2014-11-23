@@ -17,11 +17,11 @@
  *      Michael Zanetti <michael_zanetti@gmx.net>
  */
 
-import QtQuick 2.0
+import QtQuick 2.3
 import QtQuick.Window 2.0
-import Ubuntu.Components 0.1
-import Ubuntu.Components.ListItems 0.1
-import Ubuntu.Components.Popups 0.1
+import Ubuntu.Components 1.1
+import Ubuntu.Components.ListItems 1.0
+import Ubuntu.Components.Popups 1.0
 import Hue 0.1
 
 MainView {
@@ -29,8 +29,9 @@ MainView {
     width: units.gu(50)
     height: units.gu(75)
 
-//    applicationName: "com.ubuntu.developer.mzanetti.shine"
+    applicationName: "com.ubuntu.developer.mzanetti.shine"
 
+    useDeprecatedToolbar: false
     automaticOrientation: true
     property string orientation: pageStack.width > pageStack.height ? "landscape" : "portrait"
 
@@ -116,7 +117,7 @@ MainView {
                 id: connectButton
                 text: "Connect..."
                 onClicked: {
-                    HueBridge.createUser("Ubuntu touch", "abcdef1234567890")
+                    HueBridge.createUser("Shine - Ubuntu touch", "abcdef1234567890")
                     connectDialog.text = "Waiting for the connection to establish..."
                 }
             }

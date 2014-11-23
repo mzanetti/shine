@@ -102,6 +102,16 @@ Group *Groups::get(int index) const
     return 0;
 }
 
+Group *Groups::findGroup(int id) const
+{
+    foreach (Group *group, m_list) {
+        if (group->id() == id) {
+            return group;
+        }
+    }
+    return 0;
+}
+
 void Groups::refresh()
 {
     HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
@@ -111,15 +121,27 @@ void Groups::groupsReceived(int id, const QVariant &variant)
 {
     Q_UNUSED(id)
     QVariantMap groups = variant.toMap();
-
-    beginResetModel();
-    Group *group = createGroupInternal(0, "All");
-    connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
-    foreach (const QString &groupId, groups.keys()) {
-        Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
-        connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
+    QList<Group*> removedGroups;
+    foreach (Group *group, m_list) {
+        if (!groups.contains(QString::number(group->id()))) {
+            removedGroups.append(group);
+        }
     }
-    endResetModel();
+
+    qDebug() << removedGroups.count() << "groups removed";
+    foreach (Group *group, removedGroups) {
+        int index = m_list.indexOf(group);
+        beginRemoveRows(QModelIndex(), index, index);
+        m_list.takeAt(index)->deleteLater();
+        endRemoveRows();
+    }
+
+    Group *group = createGroupInternal(0, "All");
+    foreach (const QString &groupId, groups.keys()) {
+        if (findGroup(groupId.toInt()) == 0) {
+            Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
+        }
+    }
     emit countChanged();
 }
 
@@ -199,8 +221,11 @@ Group *Groups::createGroupInternal(int id, const QString &name)
 
     connect(group, SIGNAL(nameChanged()), this, SLOT(groupDescriptionChanged()));
     connect(group, SIGNAL(stateChanged()), this, SLOT(groupStateChanged()));
+    connect(group, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
 
+    beginInsertRows(QModelIndex(), m_list.count(), m_list.count());
     m_list.append(group);
+    endInsertRows();
     return group;
 }
 
