@@ -67,8 +67,11 @@ void Discovery::findBridges()
 
 void Discovery::onTimeout()
 {
-    if (m_reportedBridges.isEmpty())
+    if (m_reportedBridges.isEmpty()) {
         emit noBridgesFound();
+        // Try again...
+        findBridges();
+    }
 }
 
 void Discovery::onReadyRead()
