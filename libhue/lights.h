@@ -53,6 +53,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Light* get(int index) const;
+    Q_INVOKABLE Light* findLight(int lightId) const;
 
 public slots:
     void refresh();

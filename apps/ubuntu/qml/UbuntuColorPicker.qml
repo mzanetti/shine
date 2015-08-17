@@ -18,7 +18,7 @@
  */
 
 import QtQuick 2.3
-import Ubuntu.Components 1.1
+import Ubuntu.Components 1.3
 import Hue 0.1
 
 Item {
@@ -48,7 +48,7 @@ Item {
 
     Shape {
         id: shape
-        image: source
+        source: source
 
         anchors.fill: parent
     }

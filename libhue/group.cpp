@@ -23,11 +23,19 @@
 #include <QColor>
 #include <QDebug>
 #include <qabstractitemmodel.h>
+#include <QGenericMatrix>
 
 Group::Group(int id, const QString &name, QObject *parent)
     : LightInterface(parent)
     , m_id(id)
     , m_name(name)
+    , m_bri(0),
+    m_busyStateChangeId(-1),
+    m_hueDirty(false),
+    m_satDirty(false),
+    m_briDirty(false),
+    m_ctDirty(false),
+    m_xyDirty(false)
 {
     refresh();
 }
@@ -65,65 +73,47 @@ void Group::setOn(bool on)
 
 quint8 Group::bri() const
 {
-    quint8 bri = 0;
-    foreach (int lightId, m_lightIds) {
-//        if (bri > 0 && Lights::get(lightId)->bri() != bri)
-//            return 0;
-//        bri = Lights::get(lightId)->bri();
-    }
-
-    return bri;
+    return m_bri;
 }
 
 void Group::setBri(quint8 bri)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setBri(bri);
+    if (bri != m_bri) {
+        QVariantMap params;
+        params.insert("on", true);
+        params.insert("bri", bri);
+        HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
     }
-
-    emit stateChanged();
 }
 
 quint16 Group::hue() const
 {
-    quint16 hue = 0;
-    foreach (int lightId, m_lightIds) {
-        //        if (hue > 0 && Lights::get(lightId)->hue() != hue)
-        //            return 0;
-        //        hue = Lights::get(lightId)->hue();
-    }
-
-    return hue;
+    return m_hue;
 }
 
 void Group::setHue(quint16 hue)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setHue(hue);
+    if (hue != m_hue) {
+        QVariantMap params;
+        params.insert("on", true);
+        params.insert("hue", hue);
+        HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
     }
-
-    emit stateChanged();
 }
 
 quint8 Group::sat() const
 {
-    quint8 sat = 0;
-    foreach (int lightId, m_lightIds) {
-        //        if (sat > 0 && Lights::get(lightId)->sat() != sat)
-        //            return 0;
-        //        sat = Lights::get(lightId)->sat();
-    }
-
-    return sat;
+    return m_sat;
 }
 
 void Group::setSat(quint8 sat)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setSat(sat);
+    if (sat != m_sat) {
+        QVariantMap params;
+        params.insert("on", true);
+        params.insert("sat", sat);
+        HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
     }
-
-    emit stateChanged();
 }
 
 QColor Group::color() const
@@ -133,117 +123,131 @@ QColor Group::color() const
 
 void Group::setColor(const QColor &color)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setColor(color);
-    }
+    // Transform from RGB to Hue/Sat
+    quint16 hue = color.hue() * 65535 / 360;
+    quint8 sat = color.saturation();
 
-    emit stateChanged();
+    // Transform from RGB to XYZ
+    QGenericMatrix<3, 3, qreal> rgb2xyzMatrix;
+    rgb2xyzMatrix(0, 0) = 0.412453;    rgb2xyzMatrix(0, 1) = 0.357580;    rgb2xyzMatrix(0, 2) = 0.180423;
+    rgb2xyzMatrix(1, 0) = 0.212671;    rgb2xyzMatrix(1, 1) = 0.715160;    rgb2xyzMatrix(1, 2) = 0.072169;
+    rgb2xyzMatrix(2, 0) = 0.019334;    rgb2xyzMatrix(2, 1) = 0.119193;    rgb2xyzMatrix(2, 2) = 0.950227;
+
+    QGenericMatrix<1, 3, qreal> rgbMatrix;
+    rgbMatrix(0, 0) = 1.0 * color.red() / 255;
+    rgbMatrix(1, 0) = 1.0 * color.green() / 255;
+    rgbMatrix(2, 0) = 1.0 * color.blue() / 255;
+
+    QGenericMatrix<1, 3, qreal> xyzMatrix = rgb2xyzMatrix * rgbMatrix;
+
+    // transform from XYZ to CIELUV u' and v'
+    qreal u = 4*xyzMatrix(0, 0) / (xyzMatrix(0, 0) + 15*xyzMatrix(1, 0) + 3*xyzMatrix(2, 0));
+    qreal v = 9*xyzMatrix(1, 0) / (xyzMatrix(0, 0) + 15*xyzMatrix(1, 0) + 3*xyzMatrix(2, 0));
+
+    // Transform from CIELUV to (x,y)
+    qreal x = 27*u / (18*u - 48*v + 36);
+    qreal y = 12*v / (18*u - 48*v + 36);
+
+    qDebug() << "setting color" << color << x << y;
+    if (m_busyStateChangeId == -1) {
+        QVariantMap params;
+
+        params.insert("hue", hue);
+        params.insert("sat", sat);
+        // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
+        // Lets just assume it always succeeds
+        m_sat = sat;
+
+//        QVariantList xyList;
+//        xyList << x << y;
+//        params.insert("xy", xyList);
+
+
+        params.insert("on", true);
+        m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+    } else {
+        m_dirtyHue = hue;
+        m_hueDirty = true;
+        m_dirtySat = sat;
+        m_satDirty = true;
+//        m_xyDirty = true;
+//        m_dirtyXy = QPointF(x, y);
+    }
 }
 
 QPointF Group::xy() const
 {
-    QPointF p;
-    foreach (int lightId, m_lightIds) {
-        //        if ((p.x() > 0 || p.y() > 0) && Lights::get(lightId)->xy() != p)
-        //            return QPointF();
-        //        p = Lights::get(lightId)->xy();
-    }
-
-    return p;
+    return m_xy;
 }
 
 void Group::setXy(const QPointF &xy)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setXy(xy);
+    if (m_xy != xy) {
+        m_xy = xy;
+        emit stateChanged();
     }
-
-    emit stateChanged();
 }
 
 quint16 Group::ct() const
 {
-    quint16 ct = 0;
-    foreach (int lightId, m_lightIds) {
-        //        if (ct > 0 && Lights::get(lightId)->ct() != ct)
-        //            return 0;
-        //        ct = Lights::get(lightId)->ct();
-    }
-
-    return ct;
+    return m_ct;
 }
 
 void Group::setCt(quint16 ct)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setCt(ct);
+    if (m_busyStateChangeId == -1) {
+        QVariantMap params;
+        params.insert("ct", ct);
+        params.insert("on", true);
+        m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+    } else {
+        m_dirtyCt = ct;
+        m_ctDirty = true;
     }
-
-    emit stateChanged();
 }
 
 QString Group::alert() const
 {
-    QString alert;
-    foreach (int lightId, m_lightIds) {
-        //        if (!alert.isEmpty() && Lights::get(lightId)->alert() != alert)
-        //            return QString();
-        //        alert = Lights::get(lightId)->alert();
-    }
-
-    return alert;
+    return m_alert;
 }
 
 void Group::setAlert(const QString &alert)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setAlert(alert);
+    if (m_alert != alert) {
+        QVariantMap params;
+        params.insert("alert", alert);
+        if (alert != "none") {
+            params.insert("on", true);
+        }
+        HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
     }
-
-    emit stateChanged();
 }
 
 QString Group::effect() const
 {
-    QString effect;
-    foreach (int lightId, m_lightIds) {
-        //        if (!effect.isEmpty() && Lights::get(lightId)->effect() != effect)
-        //            return QString();
-        //        effect = Lights::get(lightId)->effect();
-    }
-
-    return effect;
+    return m_effect;
 }
 
 void Group::setEffect(const QString &effect)
 {
-    foreach (int lightId, m_lightIds) {
-        //        Lights::get(lightId)->setEffect(effect);
+    if (m_effect != effect) {
+        QVariantMap params;
+        params.insert("effect", effect);
+        if (effect != "none") {
+            params.insert("on", true);
+        }
+        HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
     }
-
-    emit stateChanged();
 }
 
 LightInterface::ColorMode Group::colorMode() const
 {
-    ColorMode colormode = ColorModeHS;
-    foreach (int lightId, m_lightIds) {
-        //        if (!colormode.isEmpty() && Lights::get(lightId)->colormode() != colormode)
-        //            return QString();
-        //        colormode = Lights::get(lightId)->colormode();
-    }
-
-    return colormode;
+    return m_colormode;
 }
 
 bool Group::reachable() const
 {
-    foreach (int lightId, m_lightIds) {
-        //        if (Lights::get(lightId)->reachable())
-        //            return true;
-    }
-
-    return false;
+    return m_reachable;
 }
 
 QList<int> Group::lightIds() const
@@ -272,6 +276,23 @@ void Group::responseReceived(int id, const QVariant &response)
 
     QVariantMap action = attributes.value("action").toMap();
     m_on = action.value("on").toBool();
+    m_bri = action.value("bri").toUInt();
+    m_hue = action.value("hue").toUInt();
+    m_sat = action.value("sat").toUInt();
+
+    m_xy = action.value("xy").toPointF();
+    m_ct = action.value("ct").toInt();
+    m_alert = action.value("alert").toString();
+    m_effect = action.value("effect").toString();
+    QString colorModeString = action.value("colormode").toString();
+    if (colorModeString == "hs") {
+        m_colormode = ColorModeHS;
+    } else if (colorModeString == "xy") {
+        m_colormode = ColorModeXY;
+    } else if (colorModeString == "ct") {
+        m_colormode = ColorModeCT;
+    }
+    m_reachable = true;//action.value("reachable").toBool();
     emit stateChanged();
 }
 
@@ -292,14 +313,78 @@ void Group::setDescriptionFinished(int id, const QVariant &response)
 
 void Group::setStateFinished(int id, const QVariant &response)
 {
+    qDebug() << "set state finished" << response;
     foreach (const QVariant &resultVariant, response.toList()) {
         QVariantMap result = resultVariant.toMap();
         if (result.contains("success")) {
             QVariantMap successMap = result.value("success").toMap();
-            if (successMap.contains("/groups/" + QString::number(m_id) + "/state/on")) {
-                m_on = successMap.value("/groups/" + QString::number(m_id) + "/state/on").toBool();
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/on")) {
+                m_on = successMap.value("/groups/" + QString::number(m_id) + "/action/on").toBool();
+            }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/hue")) {
+                m_hue = successMap.value("/groups/" + QString::number(m_id) + "/action/hue").toInt();
+                m_colormode = ColorModeHS;
+            }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/bri")) {
+                m_bri = successMap.value("/groups/" + QString::number(m_id) + "/action/bri").toInt();
+            }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/sat")) {
+                m_sat = successMap.value("/groups/" + QString::number(m_id) + "/action/sat").toInt();
+                m_colormode = ColorModeHS;
+            }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/xy")) {
+                m_xy = successMap.value("/groups/" + QString::number(m_id) + "/action/xy").toPoint();
+                m_colormode = ColorModeXY;
+            }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/ct")) {
+                m_ct = successMap.value("/groups/" + QString::number(m_id) + "/action/ct").toInt();
+                m_colormode = ColorModeCT;
+            }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/effect")) {
+                m_effect = successMap.value("/groups/" + QString::number(m_id) + "/action/effect").toString();
             }
         }
     }
+
     emit stateChanged();
+
+    if (m_busyStateChangeId == id) {
+        m_busyStateChangeId = -1;
+        if (m_hueDirty || m_satDirty || m_briDirty) {
+            QVariantMap params;
+            if (m_hueDirty) {
+                params.insert("hue", m_dirtyHue);
+                m_hueDirty = false;
+            }
+            if (m_satDirty) {
+                params.insert("sat", m_dirtySat);
+                m_satDirty = false;
+            }
+            if (m_briDirty) {
+                params.insert("bri", m_dirtyBri);
+                m_briDirty = false;
+            }
+
+            // FIXME: There is a bug in the API that it doesn't report back the set state of "sat"
+            // Lets just assume it always succeeds
+            m_sat = m_dirtySat;
+
+            m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+        } else if(m_ctDirty) {
+            QVariantMap params;
+            params.insert("ct", m_dirtyCt);
+            m_ctDirty = false;
+
+            m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+        } else if (m_xyDirty) {
+            QVariantMap params;
+            QVariantList xyList;
+            xyList << m_dirtyXy.x() << m_dirtyXy.y();
+            params.insert("xy", xyList);
+            m_xyDirty = false;
+
+            m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+        }
+    }
+
 }

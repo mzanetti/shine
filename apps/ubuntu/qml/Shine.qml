@@ -19,32 +19,20 @@
 
 import QtQuick 2.3
 import QtQuick.Window 2.0
-import Ubuntu.Components 1.1
-import Ubuntu.Components.ListItems 1.0
-import Ubuntu.Components.Popups 1.0
+import Ubuntu.Components 1.3
+import Ubuntu.Components.ListItems 1.3
+import Ubuntu.Components.Popups 1.3
 import Hue 0.1
 
 MainView {
     id: root
-    width: units.gu(50)
-    height: units.gu(75)
+    width: units.gu(40)
+    height: units.gu(70)
+
+    property string orientation: width > height ? "landscape" : "portrait"
 
     applicationName: "com.ubuntu.developer.mzanetti.shine"
-
-    useDeprecatedToolbar: false
-    automaticOrientation: true
-    property string orientation: pageStack.width > pageStack.height ? "landscape" : "portrait"
-
-    onOrientationChanged: {
-        if (orientation == "portrait") {
-            pageStack.pop();
-//            pageStack.push(Qt.resolvedUrl("MainTabs.qml"))
-            pageStack.push(lightsPage)
-        } else {
-            pageStack.pop();
-            pageStack.push(bigColorPicker)
-        }
-    }
+    theme.name: "Ubuntu.Components.Themes.SuruDark"
 
     Component.onCompleted: {
         HueBridge.apiKey = keystore.apiKey;
@@ -73,24 +61,59 @@ MainView {
         }
     }
 
-    PageStack {
-        id: pageStack
+
+    Tabs {
+        anchors.fill: parent
+        visible: root.orientation == "portrait"
+
+        Tab {
+            title: "Lights"
+            page: LightsPage {
+                id: lightsPage
+                lights: lights
+            }
+        }
+        Tab {
+            title: "Scenes"
+            page: ScenesPage {
+                id: scenesPage
+                lights: lights
+                scenes: scenes
+            }
+        }
+        Tab {
+            title: "Schedules"
+            page: PageStack {
+                id: pageStack
+                Component.onCompleted: push(schedulesPage)
+                SchedulesPage {
+                    id: schedulesPage
+                    lights: lights
+                    schedules: schedules
+                    scenes: scenes
+                }
+            }
+        }
     }
 
-    LightsPage {
-        id: lightsPage
-        visible: false
-        lights: lights
-    }
 
     BigColorPicker {
         id: bigColorPicker
-        visible: false
+        anchors.fill: parent
+        visible: root.orientation == "landscape"
         lights: lights
     }
 
     Lights {
         id: lights
+    }
+
+    Scenes {
+        id: scenes
+    }
+
+    Schedules {
+        id: schedules
     }
 
     Component {

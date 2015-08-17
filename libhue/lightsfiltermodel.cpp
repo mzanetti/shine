@@ -65,6 +65,7 @@ Light *LightsFilterModel::get(int row) const
 
 bool LightsFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
+    Q_UNUSED(sourceParent)
     if (m_groupId == 0) {
         return true;
     }
@@ -92,6 +93,10 @@ void LightsFilterModel::groupChanged(const QModelIndex &first, const QModelIndex
 
 void LightsFilterModel::groupsAdded(const QModelIndex &parent, int first, int last)
 {
+    Q_UNUSED(parent)
+    Q_UNUSED(first)
+    Q_UNUSED(last)
+
     if (!m_group) {
         m_group = findGroup();
     }

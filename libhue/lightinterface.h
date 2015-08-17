@@ -44,7 +44,7 @@ class LightInterface: public QObject
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY stateChanged)
     Q_PROPERTY(QPointF xy READ xy NOTIFY stateChanged)
     Q_PROPERTY(quint16 ct READ ct WRITE setCt NOTIFY stateChanged)
-    Q_PROPERTY(QString alert READ alert NOTIFY stateChanged)
+    Q_PROPERTY(QString alert READ alert WRITE setAlert NOTIFY stateChanged)
     Q_PROPERTY(QString effect READ effect WRITE setEffect NOTIFY stateChanged)
     Q_PROPERTY(ColorMode colormode READ colorMode NOTIFY stateChanged)
     Q_PROPERTY(bool reachable READ reachable NOTIFY stateChanged)

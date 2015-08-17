@@ -18,8 +18,8 @@
  */
 
 import QtQuick 2.3
-import Ubuntu.Components 1.1
-import Ubuntu.Components.ListItems 1.0
+import Ubuntu.Components 1.3
+import Ubuntu.Components.ListItems 1.3
 import Hue 0.1
 
 Empty {
@@ -41,6 +41,7 @@ Empty {
             name: "rename"
             PropertyChanges { target: mainRow; opacity: 0 }
             PropertyChanges { target: renameRow; opacity: 1 }
+            PropertyChanges { target: root.light; alert: "lselect" }
         }
 
     ]
@@ -64,16 +65,23 @@ Empty {
         }
     }
     onPressAndHold: {
-        if (delegateItem.state == "rename") {
-            delegateItem.state = ""
+        if (root.state == "rename") {
+            root.state = ""
         } else {
-            delegateItem.state = "rename"
+            root.state = "rename"
         }
+    }
+
+    MouseArea {
+        anchors.fill: delegateColumn
+        anchors.topMargin: units.gu(6)
+        enabled: root.__isExpanded
+        preventStealing: true
     }
 
     Column {
         id: delegateColumn
-        anchors { left: parent.left; right: parent.right; leftMargin: units.gu(2); rightMargin: units.gu(2) }
+        anchors { left: parent.left; right: parent.right; }
         spacing: units.gu(2)
         height: childrenRect.height
 
@@ -97,15 +105,48 @@ Empty {
             }
         }
 
-        Item {
+        ListItem {
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            height: units.gu(6)
+            height: units.gu(6) + units.dp(2)
+            divider { colorFrom: "transparent"; colorTo: "transparent" }
+            onClicked: root.clicked()
+            onPressAndHold: root.pressAndHold()
+            leadingActions: groups.get(index).id == 0 ? null : deleteAction
+            ListItemActions {
+                id: deleteAction
+                actions: [
+                    Action {
+                        iconName: "delete"
+                        onTriggered: groups.deleteGroup(groups.get(index).id)
+                    }
+                ]
+            }
+            trailingActions: ListItemActions {
+                actions: [
+                    Action {
+                        iconName: "alarm-clock"
+                    },
+                    Action {
+                        iconName: "camera-self-timer"
+                    },
+                    Action {
+                        iconName: "edit"
+                        onTriggered: root.state = "rename"
+                    }
+
+                ]
+            }
+
             Row {
                 id: mainRow
-                anchors.fill: parent
+                anchors {
+                    fill: parent
+                    leftMargin: units.gu(2);
+                    rightMargin: units.gu(2)
+                }
                 spacing: units.gu(1)
                 visible: opacity > 0
 
@@ -135,7 +176,11 @@ Empty {
             }
             Row {
                 id: renameRow
-                anchors.fill: parent
+                anchors {
+                    fill: parent
+                    leftMargin: units.gu(2);
+                    rightMargin: units.gu(2)
+                }
                 spacing: units.gu(2)
                 height: units.gu(6)
                 visible: opacity > 0
@@ -153,14 +198,19 @@ Empty {
                     anchors.verticalCenter: parent.verticalCenter
                     onClicked: {
                         light.name = renameTextField.text
-                        delegateItem.state = ""
+                        root.state = ""
                     }
                 }
             }
         }
 
         Row {
-            anchors { left: parent.left; right: parent.right }
+            anchors {
+                left: parent.left;
+                right: parent.right
+                leftMargin: units.gu(2);
+                rightMargin: units.gu(2)
+            }
             spacing: units.gu(1)
             Icon {
                 height: brightnessSlider.height
@@ -187,7 +237,12 @@ Empty {
 
         UbuntuColorPicker {
             id: colorPicker
-            anchors { left: parent.left; right: parent.right }
+            anchors {
+                left: parent.left;
+                right: parent.right
+                leftMargin: units.gu(2);
+                rightMargin: units.gu(2)
+            }
             height: width / 3
             color: light ? light.color : "black"
             active: light ? (light.colormode == LightInterface.ColorModeHS || light.colormode == LightInterface.ColorModeXY) : false
@@ -195,7 +250,7 @@ Empty {
             touchDelegate: UbuntuShape {
                 height: units.gu(3)
                 width: units.gu(3)
-                color: "black"
+                backgroundColor: "black"
             }
 
             onColorChanged: {
@@ -207,7 +262,12 @@ Empty {
 
         UbuntuColorPickerCt {
             id: colorPickerCt
-            anchors { left: parent.left; right: parent.right }
+            anchors {
+                left: parent.left;
+                right: parent.right
+                leftMargin: units.gu(2);
+                rightMargin: units.gu(2)
+            }
             height: width / 6
             ct: light ? light.ct : minCt
             active: light && light.colormode == LightInterface.ColorModeCT
@@ -227,8 +287,14 @@ Empty {
             }
         }
 
-        OptionSelector {
+        ItemSelector {
             id: effectSelector
+            anchors {
+                left: parent.left;
+                right: parent.right
+                leftMargin: units.gu(2);
+                rightMargin: units.gu(2)
+            }
             model: ListModel {
                 id: effectModel
                 ListElement { name: "No effect"; value: "none" }

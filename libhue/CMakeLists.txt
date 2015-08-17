@@ -12,6 +12,10 @@ set(libhue_SRCS
     lightsfiltermodel.cpp
     light.cpp
     lightinterface.h
+    scenes.cpp
+    scene.cpp
+    schedules.cpp
+    schedule.cpp
 )
 
 add_library(hue ${libhue_SRCS})

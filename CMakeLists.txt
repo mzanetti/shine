@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.9)
+set(UBUNTU_MANIFEST_PATH "apps/ubuntu/manifest.json" CACHE INTERNAL "Tells QtCreator location and name of the manifest file")
 
 project(shine C CXX)
 

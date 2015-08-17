@@ -112,6 +112,16 @@ Light *Lights::get(int index) const
     return 0;
 }
 
+Light *Lights::findLight(int lightId) const
+{
+    foreach (Light *light, m_list) {
+        if (light->id() == lightId) {
+            return light;
+        }
+    }
+    return 0;
+}
+
 void Lights::refresh()
 {
     HueBridgeConnection::instance()->get("lights", this, "lightsReceived");

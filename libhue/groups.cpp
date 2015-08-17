@@ -136,10 +136,10 @@ void Groups::groupsReceived(int id, const QVariant &variant)
         endRemoveRows();
     }
 
-    Group *group = createGroupInternal(0, "All");
+    createGroupInternal(0, "All");
     foreach (const QString &groupId, groups.keys()) {
         if (findGroup(groupId.toInt()) == 0) {
-            Group *group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
+            createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
         }
     }
     emit countChanged();

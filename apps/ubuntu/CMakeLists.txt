@@ -14,3 +14,19 @@ add_custom_target(shine_ubuntu-qmlfiles ALL
     COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/qml ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${QMLFILES}
 )
+
+file(GLOB QML_FILES qml/*.qml)
+
+set(PLUGIN_FILES
+    ${CMAKE_BINARY_DIR}/plugin/Hue/libhueplugin.so
+    ${CMAKE_BINARY_DIR}/plugin/Hue/ColorPicker.qml
+    ${CMAKE_BINARY_DIR}/plugin/Hue/ColorPickerCt.qml
+    ${CMAKE_BINARY_DIR}/plugin/Hue/qmldir
+)
+
+install(FILES ${PLUGIN_FILES} DESTINATION /Hue/)
+install(FILES "shine.json" DESTINATION /)
+install(FILES "manifest.json" DESTINATION /)
+install(FILES "shine.desktop" DESTINATION /)
+install(FILES ${QML_FILES} DESTINATION /qml/)
+install(TARGETS shine_ubuntu DESTINATION /)

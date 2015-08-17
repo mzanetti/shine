@@ -256,8 +256,12 @@ QString Light::alert() const
 void Light::setAlert(const QString &alert)
 {
     if (m_alert != alert) {
-        m_alert = alert;
-        emit stateChanged();
+        QVariantMap params;
+        params.insert("alert", alert);
+        if (alert != "none") {
+            params.insert("on", true);
+        }
+        HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
     }
 }
 

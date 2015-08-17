@@ -178,6 +178,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
 
     QUrl url(m_baseApiUrl + path);
     QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setUrl(url);
 
 #if QT_VERSION >= 0x050000
@@ -188,6 +189,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
     QByteArray data = serializer.serialize(params);
 #endif
 
+    qDebug() << "posting" << data << "\nto" << request.url();
     QNetworkReply *reply = m_nam->post(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
@@ -229,6 +231,8 @@ int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QOb
 void HueBridgeConnection::createUserFinished()
 {
     QNetworkReply *reply = static_cast<QNetworkReply*>(sender());
+    reply->deleteLater();
+
     QByteArray response = reply->readAll();
     qDebug() << "create user finished" << response;
 
@@ -288,6 +292,7 @@ void HueBridgeConnection::slotOpFinished()
         return;
     }
     QVariant rsp = jsonDoc.toVariant();
+//    qDebug() << "got:" << jsonDoc.toJson();
 #else
     QJson::Parser parser;
     bool ok;

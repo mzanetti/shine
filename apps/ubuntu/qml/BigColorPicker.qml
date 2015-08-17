@@ -18,21 +18,20 @@
  */
 
 import QtQuick 2.3
-import Ubuntu.Components 1.1
+import Ubuntu.Components 1.3
 import Hue 0.1
 
-Page {
+Item {
     property alias lights: bigColorPicker.lights
 
     UbuntuColorPicker {
         id: bigColorPicker
         anchors.fill: parent
         anchors.margins: units.gu(2)
-        visible: root.orientation == "landscape"
 
         touchDelegate: UbuntuShape {
             id: lightDelegate
-            color: light && light.reachable ? (light.on ? "blue" : "gray") : "red"
+            backgroundColor: light && light.reachable ? (light.on ? "blue" : "gray") : "red"
             height: units.gu(5)
             width: units.gu(5)
             property var point: light ? bigColorPicker.calculateXy(light.color) : undefined
