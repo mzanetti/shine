@@ -22,30 +22,54 @@
 
 #include <QObject>
 #include <QVariantMap>
+#include <QTimer>
 
 class Configuration: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_ENUMS(UpdateState)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY changed)
+    Q_PROPERTY(QString swVersion READ swVersion NOTIFY changed)
+    Q_PROPERTY(UpdateState updateState READ updateState NOTIFY changed)
 
 public:
+    enum UpdateState {
+        UpdateStateUpToDate = 0,
+        UpdateStateDownloading = 1,
+        UpdateStateReadyToUpdate = 2,
+        UpdateStateUpdating = 3
+    };
+
     Configuration(QObject *parent = 0);
 
     QString name();
     void setName(const QString &name);
 
+    QString swVersion() const;
+    UpdateState updateState() const;
+
 public slots:
     void refresh();
 
+    void checkForUpdate();
+    void performUpdate();
+
 signals:
-    void nameChanged();
+    void changed();
 
 private slots:
-    void responseReceived(int id, const QVariantMap &data);
+    void responseReceived(int id, const QVariant &data);
+    void checkForUpdateReply(int id, const QVariant &data);
+    void performUpdateReply(int id, const QVariant &data);
 
 private:
     QString m_name;
+    QString m_swVersion;
+    UpdateState m_updateState;
+
+    QTimer m_timer;
+
 };
 
 #endif

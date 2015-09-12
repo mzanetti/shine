@@ -17,7 +17,8 @@
  *      Michael Zanetti <michael_zanetti@gmx.net>
  */
 
-import QtQuick 2.3
+import QtQuick 2.4
+import QtQuick.Layouts 1.1
 import QtQuick.Window 2.0
 import Ubuntu.Components 1.3
 import Ubuntu.Components.ListItems 1.3
@@ -59,12 +60,23 @@ MainView {
         onApiKeyChanged: {
             keystore.apiKey = HueBridge.apiKey;
         }
+        onConnectedBridgeChanged: {
+            if (bridgeConfig.updateState == Configuration.UpdateStateUpToDate) {
+                bridgeConfig.checkForUpdate();
+            }
+        }
     }
 
 
     Tabs {
         anchors.fill: parent
         visible: root.orientation == "portrait"
+
+        onSelectedTabChanged: {
+            if (selectedTab == settingsTab) {
+                bridgeConfig.refresh();
+            }
+        }
 
         Tab {
             title: "Lights"
@@ -94,6 +106,64 @@ MainView {
                 }
             }
         }
+
+        Tab {
+            id: settingsTab
+            title: "Settings"
+            page: Page {
+                GridLayout {
+                    anchors.fill: parent
+                    anchors.margins: units.gu(1)
+                    columns: 2
+                    SettingsLabel {
+                        text: "Bridge name:"
+                    }
+                    SettingsLabel {
+                        text: bridgeConfig.name
+                    }
+                    SettingsLabel {
+                        text: "Bridge SW Version:"
+                    }
+                    SettingsLabel {
+                        text: bridgeConfig.swVersion
+                    }
+                    SettingsLabel {
+                        text: "Update Status:"
+                    }
+                    SettingsLabel {
+                        text: {
+                            switch (bridgeConfig.updateState) {
+                            case Configuration.UpdateStateUpToDate:
+                                return "Up to date";
+                            case Configuration.UpdateStateDownloading:
+                                return "Downloading update...";
+                            case Configuration.UpdateStateUpdating:
+                                return "Updating...";
+                            }
+                            return "";
+                        }
+                        Button {
+                            id: updateButton
+                            text: "Update now"
+                            width: parent.width
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: bridgeConfig.updateState === Configuration.UpdateStateReadyToUpdate
+                            color: UbuntuColors.green
+                            onClicked: {
+                                bridgeConfig.performUpdate();
+                            }
+                        }
+                    }
+                    Item {
+                        Layout.columnSpan: 2
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                    }
+
+
+                }
+            }
+        }
     }
 
 
@@ -114,6 +184,10 @@ MainView {
 
     Schedules {
         id: schedules
+    }
+
+    Configuration {
+        id: bridgeConfig
     }
 
     Component {

@@ -105,6 +105,9 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
 
     // Emitting this after we know if we can connect or not to avoid the ui triggering connect dialogs
     emit bridgeFoundChanged();
+
+    // Tell the bridge to check for firmware updates
+
 }
 
 void HueBridgeConnection::onNoBridgesFound()

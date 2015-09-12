@@ -30,6 +30,7 @@
 #include "../../libhue/schedules.h"
 #include "../../libhue/schedule.h"
 #include "../../libhue/lightsfiltermodel.h"
+#include "../../libhue/configuration.h"
 
 #if QT_VERSION >= 0x050000
 #include <QtQml/qqml.h>
@@ -64,6 +65,7 @@ void HuePlugin::registerTypes(const char *uri)
     //FIXME: eventually creatable
     qmlRegisterUncreatableType<Group>(uri, 0, 1, "Group", "Cannot create groups. Get them from the Groups model.");
     qmlRegisterType<LightsFilterModel>(uri, 0, 1, "LightsFilterModel");
+    qmlRegisterType<Configuration>(uri, 0, 1, "Configuration");
 }
 
 
