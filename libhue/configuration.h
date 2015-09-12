@@ -32,6 +32,7 @@ class Configuration: public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY changed)
     Q_PROPERTY(QString swVersion READ swVersion NOTIFY changed)
     Q_PROPERTY(UpdateState updateState READ updateState NOTIFY changed)
+    Q_PROPERTY(QString swUpdateReleaseNotes READ swUpdateReleaseNotes NOTIFY changed)
 
 public:
     enum UpdateState {
@@ -48,6 +49,7 @@ public:
 
     QString swVersion() const;
     UpdateState updateState() const;
+    QString swUpdateReleaseNotes() const;
 
 public slots:
     void refresh();
@@ -67,6 +69,7 @@ private:
     QString m_name;
     QString m_swVersion;
     UpdateState m_updateState;
+    QString m_url;
 
     QTimer m_timer;
 

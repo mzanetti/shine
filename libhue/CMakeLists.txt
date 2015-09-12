@@ -16,6 +16,7 @@ set(libhue_SRCS
     scene.cpp
     schedules.cpp
     schedule.cpp
+    scenesfiltermodel.cpp
 )
 
 add_library(hue ${libhue_SRCS})

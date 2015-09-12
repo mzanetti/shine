@@ -83,6 +83,11 @@ Configuration::UpdateState Configuration::updateState() const
     return m_updateState;
 }
 
+QString Configuration::swUpdateReleaseNotes() const
+{
+    return m_url;
+}
+
 void Configuration::responseReceived(int id, const QVariant &data)
 {
     Q_UNUSED(id)
@@ -92,6 +97,7 @@ void Configuration::responseReceived(int id, const QVariant &data)
     m_name = resultMap.value("name").toString();
     m_swVersion = resultMap.value("swversion").toString();
     m_updateState = (Configuration::UpdateState)resultMap.value("swupdate").toMap().value("updatestate").toInt();
+    m_url = resultMap.value("swupdate").toMap().value("url").toString();
     emit changed();
 }
 

@@ -51,13 +51,15 @@ Page {
         ]
     }
 
-    Lights {
-        id: allLights
+    ScenesFilterModel {
+        id: scenesFilterModel
+        scenes: root.scenes
+        hideOtherApps: true
     }
 
     ListView {
         anchors.fill: parent
-        model: scenes
+        model: scenesFilterModel
 
         delegate: ListItem {
             property var scene: scenes.get(index)
@@ -100,7 +102,7 @@ Page {
                         Repeater {
                             model: scene.lightsCount
                             Label {
-                                text: allLights.findLight(scene.light(index)).name
+                                text: lights.findLight(scene.light(index)).name
                             }
                         }
                     }

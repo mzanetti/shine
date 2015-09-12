@@ -56,13 +56,13 @@ Empty {
 
 
     onClicked: {
-        if (light.reachable) {
+//        if (light.reachable) {
             if (ListView.view.expandedItem == root) {
                 ListView.view.expandedItem = null;
             } else {
                 ListView.view.expandedItem = root;
             }
-        }
+//        }
     }
     onPressAndHold: {
         if (root.state == "rename") {

@@ -30,6 +30,7 @@
 #include "../../libhue/schedules.h"
 #include "../../libhue/schedule.h"
 #include "../../libhue/lightsfiltermodel.h"
+#include "../../libhue/scenesfiltermodel.h"
 #include "../../libhue/configuration.h"
 
 #if QT_VERSION >= 0x050000
@@ -57,14 +58,15 @@ void HuePlugin::registerTypes(const char *uri)
     qmlRegisterType<Lights>(uri, 0, 1, "Lights");
     qmlRegisterUncreatableType<Light>(uri, 0, 1, "Light", "Cannot create lights. Get them from the Lights model.");
     qmlRegisterUncreatableType<LightInterface>(uri, 0, 1, "LightInterface", "Abstract interface.");
+    qmlRegisterType<LightsFilterModel>(uri, 0, 1, "LightsFilterModel");
     qmlRegisterType<Groups>(uri, 0, 1, "Groups");
-    qmlRegisterType<Scenes>(uri, 0, 1, "Scenes");
-    qmlRegisterUncreatableType<Scene>(uri, 0, 1, "Scene", "Get create Scene objects. Get them from the Scenes model.");
-    qmlRegisterType<Schedules>(uri, 0, 1, "Schedules");
-    qmlRegisterUncreatableType<Schedule>(uri, 0, 1, "Schedule", "Get create Schedule objects. Get them from the Schedules model.");
     //FIXME: eventually creatable
     qmlRegisterUncreatableType<Group>(uri, 0, 1, "Group", "Cannot create groups. Get them from the Groups model.");
-    qmlRegisterType<LightsFilterModel>(uri, 0, 1, "LightsFilterModel");
+    qmlRegisterType<Scenes>(uri, 0, 1, "Scenes");
+    qmlRegisterUncreatableType<Scene>(uri, 0, 1, "Scene", "Get create Scene objects. Get them from the Scenes model.");
+    qmlRegisterType<ScenesFilterModel>(uri, 0, 1, "ScenesFilterModel");
+    qmlRegisterType<Schedules>(uri, 0, 1, "Schedules");
+    qmlRegisterUncreatableType<Schedule>(uri, 0, 1, "Schedule", "Get create Schedule objects. Get them from the Schedules model.");
     qmlRegisterType<Configuration>(uri, 0, 1, "Configuration");
 }
 
