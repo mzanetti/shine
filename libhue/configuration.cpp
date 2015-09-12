@@ -24,7 +24,8 @@
 #include <QDebug>
 
 Configuration::Configuration(QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_connectedToPortal(false)
 {
     refresh();
     connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
@@ -73,6 +74,11 @@ void Configuration::setName(const QString &name)
     }
 }
 
+bool Configuration::connectedToPortal() const
+{
+    return m_connectedToPortal;
+}
+
 QString Configuration::swVersion() const
 {
     return m_swVersion;
@@ -98,6 +104,7 @@ void Configuration::responseReceived(int id, const QVariant &data)
     m_swVersion = resultMap.value("swversion").toString();
     m_updateState = (Configuration::UpdateState)resultMap.value("swupdate").toMap().value("updatestate").toInt();
     m_url = resultMap.value("swupdate").toMap().value("url").toString();
+    m_connectedToPortal = resultMap.value("portalstate").toMap().value("signedon").toBool();
     emit changed();
 }
 

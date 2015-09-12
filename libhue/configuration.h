@@ -30,6 +30,7 @@ class Configuration: public QObject
 
     Q_ENUMS(UpdateState)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY changed)
+    Q_PROPERTY(bool connectedToPortal READ connectedToPortal NOTIFY changed)
     Q_PROPERTY(QString swVersion READ swVersion NOTIFY changed)
     Q_PROPERTY(UpdateState updateState READ updateState NOTIFY changed)
     Q_PROPERTY(QString swUpdateReleaseNotes READ swUpdateReleaseNotes NOTIFY changed)
@@ -47,6 +48,7 @@ public:
     QString name();
     void setName(const QString &name);
 
+    bool connectedToPortal() const;
     QString swVersion() const;
     UpdateState updateState() const;
     QString swUpdateReleaseNotes() const;
@@ -67,6 +69,7 @@ private slots:
 
 private:
     QString m_name;
+    bool m_connectedToPortal;
     QString m_swVersion;
     UpdateState m_updateState;
     QString m_url;

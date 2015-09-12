@@ -21,6 +21,12 @@ Page {
             text: bridgeConfig.swVersion
         }
         SettingsLabel {
+            text: "Portal services:"
+        }
+        SettingsLabel {
+            text: bridgeConfig.connectedToPortal ? "Connected" : "Not connected"
+        }
+        SettingsLabel {
             text: "Update Status:"
         }
 
@@ -43,6 +49,7 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: bridgeConfig.updateState === Configuration.UpdateStateReadyToUpdate
                 color: UbuntuColors.green
+                enabled: bridgeConfig.connectedToPortal
                 onClicked: {
                     bridgeConfig.performUpdate();
                 }
