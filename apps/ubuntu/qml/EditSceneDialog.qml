@@ -25,6 +25,7 @@ Dialog {
 
     Label {
         text: i18n.tr("Scene name")
+        color: "black"
     }
 
     TextField {
@@ -36,6 +37,7 @@ Dialog {
     Label {
         text: i18n.tr("Check all the lights that should be controlled by this scene. The current brightness and color values will be used.")
         wrapMode: Text.WordWrap
+        color: "black"
     }
 
     Repeater {
@@ -52,6 +54,7 @@ Dialog {
             Label {
                 text: name
                 anchors.verticalCenter: parent.verticalCenter
+                color: "black"
             }
         }
     }

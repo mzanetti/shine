@@ -62,7 +62,7 @@ Page {
         model: scenesFilterModel
 
         delegate: ListItem {
-            property var scene: scenes.get(index)
+            property var scene: scenesFilterModel.get(index)
             trailingActions: ListItemActions {
                 actions: [
                     Action {
@@ -110,7 +110,7 @@ Page {
             }
 
             onClicked: {
-                scenes.recallScene(index)
+                scenes.recallScene(scene.id)
             }
         }
     }

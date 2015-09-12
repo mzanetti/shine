@@ -44,7 +44,7 @@ public:
     Q_INVOKABLE Scene* get(int index) const;
     Q_INVOKABLE Scene *findScene(const QString &id) const;
 
-    Q_INVOKABLE void recallScene(int index);
+    Q_INVOKABLE void recallScene(const QString &id);
 
 public slots:
     Q_INVOKABLE void createScene(const QString &name, const QList<int> &lights, const QString &userData = QString());

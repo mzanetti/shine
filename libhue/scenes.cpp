@@ -86,10 +86,10 @@ Scene *Scenes::findScene(const QString &id) const
     return 0;
 }
 
-void Scenes::recallScene(int index)
+void Scenes::recallScene(const QString &id)
 {
     QVariantMap params;
-    params.insert("scene", m_list.at(index)->id());
+    params.insert("scene", id);
     HueBridgeConnection::instance()->put("groups/0/action", params, this, "recallSceneFinished");
 }
 
@@ -181,7 +181,7 @@ void Scenes::createScene(const QString &name, const QList<int> &lights, const QS
         QChar nextChar = possibleCharacters.at(index);
         randomString.append(nextChar);
     }
-    updateScene("s" + randomString, name, lights);
+    updateScene("shine" + randomString, name, lights);
 }
 
 void Scenes::updateScene(const QString &id, const QString &name, const QList<int> &lights)
