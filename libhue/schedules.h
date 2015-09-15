@@ -21,7 +21,7 @@
 #define SCHEDULES_H
 
 #include <QAbstractListModel>
-
+#include <QTimer>
 class Schedule;
 
 class Schedules: public QAbstractListModel
@@ -34,6 +34,7 @@ public:
         RoleId,
         RoleName,
         RoleDateTime,
+        RoleType,
         RoleRecurring,
         RoleWeekdays
     };
@@ -47,13 +48,17 @@ public:
     Q_INVOKABLE Schedule* get(int index) const;
     Q_INVOKABLE Schedule* findSchedule(const QString &id) const;
 
-//    Q_INVOKABLE void recallScene(int index);
-
 public slots:
     Q_INVOKABLE void createSingleAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &dateTime);
     Q_INVOKABLE void createRecurringAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &time, const QString &weekdays);
-    Q_INVOKABLE void createSchedule(const QString &name, const QList<int> &lights);
-    Q_INVOKABLE void updateSchedule(const QString &id, const QString &name, const QList<int> &lights);
+    Q_INVOKABLE void createSingleAlarmForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &dateTime);
+    Q_INVOKABLE void createRecurringAlarmForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &time, const QString &weekdays);
+    Q_INVOKABLE void createSingleAlarmForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &dateTime);
+    Q_INVOKABLE void createSingleAlarmForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &time, const QString &weekdays);
+
+    Q_INVOKABLE void createTimerForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &timeFromNow, int repeat = -1);
+    Q_INVOKABLE void createTimerForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &timeFromNow, int repeat = -1);
+
     Q_INVOKABLE void deleteSchedule(const QString &id);
 
     void refresh();
@@ -63,17 +68,20 @@ signals:
 
 private slots:
     void createAlarmForScene(const QString &name, const QString &sceneId, const QString &timeString);
+    void createScheduleForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QString &timeString);
+    void createScheduleForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QString &timeString);
+    void createSchedule(const QString &name, const QVariantMap &command, const QString &timeString);
+
     void createScheduleFinished(int id, const QVariant &variant);
-//    void recallSceneFinished(int id, const QVariant &variant);
     void deleteScheduleFinished(int id, const QVariant &variant);
     void schedulesReceived(int id, const QVariant &variant);
-//    void sceneNameChanged();
-////    void groupLightsChanged();
 
 private:
     Schedule* createScheduleInternal(const QString &id, const QString &name);
 
     QList<Schedule*> m_list;
+
+    QTimer m_timer;
 };
 
 #endif // SCENES_H

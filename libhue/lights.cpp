@@ -146,6 +146,7 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         beginRemoveRows(QModelIndex(), index, index);
         m_list.takeAt(index)->deleteLater();
         endRemoveRows();
+        emit countChanged();
     }
 
     // Update existing lights's name and keep track of newly added lights
@@ -170,6 +171,7 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         beginInsertRows(QModelIndex(), m_list.count(), m_list.count() + newLights.count() - 1);
         m_list.append(newLights);
         endInsertRows();
+        emit countChanged();
     }
 }
 

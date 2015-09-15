@@ -20,6 +20,8 @@
 import QtQuick 2.3
 import Ubuntu.Components 1.3
 import Ubuntu.Components.ListItems 1.3
+import Ubuntu.Components.Popups 1.3
+import Ubuntu.Components.Pickers 1.3
 import Hue 0.1
 
 Empty {
@@ -27,16 +29,10 @@ Empty {
     clip: true
     opacity: light && light.reachable ? 1 : .5
 
-    property int expandedHeight: delegateColumn.height
     property var light
-
-    property bool __isExpanded: ListView.view.expandedItem == root
+    property var schedules: null
 
     states: [
-        State {
-            name: "expanded"; when: root.__isExpanded
-            PropertyChanges { target: root; implicitHeight: root.expandedHeight + units.gu(2) }
-        },
         State {
             name: "rename"
             PropertyChanges { target: mainRow; opacity: 0 }
@@ -45,24 +41,9 @@ Empty {
         }
 
     ]
-    transitions: [
-        Transition {
-            from: "*"; to: "*"
-            UbuntuNumberAnimation { properties: "implicitHeight" }
-            UbuntuNumberAnimation { properties: "opacity" }
-        }
-    ]
-
-
 
     onClicked: {
-//        if (light.reachable) {
-            if (ListView.view.expandedItem == root) {
-                ListView.view.expandedItem = null;
-            } else {
-                ListView.view.expandedItem = root;
-            }
-//        }
+        pageStack.push(Qt.resolvedUrl("LightDetailsPage.qml"), {light: root.light, schedules: root.schedules})
     }
     onPressAndHold: {
         if (root.state == "rename") {
@@ -88,17 +69,7 @@ Empty {
         Connections {
             target: root.light
             onStateChanged: {
-                brightnessSlider.value = root.light.bri;
                 onOffSwitch.checked = root.light.on;
-                effectSelector.selectedIndex = effectSelector.findIndex();
-                if (!colorPicker.pressed || !colorPicker.active) {
-                    colorPicker.color = root.light.color;
-                }
-                colorPicker.active = light ? (light.colormode == LightInterface.ColorModeHS || light.colormode == LightInterface.ColorModeXY) : false
-                if (!colorPickerCt.pressed) {
-                    colorPickerCt.ct = root.light.ct;
-                }
-                colorPickerCt.active = !colorPicker.active
             }
             onNameChanged: {
                 nameLabel.text = root.light.name;
@@ -128,9 +99,13 @@ Empty {
                 actions: [
                     Action {
                         iconName: "alarm-clock"
+                        onTriggered: {
+                            PopupUtils.open(Qt.resolvedUrl("CreateAlarmDialog.qml"), root, {light: root.light, schedules: root.schedules})
+                        }
                     },
                     Action {
                         iconName: "camera-self-timer"
+                        onTriggered: PopupUtils.open(Qt.resolvedUrl("CreateTimerDialog.qml"), root)
                     },
                     Action {
                         iconName: "edit"
@@ -170,7 +145,7 @@ Empty {
                     checked: light && light.on
                     anchors.verticalCenter: parent.verticalCenter
                     onClicked: {
-                        light.on = checked;
+                        light.on = !light.on;
                     }
                 }
             }
@@ -201,126 +176,6 @@ Empty {
                         root.state = ""
                     }
                 }
-            }
-        }
-
-        Row {
-            anchors {
-                left: parent.left;
-                right: parent.right
-                leftMargin: units.gu(2);
-                rightMargin: units.gu(2)
-            }
-            spacing: units.gu(1)
-            Icon {
-                height: brightnessSlider.height
-                width: height
-                name: "torch-off"
-            }
-            Slider {
-                id: brightnessSlider
-                width: parent.width - height * 2 - parent.spacing * 2
-                minimumValue: 0
-                maximumValue: 255
-                value: light ? light.bri : 0
-                onValueChanged: {
-                    light.bri = value
-                }
-            }
-            Icon {
-                height: brightnessSlider.height
-                width: height
-                name: "torch-on"
-            }
-        }
-
-
-        UbuntuColorPicker {
-            id: colorPicker
-            anchors {
-                left: parent.left;
-                right: parent.right
-                leftMargin: units.gu(2);
-                rightMargin: units.gu(2)
-            }
-            height: width / 3
-            color: light ? light.color : "black"
-            active: light ? (light.colormode == LightInterface.ColorModeHS || light.colormode == LightInterface.ColorModeXY) : false
-
-            touchDelegate: UbuntuShape {
-                height: units.gu(3)
-                width: units.gu(3)
-                backgroundColor: "black"
-            }
-
-            onColorChanged: {
-                if (pressed) {
-                    light.color = colorPicker.color;
-                }
-            }
-        }
-
-        UbuntuColorPickerCt {
-            id: colorPickerCt
-            anchors {
-                left: parent.left;
-                right: parent.right
-                leftMargin: units.gu(2);
-                rightMargin: units.gu(2)
-            }
-            height: width / 6
-            ct: light ? light.ct : minCt
-            active: light && light.colormode == LightInterface.ColorModeCT
-
-            onCtChanged: {
-                if (pressed) {
-                    light.ct = colorPickerCt.ct;
-                }
-            }
-
-            touchDelegate: Rectangle {
-                height: colorPickerCt.height
-                width: units.gu(.5)
-                color: "transparent"
-                border.color: "black"
-                border.width: units.dp(2)
-            }
-        }
-
-        ItemSelector {
-            id: effectSelector
-            anchors {
-                left: parent.left;
-                right: parent.right
-                leftMargin: units.gu(2);
-                rightMargin: units.gu(2)
-            }
-            model: ListModel {
-                id: effectModel
-                ListElement { name: "No effect"; value: "none" }
-                ListElement { name: "Color loop"; value: "colorloop" }
-            }
-            selectedIndex: findIndex()
-
-            function findIndex() {
-                if (!light) {
-                    return 0;
-                }
-
-                for (var i = 0; i < effectModel.count; i++) {
-                    if (effectModel.get(i).value == light.effect) {
-                        return i;
-                    }
-                }
-                return 0;
-            }
-
-            onSelectedIndexChanged: {
-                light.effect = effectModel.get(selectedIndex).value;
-            }
-
-            delegate: OptionSelectorDelegate {
-                text: name
             }
         }
     }

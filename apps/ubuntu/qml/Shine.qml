@@ -24,98 +24,199 @@ import Ubuntu.Components 1.3
 import Ubuntu.Components.ListItems 1.3
 import Ubuntu.Components.Popups 1.3
 import Hue 0.1
+import Qt.labs.settings 1.0
 
-MainView {
-    id: root
+Item {
     width: units.gu(40)
     height: units.gu(70)
+    MainView {
+        id: root
+        anchors.fill: parent
 
-    property string orientation: width > height ? "landscape" : "portrait"
+        property string orientation: width > height ? "landscape" : "portrait"
 
-    applicationName: "com.ubuntu.developer.mzanetti.shine"
-    theme.name: "Ubuntu.Components.Themes.SuruDark"
+        applicationName: "com.ubuntu.developer.mzanetti.shine"
+        //    theme.name: "Ubuntu.Components.Themes.SuruDark"
 
-    Component.onCompleted: {
-        HueBridge.apiKey = keystore.apiKey;
+        Component.onCompleted: {
+            HueBridge.apiKey = keystore.apiKey;
 
-        if (HueBridge.discoveryError) {
-            PopupUtils.open(errorComponent, root)
-        } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
-            PopupUtils.open(loginComponent, root)
-        }
-    }
-
-    Connections {
-        target: HueBridge
-        onBridgeFoundChanged: {
-            if (!HueBridge.connectedBridge) {
+            if (HueBridge.discoveryError) {
+                PopupUtils.open(errorComponent, root)
+            } else if (HueBridge.bridgeFound && !HueBridge.connectedBridge){
                 PopupUtils.open(loginComponent, root)
             }
         }
-        onDiscoveryErrorChanged: {
-            if (HueBridge.discoveryError) {
-                PopupUtils.open(errorComponent, root)
+
+        Connections {
+            target: HueBridge
+            onBridgeFoundChanged: {
+                if (!HueBridge.connectedBridge) {
+                    PopupUtils.open(loginComponent, root)
+                }
             }
-        }
-        onApiKeyChanged: {
-            keystore.apiKey = HueBridge.apiKey;
-        }
-        onConnectedBridgeChanged: {
-            if (bridgeConfig.updateState == Configuration.UpdateStateUpToDate) {
+            onDiscoveryErrorChanged: {
+                if (HueBridge.discoveryError) {
+                    PopupUtils.open(errorComponent, root)
+                }
+            }
+            onApiKeyChanged: {
+                keystore.apiKey = HueBridge.apiKey;
+            }
+            onConnectedBridgeChanged: {
                 bridgeConfig.checkForUpdate();
             }
         }
-    }
 
 
-    Tabs {
-        anchors.fill: parent
-        visible: root.orientation == "portrait"
+        Tabs {
+            id: tabs
+            anchors.fill: parent
+            visible: root.orientation == "portrait"
 
-        onSelectedTabChanged: {
-            if (selectedTab == settingsTab) {
-                bridgeConfig.refresh();
+            Tab {
+                title: "Lights"
+                page: PageStack {
+                    Component.onCompleted: push(lightsPage)
+                    LightsPage {
+                        id: lightsPage
+                        lights: lights
+                        groups: groups
+                        schedules: schedules
+                    }
+                }
             }
-        }
-
-        Tab {
-            title: "Lights"
-            page: LightsPage {
-                id: lightsPage
-                lights: lights
-            }
-        }
-        Tab {
-            title: "Scenes"
-            page: ScenesPage {
-                id: scenesPage
-                lights: lights
-                scenes: scenes
-            }
-        }
-        Tab {
-            title: "Schedules"
-            page: PageStack {
-                id: pageStack
-                Component.onCompleted: push(schedulesPage)
-                SchedulesPage {
-                    id: schedulesPage
+            Tab {
+                title: "Scenes"
+                page: ScenesPage {
+                    id: scenesPage
                     lights: lights
-                    schedules: schedules
                     scenes: scenes
+                    schedules: schedules
+                }
+            }
+            Tab {
+                id: schedulesTab
+                title: "Alarms & Timers"
+                page: PageStack {
+                    id: pageStack
+                    Component.onCompleted: push(schedulesPage)
+                    SchedulesPage {
+                        id: schedulesPage
+                        lights: lights
+                        schedules: schedules
+                        scenes: scenes
+                        groups: groups
+                        pageActive: tabs.selectedTab == schedulesTab
+                    }
+                }
+            }
+
+            Tab {
+                id: bridgeInfoTab
+                title: "Bridge info"
+                page: BridgeInfoPage {
+
                 }
             }
         }
 
-        Tab {
-            id: settingsTab
-            title: "Bridge info"
-            page: BridgeInfoPage {
 
+        Lights {
+            id: lights
+        }
+
+        Groups {
+            id: groups
+        }
+
+        Scenes {
+            id: scenes
+        }
+
+        Schedules {
+            id: schedules
+        }
+
+        Configuration {
+            id: bridgeConfig
+        }
+
+        Settings {
+            id: settings
+
+            property bool hideScenesByOtherApps: true
+        }
+
+        Component {
+            id: loginComponent
+            Dialog {
+                id: connectDialog
+                title: "Connect to Hue bridge"
+                text: "Please press the button on the Hue bridge and then \"Connect...\""
+
+                Connections {
+                    target: HueBridge
+                    onCreateUserFailed: {
+                        connectDialog.text = "Error authenticating to Hue bridge: " + errorMessage;
+                        connectButton.text = "Try again!";
+                    }
+                    onConnectedBridgeChanged: {
+                        if (HueBridge.connectedBridge) {
+                            PopupUtils.close(connectDialog)
+                        }
+                    }
+                }
+
+                Button {
+                    id: connectButton
+                    text: "Connect..."
+                    onClicked: {
+                        HueBridge.createUser("Shine - Ubuntu touch", "abcdef1234567890")
+                        connectDialog.text = "Waiting for the connection to establish..."
+                    }
+                }
+                Button {
+                    text: "Quit"
+                    onClicked: {
+                        Qt.quit();
+                    }
+                }
+            }
+        }
+
+        Component {
+            id: errorComponent
+            Dialog {
+                id: errorDialog
+                title: "Error discovering bridges"
+                text: "Could not start discovery for bridges. This won't work."
+                Button {
+                    text: "Quit"
+                    onClicked: Qt.quit();
+                }
+            }
+        }
+
+        Column {
+            anchors { left: parent.left; right: parent.right }
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: units.gu(5)
+            visible: searchingSpinner.running
+            ActivityIndicator {
+                id: searchingSpinner
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: units.gu(5)
+                width: height
+                running: !HueBridge.discoveryError && !HueBridge.bridgeFound
+            }
+            Label {
+                anchors { left: parent.left; right: parent.right }
+                text: "Searching for Hue bridges..."
+                horizontalAlignment: Text.AlignHCenter
             }
         }
     }
-
 
     BigColorPicker {
         id: bigColorPicker
@@ -124,88 +225,4 @@ MainView {
         lights: lights
     }
 
-    Lights {
-        id: lights
-    }
-
-    Scenes {
-        id: scenes
-    }
-
-    Schedules {
-        id: schedules
-    }
-
-    Configuration {
-        id: bridgeConfig
-    }
-
-    Component {
-        id: loginComponent
-        Dialog {
-            id: connectDialog
-            title: "Connect to Hue bridge"
-            text: "Please press the button on the Hue bridge and then \"Connect...\""
-
-            Connections {
-                target: HueBridge
-                onCreateUserFailed: {
-                    connectDialog.text = "Error authenticating to Hue bridge: " + errorMessage;
-                    connectButton.text = "Try again!";
-                }
-                onConnectedBridgeChanged: {
-                    if (HueBridge.connectedBridge) {
-                        PopupUtils.close(connectDialog)
-                    }
-                }
-            }
-
-            Button {
-                id: connectButton
-                text: "Connect..."
-                onClicked: {
-                    HueBridge.createUser("Shine - Ubuntu touch", "abcdef1234567890")
-                    connectDialog.text = "Waiting for the connection to establish..."
-                }
-            }
-            Button {
-                text: "Quit"
-                onClicked: {
-                    Qt.quit();
-                }
-            }
-        }
-    }
-
-    Component {
-        id: errorComponent
-        Dialog {
-            id: errorDialog
-            title: "Error discovering bridges"
-            text: "Could not start discovery for bridges. This won't work."
-            Button {
-                text: "Quit"
-                onClicked: Qt.quit();
-            }
-        }
-    }
-
-    Column {
-        anchors { left: parent.left; right: parent.right }
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: units.gu(5)
-        visible: searchingSpinner.running
-        ActivityIndicator {
-            id: searchingSpinner
-            anchors.horizontalCenter: parent.horizontalCenter
-            height: units.gu(5)
-            width: height
-            running: !HueBridge.discoveryError && !HueBridge.bridgeFound
-        }
-        Label {
-            anchors { left: parent.left; right: parent.right }
-            text: "Searching for Hue bridges..."
-            horizontalAlignment: Text.AlignHCenter
-        }
-    }
 }

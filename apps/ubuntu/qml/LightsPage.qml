@@ -28,6 +28,8 @@ Page {
     title: "Lights"
 
     property alias lights: lightsFilterModel.lights
+    property var groups: null
+    property var schedules: null
 
     head {
         actions: [
@@ -42,10 +44,6 @@ Page {
                 }
             }
         ]
-    }
-
-    Groups {
-        id: groups
     }
 
     Item { // wrap flickable to disable header fancyness
@@ -126,6 +124,7 @@ Page {
                     delegate: LightDelegate {
                         id: delegateItem
                         light: lightsFilterModel.get(index)
+                        schedules: root.schedules
 
                         onHeightChanged: {
                             var y = delegateItem.mapToItem(mainFlickable).y;

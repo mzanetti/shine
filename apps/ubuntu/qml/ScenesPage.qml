@@ -30,9 +30,14 @@ Page {
 
     property var lights: null
     property var scenes: null
+    property var schedules: null
 
     head {
         actions: [
+            Action {
+                iconName: "settings"
+                onTriggered: PopupUtils.open(sceneSettingsComponent, root)
+            },
             Action {
                 iconName: "add"
                 onTriggered: {
@@ -40,7 +45,7 @@ Page {
                     popup.accepted.connect(function(name, lightsList) {
                         var colors;
                         for (var i = 0; i < lightsList.length; i++) {
-                            colors += root.lights.get(lightsList[i]).color
+                            colors += root.lights.findLight(lightsList[i]).color
                         }
 
                         scenes.createScene(name, lightsList, colors);
@@ -54,7 +59,7 @@ Page {
     ScenesFilterModel {
         id: scenesFilterModel
         scenes: root.scenes
-        hideOtherApps: true
+        hideOtherApps: settings.hideScenesByOtherApps
     }
 
     ListView {
@@ -65,6 +70,10 @@ Page {
             property var scene: scenesFilterModel.get(index)
             trailingActions: ListItemActions {
                 actions: [
+                    Action {
+                        iconName: "alarm-clock"
+                        onTriggered: PopupUtils.open(Qt.resolvedUrl("CreateAlarmDialog.qml"), root, {scene: scenesFilterModel.get(index), schedules: root.schedules } )
+                    },
                     Action {
                         iconName: "edit"
                         onTriggered: {
@@ -85,8 +94,7 @@ Page {
             }
 
             RowLayout {
-                anchors.fill: parent
-                anchors.margins: units.gu(1)
+                anchors { fill: parent; leftMargin: units.gu(2); rightMargin: units.gu(2) }
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -100,9 +108,9 @@ Page {
                         Layout.fillWidth: true
 
                         Repeater {
-                            model: scene.lightsCount
+                            model: root.lights.count > 0 && scene ? scene.lightsCount : 0
                             Label {
-                                text: lights.findLight(scene.light(index)).name
+                                text: scene ? lights.findLight(scene.light(index)).name : ""
                             }
                         }
                     }
@@ -111,6 +119,33 @@ Page {
 
             onClicked: {
                 scenes.recallScene(scene.id)
+            }
+        }
+    }
+
+    Component {
+        id: sceneSettingsComponent
+        Dialog {
+            id: sceneSettingsDialog
+            title: "Scene settings"
+            RowLayout {
+                CheckBox {
+                    id: showOtherApps
+                    checked: !settings.hideScenesByOtherApps
+                }
+                Label {
+                    color: "black"
+                    text: "Show scenes created by other apps"
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+            }
+            Button {
+                text: "OK"
+                onClicked: {
+                    settings.hideScenesByOtherApps = !showOtherApps.checked
+                    PopupUtils.close(sceneSettingsDialog)
+                }
             }
         }
     }

@@ -28,6 +28,8 @@ class Light;
 class Lights : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
+
 public:
     enum Roles {
         RoleId,
@@ -49,7 +51,7 @@ public:
 
     explicit Lights(QObject *parent = 0);
 
-    int rowCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Light* get(int index) const;
@@ -62,6 +64,9 @@ private slots:
     void lightsReceived(int id, const QVariant &variant);
     void lightDescriptionChanged();
     void lightStateChanged();
+
+signals:
+    void countChanged();
 
 private:
     Light* createLight(int id, const QString &name);

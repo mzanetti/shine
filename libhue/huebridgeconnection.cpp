@@ -186,7 +186,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
 
 #if QT_VERSION >= 0x050000
     QJsonDocument jsonDoc = QJsonDocument::fromVariant(params);
-    QByteArray data = jsonDoc.toJson();
+    QByteArray data = jsonDoc.toJson(QJsonDocument::Compact);
 #else
     QJson::Serializer serializer;
     QByteArray data = serializer.serialize(params);
@@ -287,22 +287,21 @@ void HueBridgeConnection::slotOpFinished()
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
 
+    QVariant rsp;
 #if QT_VERSION >= 0x050000
     QJsonParseError error;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response, &error);
     if (error.error != QJsonParseError::NoError) {
-        qWarning() << "error parsing get response:" << error.errorString();
-        return;
+        qWarning() << "error parsing get response:" << error.errorString() << response;
+    } else {
+        rsp = jsonDoc.toVariant();
     }
-    QVariant rsp = jsonDoc.toVariant();
-//    qDebug() << "got:" << jsonDoc.toJson();
 #else
     QJson::Parser parser;
     bool ok;
-    QVariant rsp = parser.parse(response, &ok);
+    rsp = parser.parse(response, &ok);
     if(!ok) {
         qWarning() << "cannot parse response:" << response;
-        return;
     }
 #endif
 

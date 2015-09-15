@@ -55,6 +55,8 @@ public:
 
     QList<int> lightIds() const;
 
+    bool isGroup() const;
+
 public slots:
     void refresh();
     void setOn(bool on);
@@ -77,6 +79,7 @@ private slots:
 
     void setStateFinished(int id, const QVariant &response);
 
+    void timeout();
 private:
     int m_id;
     QString m_name;
@@ -105,6 +108,7 @@ private:
     bool m_xyDirty;
     QPointF m_dirtyXy;
 
+    QTimer m_timeout;
 };
 
 #endif

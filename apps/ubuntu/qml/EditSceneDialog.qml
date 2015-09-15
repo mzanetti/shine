@@ -63,6 +63,7 @@ Dialog {
         color: UbuntuColors.green
         enabled: nameTextField.text.length > 0 || nameTextField.inputMethodComposing
         onClicked: {
+            nameTextField.focus = false;
             var lightsList = new Array;
             for (var i = 0; i < lightsCheckboxes.count; ++i) {
                 if (lightsCheckboxes.itemAt(i).checked) {

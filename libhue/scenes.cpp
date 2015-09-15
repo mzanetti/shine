@@ -136,6 +136,7 @@ void Scenes::scenesReceived(int id, const QVariant &variant)
                 lights << light.toInt();
             }
             Scene *scene = createSceneInternal(sceneId, sceneMap.value("name").toString(), lights);
+            qDebug() << "creating scene with lights" << lights << scene->lightsCount();
         }
     }
     emit countChanged();
@@ -156,20 +157,6 @@ void Scenes::sceneNameChanged()
     emit dataChanged(modelIndex, modelIndex);
 #endif
 }
-
-//void Groups::groupLightsChanged()
-//{
-//    Group *group = static_cast<Group*>(sender());
-//    int idx = m_list.indexOf(group);
-//    QModelIndex modelIndex = index(idx);
-
-//#if QT_VERSION >= 0x050000
-//    QVector<int> roles = QVector<int>() << RoleLightIds;
-//    emit dataChanged(modelIndex, modelIndex, roles);
-//#else
-//    emit dataChanged(modelIndex, modelIndex);
-//#endif
-//}
 
 void Scenes::createScene(const QString &name, const QList<int> &lights, const QString &userData)
 {
@@ -205,8 +192,6 @@ Scene *Scenes::createSceneInternal(const QString &id, const QString &name, const
     scene->setLights(lights);
 
     connect(scene, SIGNAL(nameChanged()), this, SLOT(sceneNameChanged()));
-    connect(scene, SIGNAL(activeChanged()), this, SLOT(sceneActiveChanged()));
-//    connect(scene, SIGNAL(lightsChanged()), this, SLOT(groupLightsChanged()));
 
     beginInsertRows(QModelIndex(), m_list.count(), m_list.count());
     m_list.append(scene);
@@ -232,27 +217,3 @@ void Scenes::recallSceneFinished(int id, const QVariant &variant)
 {
     qDebug() << "scene recalled" << variant;
 }
-
-//void Groups::deleteGroup(int id)
-//{
-//    HueBridgeConnection::instance()->deleteResource("groups/" + QString::number(id), this, "deleteGroupFinished");
-//}
-
-//void Groups::deleteGroupFinished(int id, const QVariant &response)
-//{
-//    Q_UNUSED(id)
-//    qDebug() << "got deleteGroup result" << response;
-
-//    QVariantMap result = response.toList().first().toMap();
-
-//    if (result.contains("success")) {
-//        QString success = result.value("success").toString();
-//        if (success.contains("/groups/")) {
-//            QString groupId = success.mid(success.indexOf("/groups/") + 8);
-//            groupId = groupId.left(groupId.indexOf(" deleted"));
-
-//            //TODO: could be deleted without refrshing
-//            refresh();
-//        }
-//    }
-//}

@@ -87,6 +87,8 @@ private slots:
     void setDescriptionFinished(int id, const QVariant &response);
     void setStateFinished(int id, const QVariant &response);
 
+    void timeout();
+
 private:
     void setReachable(bool reachable);
 
@@ -119,6 +121,8 @@ private:
     quint16 m_dirtyCt;
     bool m_xyDirty;
     QPointF m_dirtyXy;
+
+    QTimer m_timeout;
 };
 
 #endif

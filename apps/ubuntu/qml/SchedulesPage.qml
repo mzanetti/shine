@@ -26,22 +26,30 @@ import Hue 0.1
 
 Page {
     id: root
-    title: "Alarms"
+    title: "Alarms & Timers"
 
     property var lights: null
+    property var groups: null
     property var schedules: null
     property var scenes: null
 
-    head {
-        actions: [
-            Action {
-                iconName: "add"
-                onTriggered: {
-                    pageStack.push(Qt.resolvedUrl("EditAlarmDialog.qml"), {lights: root.lights, scenes: root.scenes, schedules: root.schedules })
-                }
-            }
-        ]
+    property bool pageActive: false
+
+    Column {
+        width: parent.width
+        anchors.centerIn: parent
+        spacing: units.gu(6)
+        visible: schedules.count == 0
+        z: 2
+        Label {
+            anchors { left: parent.left; right: parent.right; margins: units.gu(2) }
+            wrapMode: Text.WordWrap
+            text: "No alarms or timers set up. You can create alarms and timers in the lights, groups and schedules sections."
+            fontSize: "x-large"
+            horizontalAlignment: Text.AlignHCenter
+        }
     }
+
 
     ListView {
         anchors.fill: parent
@@ -52,35 +60,55 @@ Page {
                 actions: [
                     Action {
                         iconName: "delete"
+                        onTriggered: schedules.deleteSchedule(model.id)
                     }
                 ]
             }
 
 
-            ColumnLayout {
-                anchors.fill: parent
-                Label {
-                    text: model.name
+            RowLayout {
+                anchors {
+                    fill: parent
+                    leftMargin: units.gu(2)
+                    rightMargin: units.gu(2)
                 }
-                Label {
-                    property string weekdays: model.weekdays
-                    property string weekdaysString: {
-                        var strings = new Array()
-                        if (weekdays[1] == "1") strings.push("Mon")
-                        if (weekdays[2] == "1") strings.push("Tue")
-                        if (weekdays[3] == "1") strings.push("Wed")
-                        if (weekdays[4] == "1") strings.push("Thu")
-                        if (weekdays[5] == "1") strings.push("Fri")
-                        if (weekdays[6] == "1") strings.push("Sat")
-                        if (weekdays[7] == "1") strings.push("Sun")
-                        return strings.join(", ")
+                spacing: units.gu(1)
+                Icon {
+                    Layout.preferredHeight: units.gu(4)
+                    Layout.preferredWidth: height
+                    name: model.type == Schedule.TypeAlarm ? "alarm-clock" : "camera-self-timer"
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: model.name
                     }
+                    Label {
+                        Layout.fillWidth: true
+                        property string weekdays: model.weekdays
+                        property string weekdaysString: {
+                            var strings = new Array()
+                            if (weekdays[1] == "1") strings.push("Mon")
+                            if (weekdays[2] == "1") strings.push("Tue")
+                            if (weekdays[3] == "1") strings.push("Wed")
+                            if (weekdays[4] == "1") strings.push("Thu")
+                            if (weekdays[5] == "1") strings.push("Fri")
+                            if (weekdays[6] == "1") strings.push("Sat")
+                            if (weekdays[7] == "1") strings.push("Sun")
+                            return strings.join(", ")
+                        }
 
-                    text: model.recurring ?
-                              Qt.formatTime(model.dateTime) + "  " + weekdaysString
-                            : Qt.formatDateTime(model.dateTime)
+                        text: model.type == Schedule.TypeAlarm ?
+                                  (model.recurring ?
+                                     Qt.formatTime(model.dateTime) + "  " + weekdaysString
+                                   : Qt.formatDateTime(model.dateTime))
+                                : Qt.formatTime(model.dateTime)
 
 
+                    }
                 }
             }
         }

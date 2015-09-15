@@ -27,6 +27,7 @@
 Schedule::Schedule(const QString &id, const QString &name, QObject *parent)
     : QObject(parent)
     , m_id(id)
+    , m_type(TypeAlarm)
     , m_name(name)
     , m_enabled(true)
     , m_autodelete(true)
@@ -50,6 +51,19 @@ void Schedule::setName(const QString &name)
     if (m_name != name) {
         m_name = name;
         emit nameChanged();
+    }
+}
+
+Schedule::Type Schedule::type() const
+{
+    return m_type;
+}
+
+void Schedule::setType(Schedule::Type type)
+{
+    if (m_type != type) {
+        m_type = type;
+        emit typeChanged();
     }
 }
 

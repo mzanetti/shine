@@ -38,6 +38,9 @@ Group::Group(int id, const QString &name, QObject *parent)
     m_xyDirty(false)
 {
     refresh();
+
+    m_timeout.setInterval(250);
+    connect(&m_timeout, &QTimer::timeout, this, &Group::timeout);
 }
 
 int Group::id() const
@@ -165,6 +168,7 @@ void Group::setColor(const QColor &color)
 
         params.insert("on", true);
         m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+        m_timeout.start();
     } else {
         m_dirtyHue = hue;
         m_hueDirty = true;
@@ -200,6 +204,7 @@ void Group::setCt(quint16 ct)
         params.insert("ct", ct);
         params.insert("on", true);
         m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+        m_timeout.start();
     } else {
         m_dirtyCt = ct;
         m_ctDirty = true;
@@ -253,6 +258,11 @@ bool Group::reachable() const
 QList<int> Group::lightIds() const
 {
     return m_lightIds;
+}
+
+bool Group::isGroup() const
+{
+    return true;
 }
 
 void Group::refresh()
@@ -350,6 +360,7 @@ void Group::setStateFinished(int id, const QVariant &response)
 
     if (m_busyStateChangeId == id) {
         m_busyStateChangeId = -1;
+        m_timeout.stop();
         if (m_hueDirty || m_satDirty || m_briDirty) {
             QVariantMap params;
             if (m_hueDirty) {
@@ -370,12 +381,14 @@ void Group::setStateFinished(int id, const QVariant &response)
             m_sat = m_dirtySat;
 
             m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+            m_timeout.start();
         } else if(m_ctDirty) {
             QVariantMap params;
             params.insert("ct", m_dirtyCt);
             m_ctDirty = false;
 
             m_busyStateChangeId = HueBridgeConnection::instance()->put("groups/" + QString::number(m_id) + "/action", params, this, "setStateFinished");
+            m_timeout.start();
         } else if (m_xyDirty) {
             QVariantMap params;
             QVariantList xyList;
@@ -384,7 +397,15 @@ void Group::setStateFinished(int id, const QVariant &response)
             m_xyDirty = false;
 
             m_busyStateChangeId = HueBridgeConnection::instance()->put("lights/" + QString::number(m_id) + "/state", params, this, "setStateFinished");
+            m_timeout.start();
         }
     }
 
+}
+
+void Group::timeout()
+{
+    if (m_busyStateChangeId != -1) {
+        setStateFinished(m_busyStateChangeId, QVariant());
+    }
 }

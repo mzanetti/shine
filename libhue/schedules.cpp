@@ -24,12 +24,16 @@
 
 #include <QDebug>
 #include <QUuid>
+#include <QColor>
 
 Schedules::Schedules(QObject *parent)
     : QAbstractListModel(parent)
 {
     connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
     refresh();
+
+    connect(&m_timer, &QTimer::timeout, this, &Schedules::refresh);
+    m_timer.start(10000);
 
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -57,6 +61,8 @@ QVariant Schedules::data(const QModelIndex &index, int role) const
         return schedule->name();
     case RoleDateTime:
         return schedule->dateTime();
+    case RoleType:
+        return schedule->type();
     case RoleRecurring:
         return schedule->recurring();
     case RoleWeekdays:
@@ -72,6 +78,7 @@ QHash<int, QByteArray> Schedules::roleNames() const
     roles.insert(RoleId, "id");
     roles.insert(RoleName, "name");
     roles.insert(RoleDateTime, "dateTime");
+    roles.insert(RoleType, "type");
     roles.insert(RoleRecurring, "recurring");
     roles.insert(RoleWeekdays, "weekdays");
     return roles;
@@ -106,12 +113,57 @@ void Schedules::createRecurringAlarmForScene(const QString &name, const QString 
     createAlarmForScene(name, sceneId, timeString);
 }
 
-//void Scenes::recallScene(int index)
-//{
-//    QVariantMap params;
-//    params.insert("scene", m_list.at(index)->id());
-//    HueBridgeConnection::instance()->put("groups/0/action", params, this, "recallSceneFinished");
-//}
+void Schedules::createRecurringAlarmForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &time, const QString &weekdays)
+{
+    QString timeString = "W" + QString::number(weekdays.toInt(0, 2)) + "/T" + time.time().toString();
+    createScheduleForLight(name, lightId, on, bri, color, timeString);
+}
+
+void Schedules::createSingleAlarmForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &dateTime)
+{
+    createScheduleForGroup(name, groupId, on, bri, color, dateTime.toString(Qt::ISODate));
+}
+
+void Schedules::createSingleAlarmForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &time, const QString &weekdays)
+{
+    QString timeString = "W" + QString::number(weekdays.toInt(0, 2)) + "/T" + time.time().toString();
+    createScheduleForGroup(name, groupId, on, bri, color, timeString);
+}
+
+void Schedules::createTimerForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &timeFromNow, int repeat)
+{
+    QString timeString;
+    if (repeat >= 0) {
+        timeString += "R";
+        if (repeat > 0) {
+            timeString += QString::number(repeat);
+        }
+        timeString += "/";
+    }
+    timeString += "PT" + timeFromNow.toString("hh:mm:ss");
+
+    createScheduleForLight(name, lightId, on, bri, color, timeString);
+}
+
+void Schedules::createTimerForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &timeFromNow, int repeat)
+{
+    QString timeString;
+    if (repeat >= 0) {
+        timeString += "R";
+        if (repeat > 0) {
+            timeString += QString::number(repeat);
+        }
+        timeString += "/";
+    }
+    timeString += "PT" + timeFromNow.toString("hh:mm:ss");
+
+    createScheduleForGroup(name, groupId, on, bri, color, timeString);
+}
+
+void Schedules::createSingleAlarmForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &dateTime)
+{
+    createScheduleForLight(name, lightId, on, bri, color, dateTime.toString(Qt::ISODate));
+}
 
 void Schedules::refresh()
 {
@@ -128,6 +180,45 @@ void Schedules::createAlarmForScene(const QString &name, const QString &sceneId,
     command.insert("method", "PUT");
     command.insert("body", commandParams);
 
+    createSchedule(name, command, timeString);
+}
+
+void Schedules::createScheduleForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QString &timeString)
+{
+    QVariantMap commandParams;
+    commandParams.insert("on", on);
+    commandParams.insert("bri", bri);
+    // Transform from RGB to Hue/Sat
+    commandParams.insert("hue", color.hue() * 65535 / 360);
+    commandParams.insert("sat", color.saturation());
+
+    QVariantMap command;
+    command.insert("address", "/api/" + HueBridgeConnection::instance()->apiKey() + "/lights/" + QString::number(lightId) + "/state");
+    command.insert("method", "PUT");
+    command.insert("body", commandParams);
+
+    createSchedule(name, command, timeString);
+}
+
+void Schedules::createScheduleForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QString &timeString)
+{
+    QVariantMap commandParams;
+    commandParams.insert("on", on);
+    commandParams.insert("bri", bri);
+    // Transform from RGB to Hue/Sat
+    commandParams.insert("hue", color.hue() * 65535 / 360);
+    commandParams.insert("sat", color.saturation());
+
+    QVariantMap command;
+    command.insert("address", "/api/" + HueBridgeConnection::instance()->apiKey() + "/groups/" + QString::number(groupId) + "/action");
+    command.insert("method", "PUT");
+    command.insert("body", commandParams);
+
+    createSchedule(name, command, timeString);
+}
+
+void Schedules::createSchedule(const QString &name, const QVariantMap &command, const QString &timeString)
+{
     QVariantMap params;
     params.insert("name", name);
     params.insert("command", command);
@@ -169,81 +260,26 @@ void Schedules::schedulesReceived(int id, const QVariant &variant)
             Schedule *schedule = createScheduleInternal(scheduleId, scheduleMap.value("name").toString());
             schedule->setEnabled(scheduleMap.value("status").toString() == "enabled");
             schedule->setAutoDelete(scheduleMap.value("autodelete").toBool());
-            QString timeString = scheduleMap.value("time").toString();
+            QString timeString = scheduleMap.value("localtime").toString();
             if (timeString.startsWith("W")) {
                 schedule->setRecurring(true);
                 timeString = timeString.right(timeString.length() - 1);
                 schedule->setWeekdays(QString("0%1").arg(timeString.left(3).toInt(), 7, 2, QChar('0')));
-                qDebug() << "fooo" << schedule->weekdays();
                 timeString = timeString.right(timeString.length() - 5);
                 QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(0);
                 dateTime.setTime(QTime::fromString(timeString));
                 schedule->setDateTime(dateTime);
+            } else if (timeString.contains("PT")){
+                schedule->setType(Schedule::TypeTimer);
+                QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(0);
+                dateTime.setTime(QTime::fromString(timeString.remove("PT")));
+                schedule->setDateTime(dateTime);
             } else {
-                schedule->setDateTime(scheduleMap.value("time").toDateTime());
+                schedule->setDateTime(scheduleMap.value("localtime").toDateTime());
             }
-            qDebug() << "timeString" << timeString << QDateTime::fromString(timeString) << schedule->weekdays();
         }
     }
     emit countChanged();
-}
-
-//void Schedules::sceneNameChanged()
-//{
-//    Scene *scene = static_cast<Scene*>(sender());
-//    int idx = m_list.indexOf(scene);
-//    QModelIndex modelIndex = index(idx);
-
-//#if QT_VERSION >= 0x050000
-//    QVector<int> roles = QVector<int>()
-//            << RoleName;
-
-//    emit dataChanged(modelIndex, modelIndex, roles);
-//#else
-//    emit dataChanged(modelIndex, modelIndex);
-//#endif
-//}
-
-//void Groups::groupLightsChanged()
-//{
-//    Group *group = static_cast<Group*>(sender());
-//    int idx = m_list.indexOf(group);
-//    QModelIndex modelIndex = index(idx);
-
-//#if QT_VERSION >= 0x050000
-//    QVector<int> roles = QVector<int>() << RoleLightIds;
-//    emit dataChanged(modelIndex, modelIndex, roles);
-//#else
-//    emit dataChanged(modelIndex, modelIndex);
-//#endif
-//}
-
-void Schedules::createSchedule(const QString &name, const QList<int> &lights)
-{
-    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-
-    QString randomString;
-    for(int i=0; i < 12; ++i) {
-        int index = qrand() % possibleCharacters.length();
-        QChar nextChar = possibleCharacters.at(index);
-        randomString.append(nextChar);
-    }
-    updateSchedule("schedule" + randomString, name, lights);
-}
-
-void Schedules::updateSchedule(const QString &id, const QString &name, const QList<int> &lights)
-{
-    qDebug() << "create schedule" << name << lights;
-    QVariantMap params;
-    QVariantList lightsList;
-    foreach (int lightId, lights) {
-        qDebug() << "got light" << lightId;
-        lightsList.append(QString::number(lightId));
-    }
-    qDebug() << "lightslist" << lightsList;
-    params.insert("name", name);
-    params.insert("lights", lightsList);
-    HueBridgeConnection::instance()->put("scenes/" + id, params, this, "createSceneFinished");
 }
 
 void Schedules::deleteSchedule(const QString &id)
@@ -277,11 +313,6 @@ void Schedules::createScheduleFinished(int id, const QVariant &response)
         refresh();
     }
 }
-
-//void Scenes::recallSceneFinished(int id, const QVariant &variant)
-//{
-//    qDebug() << "scene recalled" << variant;
-//}
 
 void Schedules::deleteScheduleFinished(int id, const QVariant &response)
 {

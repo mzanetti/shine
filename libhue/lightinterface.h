@@ -49,6 +49,8 @@ class LightInterface: public QObject
     Q_PROPERTY(ColorMode colormode READ colorMode NOTIFY stateChanged)
     Q_PROPERTY(bool reachable READ reachable NOTIFY stateChanged)
 
+    Q_PROPERTY(bool isGroup READ isGroup CONSTANT)
+
 public:
     enum ColorMode {
         ColorModeHS,
@@ -80,6 +82,8 @@ public:
     virtual QString effect() const = 0;
     virtual ColorMode colorMode() const = 0;
     virtual bool reachable() const = 0;
+
+    virtual bool isGroup() const { return false; }
 
 public slots:
     virtual void refresh() = 0;

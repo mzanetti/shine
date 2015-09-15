@@ -28,8 +28,10 @@ class Schedule: public QObject
 {
     Q_OBJECT
 
+    Q_ENUMS(Type)
     Q_PROPERTY(QString id READ id CONSTANT)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(Type type READ type NOTIFY typeChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(QString weekdays READ weekdays NOTIFY weekdaysChanged)
     Q_PROPERTY(bool enabled READ enabled NOTIFY enabledChanged)
@@ -37,12 +39,20 @@ class Schedule: public QObject
     Q_PROPERTY(bool recurring READ recurring NOTIFY recurringChanged)
 
 public:
+    enum Type {
+        TypeAlarm,
+        TypeTimer
+    };
+
     Schedule(const QString &id, const QString &name, QObject *parent = 0);
 
     QString id() const;
 
     QString name() const;
     void setName(const QString &name);
+
+    Type type() const;
+    void setType(Type type);
 
     QDateTime dateTime() const;
     void setDateTime(const QDateTime &dateTime);
@@ -64,6 +74,7 @@ public slots:
 
 signals:
     void nameChanged();
+    void typeChanged();
     void dateTimeChanged();
     void weekdaysChanged();
     void enabledChanged();
@@ -79,6 +90,7 @@ private slots:
 private:
     QString m_id;
     QString m_name;
+    Type m_type;
     QDateTime m_dateTime;
     QString m_weekdays;
     bool m_enabled;
