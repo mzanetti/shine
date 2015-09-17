@@ -105,7 +105,7 @@ Empty {
                     },
                     Action {
                         iconName: "camera-self-timer"
-                        onTriggered: PopupUtils.open(Qt.resolvedUrl("CreateTimerDialog.qml"), root)
+                        onTriggered: PopupUtils.open(Qt.resolvedUrl("CreateTimerDialog.qml"), root, {light: root.light, schedules: root.schedules })
                     },
                     Action {
                         iconName: "edit"

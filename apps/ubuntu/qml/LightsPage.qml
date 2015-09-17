@@ -85,6 +85,7 @@ Page {
                     delegate: LightDelegate {
                         id: delegateItem
                         light: groups.get(index)
+                        schedules: root.schedules
 
                         onHeightChanged: {
                             var y = delegateItem.mapToItem(mainFlickable).y;

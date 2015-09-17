@@ -7,9 +7,12 @@ import Ubuntu.Components.Pickers 1.3
 import Hue 0.1
 
 Dialog {
-    id: td
+    id: root
     title: "Set timer"
     text: "%1 will be switched off in".arg(root.light.name)
+
+    property var schedules: null
+    property var light: null
 
     DatePicker {
         id: dateTime
@@ -29,14 +32,14 @@ Dialog {
             } else {
                 root.schedules.createTimerForLight("%1 off".arg(root.light.name), root.light.id, false, 0, "white", dateTime.date)
             }
-            PopupUtils.close(td)
+            PopupUtils.close(root)
         }
     }
     Button {
         text: "Cancel"
         color: UbuntuColors.red
         onClicked: {
-            PopupUtils.close(td)
+            PopupUtils.close(root)
         }
     }
 }
