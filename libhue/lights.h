@@ -57,6 +57,8 @@ public:
     Q_INVOKABLE Light* get(int index) const;
     Q_INVOKABLE Light* findLight(int lightId) const;
 
+    Q_INVOKABLE void searchForNewLights();
+
 public slots:
     void refresh();
 
@@ -64,6 +66,7 @@ private slots:
     void lightsReceived(int id, const QVariant &variant);
     void lightDescriptionChanged();
     void lightStateChanged();
+    void searchStarted(int id, const QVariant &response);
 
 signals:
     void countChanged();

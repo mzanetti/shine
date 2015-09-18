@@ -116,7 +116,7 @@ Item {
                 id: bridgeInfoTab
                 title: "Bridge info"
                 page: BridgeInfoPage {
-
+                    lights: lights
                 }
             }
         }

@@ -122,6 +122,11 @@ Light *Lights::findLight(int lightId) const
     return 0;
 }
 
+void Lights::searchForNewLights()
+{
+    HueBridgeConnection::instance()->post("lights", QVariantMap(), this, "searchStarted");
+}
+
 void Lights::refresh()
 {
     HueBridgeConnection::instance()->get("lights", this, "lightsReceived");
@@ -218,6 +223,12 @@ void Lights::lightStateChanged()
 #else
     emit dataChanged(modelIndex, modelIndex);
 #endif
+}
+
+void Lights::searchStarted(int id, const QVariant &response)
+{
+    Q_UNUSED(id)
+    qDebug() << "search started" << response;
 }
 
 Light *Lights::createLight(int id, const QString &name)

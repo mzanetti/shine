@@ -3,10 +3,16 @@ import Ubuntu.Components 1.3
 import QtQuick.Layouts 1.1
 import Hue 0.1
 Page {
+    id: root
+
     title: "Bridge info"
+
+    property var lights: null
+
     GridLayout {
         anchors.fill: parent
         anchors.margins: units.gu(1)
+        rowSpacing: units.gu(1)
         columns: 2
         SettingsLabel {
             text: "Bridge name:"
@@ -63,6 +69,37 @@ Page {
             text: bridgeConfig.swUpdateReleaseNotes
             visible: bridgeConfig.updateState == Configuration.UpdateStateReadyToUpdate
         }
+
+        SettingsLabel {
+            id: searchLabel
+            Layout.columnSpan: 2
+            text: searching ? "The bridge is searching for new lights...\nMake sure the lights are powered. New lights should appear in the \"Lights\" section." : ""
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            property bool searching: false
+            property var searchTime: new Date(0)
+
+            Timer {
+                running: searchLabel.searching
+                onTriggered: {
+                    if (searchLabel.searchTime < new Date()) {
+                        searchLabel.searching = false
+                    }
+                }
+            }
+
+            Button {
+                text: "Search for new lights..."
+                width: parent.width
+                visible: !searchLabel.searching
+                onClicked: {
+                    root.lights.searchForNewLights();
+                    searchLabel.searchTime = new Date(new Date().getTime() + 60000);
+                    searchLabel.searching = true
+                }
+            }
+        }
+
         Item {
             Layout.columnSpan: 2
             Layout.fillHeight: true
