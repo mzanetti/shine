@@ -20,6 +20,8 @@ set(libhue_SRCS
     schedule.cpp
     scenesfiltermodel.cpp
     schedulesfiltermodel.cpp
+    sensors.cpp
+    sensor.cpp
 )
 
 add_library(hue ${libhue_SRCS})

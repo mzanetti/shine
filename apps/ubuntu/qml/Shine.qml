@@ -116,6 +116,14 @@ Item {
             }
 
             Tab {
+                id: sensorsTab
+                title: "Sensors"
+                page: SensorsPage {
+                    sensors: sensors
+                }
+            }
+
+            Tab {
                 id: bridgeInfoTab
                 title: "Bridge info"
                 page: BridgeInfoPage {
@@ -123,7 +131,6 @@ Item {
                 }
             }
         }
-
 
         Lights {
             id: lights
@@ -150,6 +157,10 @@ Item {
         Configuration {
             id: bridgeConfig
             autoRefresh: tabs.selectedTab == bridgeInfoTab && !bigColorPicker.visible
+        }
+
+        Sensors {
+            id: sensors
         }
 
         Settings {
