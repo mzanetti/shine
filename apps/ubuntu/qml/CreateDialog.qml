@@ -52,14 +52,19 @@ Dialog {
     Button {
         text: "OK"
         color: UbuntuColors.green
+        enabled: nameTextField.text || nameTextField.inputMethodComposing
         onClicked: {
+            nameTextField.focus = false;
             var lightsList = new Array;
             for (var i = 0; i < lightsCheckboxes.count; ++i) {
                 if (lightsCheckboxes.itemAt(i).checked) {
-                    print("adding light", i)
                     lightsList.push(lights.get(i).id);
-                    print("list is now", lightsList.length)
                 }
+            }
+
+            if (lightsList.length == 0) {
+                PopupUtils.open(errorDialog, root)
+                return;
             }
 
             root.accepted(nameTextField.text, lightsList)
@@ -72,6 +77,19 @@ Dialog {
         onClicked: {
             root.rejected();
             PopupUtils.close(root)
+        }
+    }
+
+    Component {
+        id: errorDialog
+        Dialog {
+            id: ed
+            title: "Error"
+            text: "Please select at least one light to be part of the group."
+            Button {
+                text: "OK"
+                onClicked: PopupUtils.close(ed)
+            }
         }
     }
 }
