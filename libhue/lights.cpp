@@ -151,21 +151,16 @@ void Lights::lightsReceived(int id, const QVariant &variant)
     // Update existing lights's name and keep track of newly added lights
     QList <Light*> newLights;
     foreach (const QString &lightId, lights.keys()) {
-        bool existing = false;
-        foreach (Light *light, m_list) {
-            if (light->id() == lightId.toInt()) {
-                existing = true;
-                light->m_name = lights.value(lightId).toMap().value("name").toString();
-                QVariantMap stateMap = lights.value(lightId).toMap().value("state").toMap();
-                parseStateMap(light, stateMap);
-                break;
-            }
-        }
-        if (!existing) {
-            Light *light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
-            parseStateMap(light, lights.value(lightId).toMap().value("state").toMap());
+        Light *light = findLight(lightId.toInt());
+        if (light) {
+            light->m_name = lights.value(lightId).toMap().value("name").toString();
+        } else {
+            light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
             newLights.append(light);
+
         }
+        QVariantMap stateMap = lights.value(lightId).toMap().value("state").toMap();
+        parseStateMap(light, stateMap);
     }
 
     // insert newly added lights into the model

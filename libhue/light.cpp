@@ -259,6 +259,7 @@ QString Light::alert() const
 
 void Light::setAlert(const QString &alert)
 {
+    qDebug() << "settings alert" << alert << m_alert;
     if (m_alert != alert) {
         QVariantMap params;
         params.insert("alert", alert);
@@ -357,6 +358,7 @@ void Light::setDescriptionFinished(int id, const QVariant &response)
 
 void Light::setStateFinished(int id, const QVariant &response)
 {
+    qDebug() << "set state finished" << response;
     foreach (const QVariant &resultVariant, response.toList()) {
         QVariantMap result = resultVariant.toMap();
         if (result.contains("success")) {
@@ -386,11 +388,13 @@ void Light::setStateFinished(int id, const QVariant &response)
             if (successMap.contains("/lights/" + QString::number(m_id) + "/state/effect")) {
                 m_effect = successMap.value("/lights/" + QString::number(m_id) + "/state/effect").toString();
             }
+            if (successMap.contains("/lights/" + QString::number(m_id) + "/state/alert")) {
+                m_alert = successMap.value("/lights/" + QString::number(m_id) + "/state/alert").toString();
+            }
         }
     }
     emit stateChanged();
 
-    qDebug() << "setState finished for id" << id << "busyId" << m_busyStateChangeId;
     if (m_busyStateChangeId == id) {
         m_busyStateChangeId = -1;
         m_timeout.stop();

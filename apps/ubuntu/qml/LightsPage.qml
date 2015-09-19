@@ -54,14 +54,14 @@ Page {
             id: mainFlickable
             anchors.fill: parent
             contentHeight: mainColumn.height
-            interactive: contentHeight > height && groupsListView.expandedItem == null && lightsListView.expandedItem == null
+            interactive: contentHeight > height
 
             Column {
                 id: mainColumn
                 anchors { left: parent.left; right: parent.right }
 
                 add: Transition {
-                    UbuntuNumberAnimation { properties: "opacity"; from: 0; to: 1 }
+                    UbuntuNumberAnimation { properties: "opacity"; from: 0 }
                 }
                 move: Transition {
                     UbuntuNumberAnimation { properties: "x,y" }
@@ -71,7 +71,7 @@ Page {
                     text: "Groups"
                     anchors {left: parent.left; right: parent.right; margins: units.gu(2) }
                     height: units.gu(3)
-                    verticalAlignment: Text.AlignBottom
+                    verticalAlignment: Text.AlignVCenter
                 }
 
                 ThinDivider {}
@@ -89,7 +89,7 @@ Page {
                     anchors {left: parent.left; right: parent.right; margins: units.gu(2) }
                     text: "Lights"
                     height: units.gu(3)
-                    verticalAlignment: Text.AlignBottom
+                    verticalAlignment: Text.AlignVCenter
                 }
 
                 ThinDivider {}

@@ -351,6 +351,9 @@ void Group::setStateFinished(int id, const QVariant &response)
             if (successMap.contains("/groups/" + QString::number(m_id) + "/action/effect")) {
                 m_effect = successMap.value("/groups/" + QString::number(m_id) + "/action/effect").toString();
             }
+            if (successMap.contains("/groups/" + QString::number(m_id) + "/action/alert")) {
+                m_alert = successMap.value("/groups/" + QString::number(m_id) + "/action/alert").toString();
+            }
         }
     }
 
