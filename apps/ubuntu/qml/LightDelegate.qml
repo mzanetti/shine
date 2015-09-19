@@ -47,7 +47,7 @@ ListItem {
         }
     }
 
-    leadingActions: groups.get(index) && groups.get(index).id == 0 ? null : deleteAction
+    leadingActions: root.light.isGroup && root.light.id !== 0 ? deleteAction : null
     ListItemActions {
         id: deleteAction
         actions: [
@@ -71,9 +71,8 @@ ListItem {
             },
             Action {
                 iconName: "edit"
-                onTriggered: root.state = "rename"
+                onTriggered: root.onPressAndHold()
             }
-
         ]
     }
 
