@@ -24,13 +24,9 @@
 #include <QDebug>
 
 Configuration::Configuration(QObject *parent):
-    QObject(parent),
+    HueObject(parent),
     m_connectedToPortal(false)
 {
-    refresh();
-    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-    m_timer.start(10000);
 }
 
 void Configuration::refresh()

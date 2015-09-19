@@ -82,10 +82,8 @@ Page {
                                 checkedLights.push(scene.light(i))
                             }
 
-                            print("editing scene", scene.id)
                             var popup = PopupUtils.open(Qt.resolvedUrl("EditSceneDialog.qml"), root, {title: i18n.tr("Edit scene"), lights: root.lights, checkedLights: checkedLights, name: scene.name})
                             popup.accepted.connect(function(name, lightsList) {
-                                print("updating scene", scene.id)
                                 scenes.updateScene(scene.id, name, lightsList);
                             })
                         }

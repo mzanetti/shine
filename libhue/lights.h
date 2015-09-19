@@ -20,16 +20,15 @@
 #ifndef LIGHTS_H
 #define LIGHTS_H
 
-#include <QAbstractListModel>
+#include "huemodel.h"
+
 #include <QTimer>
 
 class Light;
 
-class Lights : public QAbstractListModel
+class Lights : public HueModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
-
 public:
     enum Roles {
         RoleId,
@@ -73,10 +72,10 @@ signals:
 
 private:
     Light* createLight(int id, const QString &name);
+    void parseStateMap(Light *light, const QVariantMap &stateMap);
 
 private:
     QList<Light*> m_list;
-    QTimer m_timer;
 };
 
 #endif // LIGHTS_H

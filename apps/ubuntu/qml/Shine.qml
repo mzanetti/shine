@@ -75,8 +75,10 @@ Item {
             visible: root.orientation == "portrait"
 
             Tab {
+                id: lightsTab
                 title: "Lights"
                 page: PageStack {
+                    id: lightsPageStack
                     Component.onCompleted: push(lightsPage)
                     LightsPage {
                         id: lightsPage
@@ -87,6 +89,7 @@ Item {
                 }
             }
             Tab {
+                id: scenesTab
                 title: "Scenes"
                 page: ScenesPage {
                     id: scenesPage
@@ -124,22 +127,29 @@ Item {
 
         Lights {
             id: lights
+            autoRefresh: (tabs.selectedTab == lightsTab && lightsPageStack.currentPage == lightsPage) ||
+                         bigColorPicker.visible
         }
 
         Groups {
             id: groups
+            autoRefresh: (tabs.selectedTab == lightsTab && lightsPageStack.currentPage == lightsPage) ||
+                         bigColorPicker.visible
         }
 
         Scenes {
             id: scenes
+            autoRefresh: tabs.selectedTab == scenesTab && !bigColorPicker.visible
         }
 
         Schedules {
             id: schedules
+            autoRefresh: tabs.selectedTab == schedulesTab && !bigColorPicker.visible
         }
 
         Configuration {
             id: bridgeConfig
+            autoRefresh: tabs.selectedTab == bridgeInfoTab && !bigColorPicker.visible
         }
 
         Settings {

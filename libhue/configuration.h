@@ -17,14 +17,15 @@
  *      Michael Zanetti <michael_zanetti@gmx.net>
  */
 
-#ifndef CONFIGRATION_H
+#ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-#include <QObject>
+#include "hueobject.h"
+
 #include <QVariantMap>
 #include <QTimer>
 
-class Configuration: public QObject
+class Configuration: public HueObject
 {
     Q_OBJECT
 
@@ -73,9 +74,6 @@ private:
     QString m_swVersion;
     UpdateState m_updateState;
     QString m_url;
-
-    QTimer m_timer;
-
 };
 
 #endif

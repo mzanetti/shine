@@ -220,7 +220,7 @@ int HueBridgeConnection::put(const QString &path, const QVariantMap &params, QOb
     QJson::Serializer serializer;
     QByteArray data = serializer.serialize(params);
 #endif
-    qDebug() << "putting" << url << data;
+//    qDebug() << "putting" << url << data;
 
     QNetworkReply *reply = m_nam->put(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
@@ -286,6 +286,9 @@ void HueBridgeConnection::slotOpFinished()
     QByteArray response = reply->readAll();
     int id = m_requestIdMap.take(reply);
     CallbackObject co = m_requestSenderMap.take(id);
+
+    qDebug() << "reply for" << co.sender() << co.slot();
+//    qDebug() << "response" << response;
 
     QVariant rsp;
 #if QT_VERSION >= 0x050000

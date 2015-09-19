@@ -4,6 +4,8 @@ include_directories(
 
 set(libhue_SRCS
     huebridgeconnection.cpp
+    hueobject.cpp
+    huemodel.cpp
     discovery.cpp
     configuration.cpp
     groups.cpp

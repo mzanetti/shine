@@ -26,11 +26,8 @@
 #include <QUuid>
 
 Scenes::Scenes(QObject *parent)
-    : QAbstractListModel(parent)
+    : HueModel(parent)
 {
-    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
-    refresh();
-
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
 #endif
@@ -39,11 +36,6 @@ Scenes::Scenes(QObject *parent)
 int Scenes::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return m_list.count();
-}
-
-int Scenes::count() const
-{
     return m_list.count();
 }
 
@@ -100,16 +92,16 @@ void Scenes::refresh()
 
 void Scenes::scenesReceived(int id, const QVariant &variant)
 {
-    qDebug() << "**** scenes received" << variant;
+//    qDebug() << "**** scenes received" << variant;
     Q_UNUSED(id)
     QVariantMap scenes = variant.toMap();
     QList<Scene*> removedScenes;
     foreach (Scene *scene, m_list) {
         if (!scenes.contains(scene->id())) {
-            qDebug() << "removing scene" << scene->id();
+//            qDebug() << "removing scene" << scene->id();
             removedScenes.append(scene);
         } else {
-            qDebug() << "updating scene" << scene->id();
+//            qDebug() << "updating scene" << scene->id();
             QVariantMap sceneMap = scenes.value(scene->id()).toMap();
             scene->setName(sceneMap.value("name").toString());
             QList<int> lights;
@@ -120,7 +112,6 @@ void Scenes::scenesReceived(int id, const QVariant &variant)
         }
     }
 
-    qDebug() << removedScenes.count() << "scenes removed";
     foreach (Scene *scene, removedScenes) {
         int index = m_list.indexOf(scene);
         beginRemoveRows(QModelIndex(), index, index);
@@ -136,10 +127,9 @@ void Scenes::scenesReceived(int id, const QVariant &variant)
                 lights << light.toInt();
             }
             Scene *scene = createSceneInternal(sceneId, sceneMap.value("name").toString(), lights);
-            qDebug() << "creating scene with lights" << lights << scene->lightsCount();
+//            qDebug() << "creating scene with lights" << lights << scene->lightsCount();
         }
     }
-    emit countChanged();
 }
 
 void Scenes::sceneNameChanged()

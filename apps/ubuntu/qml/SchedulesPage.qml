@@ -75,7 +75,7 @@ Page {
                 spacing: units.gu(1)
                 Icon {
                     Layout.preferredHeight: units.gu(4)
-                    Layout.preferredWidth: height
+                    implicitWidth: height
                     name: model.type == Schedule.TypeAlarm ? "alarm-clock" : "camera-self-timer"
                 }
                 ColumnLayout {

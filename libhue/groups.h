@@ -20,15 +20,15 @@
 #ifndef GROUPS_H
 #define GROUPS_H
 
-#include <QAbstractListModel>
+#include "huemodel.h"
+
+#include <QTimer>
 
 class Group;
 
-class Groups : public QAbstractListModel
+class Groups : public HueModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
-
 public:
     enum Roles {
         RoleId,
@@ -60,9 +60,6 @@ public slots:
 
     void refresh();
 
-signals:
-    void countChanged();
-
 private slots:
     void createGroupFinished(int id, const QVariant &variant);
     void deleteGroupFinished(int id, const QVariant &variant);
@@ -73,6 +70,7 @@ private slots:
 
 private:
     Group* createGroupInternal(int id, const QString &name);
+    void parseStateMap(Group* group, const QVariantMap &stateMap);
 
     QList<Group*> m_list;
 };

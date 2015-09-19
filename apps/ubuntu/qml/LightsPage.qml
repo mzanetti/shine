@@ -60,6 +60,13 @@ Page {
                 id: mainColumn
                 anchors { left: parent.left; right: parent.right }
 
+                add: Transition {
+                    UbuntuNumberAnimation { properties: "opacity"; from: 0; to: 1 }
+                }
+                move: Transition {
+                    UbuntuNumberAnimation { properties: "x,y" }
+                }
+
                 Label {
                     text: "Groups"
                     anchors {left: parent.left; right: parent.right; margins: units.gu(2) }
@@ -69,30 +76,12 @@ Page {
 
                 ThinDivider {}
 
-                ListView {
-                    id: groupsListView
-                    anchors {left: parent.left; right: parent.right }
-                    height: contentHeight
+                Repeater {
                     model: groups
-                    interactive: false
-                    property var expandedItem: null
-                    onExpandedItemChanged: {
-                        if (expandedItem) {
-                            lightsListView.expandedItem = null
-                        }
-                    }
 
                     delegate: LightDelegate {
-                        id: delegateItem
                         light: groups.get(index)
                         schedules: root.schedules
-
-                        onHeightChanged: {
-                            var y = delegateItem.mapToItem(mainFlickable).y;
-                            if (y + delegateItem.height > mainFlickable.height) {
-                                mainFlickable.contentY += y + delegateItem.height - mainFlickable.height;
-                            }
-                        }
                     }
                 }
 
@@ -105,52 +94,17 @@ Page {
 
                 ThinDivider {}
 
-                ListView {
-                    id: lightsListView
-                    anchors {left: parent.left; right: parent.right }
-                    height: contentHeight
-                    interactive: false
-
+                Repeater {
                     model: LightsFilterModel {
                         id: lightsFilterModel
                     }
-
-                    property Item expandedItem: null
-                    onExpandedItemChanged: {
-                        if (expandedItem) {
-                            groupsListView.expandedItem = null
-                        }
-                    }
-
                     delegate: LightDelegate {
-                        id: delegateItem
                         light: lightsFilterModel.get(index)
                         schedules: root.schedules
-
-                        onHeightChanged: {
-                            var y = delegateItem.mapToItem(mainFlickable).y;
-                            print("at:", y)
-                            if (y + delegateItem.height > mainFlickable.height) {
-                                mainFlickable.contentY += y + delegateItem.height - mainFlickable.height
-                            }
-                            if (y < 0) {
-                                mainFlickable.contentY += y
-                                mainFlickable.returnToBounds()
-                            }
-                        }
-                    }
-
-                    add: Transition {
-                        UbuntuNumberAnimation { properties: "opacity"; from: 0; to: 1 }
-                    }
-                    displaced: Transition {
-                        UbuntuNumberAnimation { properties: "x,y" }
                     }
                 }
             }
         }
     }
-
-
 }
 

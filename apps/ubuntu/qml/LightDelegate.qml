@@ -53,13 +53,6 @@ Empty {
         }
     }
 
-    MouseArea {
-        anchors.fill: delegateColumn
-        anchors.topMargin: units.gu(6)
-        enabled: root.__isExpanded
-        preventStealing: true
-    }
-
     Column {
         id: delegateColumn
         anchors { left: parent.left; right: parent.right; }
@@ -85,7 +78,7 @@ Empty {
             divider { colorFrom: "transparent"; colorTo: "transparent" }
             onClicked: root.clicked()
             onPressAndHold: root.pressAndHold()
-            leadingActions: groups.get(index).id == 0 ? null : deleteAction
+            leadingActions: groups.get(index) && groups.get(index).id == 0 ? null : deleteAction
             ListItemActions {
                 id: deleteAction
                 actions: [

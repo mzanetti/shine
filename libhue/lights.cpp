@@ -25,17 +25,11 @@
 #include <QDebug>
 
 Lights::Lights(QObject *parent) :
-    QAbstractListModel(parent)
+    HueModel(parent)
 {
-    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
-    refresh();
-
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
 #endif
-
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-    m_timer.start(10000);
 }
 
 int Lights::rowCount(const QModelIndex &parent) const
@@ -134,6 +128,7 @@ void Lights::refresh()
 
 void Lights::lightsReceived(int id, const QVariant &variant)
 {
+//    qDebug() << "lightsResponse" << variant;
     Q_UNUSED(id)
     QVariantMap lights = variant.toMap();
 
@@ -151,7 +146,6 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         beginRemoveRows(QModelIndex(), index, index);
         m_list.takeAt(index)->deleteLater();
         endRemoveRows();
-        emit countChanged();
     }
 
     // Update existing lights's name and keep track of newly added lights
@@ -161,12 +155,15 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         foreach (Light *light, m_list) {
             if (light->id() == lightId.toInt()) {
                 existing = true;
-                light->setName(lights.value(lightId).toMap().value("name").toString());
+                light->m_name = lights.value(lightId).toMap().value("name").toString();
+                QVariantMap stateMap = lights.value(lightId).toMap().value("state").toMap();
+                parseStateMap(light, stateMap);
                 break;
             }
         }
         if (!existing) {
             Light *light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
+            parseStateMap(light, lights.value(lightId).toMap().value("state").toMap());
             newLights.append(light);
         }
     }
@@ -176,7 +173,6 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         beginInsertRows(QModelIndex(), m_list.count(), m_list.count() + newLights.count() - 1);
         m_list.append(newLights);
         endInsertRows();
-        emit countChanged();
     }
 }
 
@@ -243,4 +239,26 @@ Light *Lights::createLight(int id, const QString &name)
     connect(light, SIGNAL(stateChanged()), this, SLOT(lightStateChanged()));
 
     return light;
+}
+
+void Lights::parseStateMap(Light *light, const QVariantMap &stateMap)
+{
+    light->m_on = stateMap.value("on").toBool();
+    light->m_bri = stateMap.value("bri").toInt();
+    light->m_hue = stateMap.value("hue").toInt();
+    light->m_sat = stateMap.value("sat").toInt();
+    light->m_xy = stateMap.value("xy").toPointF();
+    light->m_ct = stateMap.value("ct").toInt();
+    light->m_alert = stateMap.value("alert").toString();
+    light->m_effect = stateMap.value("effect").toString();
+    QString colorModeString = stateMap.value("colormode").toString();
+    if (colorModeString == "hs") {
+        light->m_colormode = Light::ColorModeHS;
+    } else if (colorModeString == "xy") {
+        light->m_colormode = Light::ColorModeXY;
+    } else if (colorModeString == "ct") {
+        light->m_colormode = Light::ColorModeCT;
+    }
+    light->m_reachable = stateMap.value("reachable").toBool();
+    emit light->stateChanged();
 }

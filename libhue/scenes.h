@@ -20,15 +20,13 @@
 #ifndef SCENES_H
 #define SCENES_H
 
-#include <QAbstractListModel>
+#include "huemodel.h"
 
 class Scene;
 
-class Scenes: public QAbstractListModel
+class Scenes: public HueModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
-
 public:
     enum Roles {
         RoleId,
@@ -38,7 +36,6 @@ public:
     explicit Scenes(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent) const;
-    int count() const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Scene* get(int index) const;
@@ -51,9 +48,6 @@ public slots:
     Q_INVOKABLE void updateScene(const QString &id, const QString &name, const QList<int> &lights);
 
     void refresh();
-
-signals:
-    void countChanged();
 
 private slots:
     void createSceneFinished(int id, const QVariant &variant);

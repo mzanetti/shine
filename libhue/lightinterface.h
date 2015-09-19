@@ -22,14 +22,14 @@
 #ifndef LIGHTINTERFACE_H
 #define LIGHTINTERFACE_H
 
+#include "hueobject.h"
 #include "huebridgeconnection.h"
 
-#include <QObject>
 #include <QPointF>
 #include <QColor>
 #include <QTimer>
 
-class LightInterface: public QObject
+class LightInterface: public HueObject
 {
     Q_OBJECT
     Q_ENUMS(ColorMode)
@@ -59,11 +59,8 @@ public:
     };
 
     LightInterface(QObject *parent)
-        : QObject(parent)
+        : HueObject(parent)
     {
-        connect(&m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
-        m_timer.start(10000);
-        connect(HueBridgeConnection::instance(), SIGNAL(stateChanged()), this, SLOT(refresh()));
     }
 
     virtual int id() const = 0;
@@ -86,7 +83,6 @@ public:
     virtual bool isGroup() const { return false; }
 
 public slots:
-    virtual void refresh() = 0;
     virtual void setOn(bool on) = 0;
     virtual void setBri(quint8 bri) = 0;
     virtual void setHue(quint16 hue) = 0;
@@ -100,9 +96,6 @@ public slots:
 signals:
     void nameChanged();
     void stateChanged();
-
-private:
-    QTimer m_timer;
 };
 
 #endif

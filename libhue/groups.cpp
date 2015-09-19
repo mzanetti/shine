@@ -25,11 +25,8 @@
 #include <QDebug>
 
 Groups::Groups(QObject *parent)
-    : QAbstractListModel(parent)
+    : HueModel(parent)
 {
-    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
-    refresh();
-
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
 #endif
@@ -38,11 +35,6 @@ Groups::Groups(QObject *parent)
 int Groups::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return m_list.count();
-}
-
-int Groups::count() const
-{
     return m_list.count();
 }
 
@@ -119,16 +111,26 @@ void Groups::refresh()
 
 void Groups::groupsReceived(int id, const QVariant &variant)
 {
+//    qDebug() << "groups receied" << variant;
+
     Q_UNUSED(id)
+
+    // Group 0 is not included in the get all groups call !!??
+    Group* group0 = findGroup(0);
+    if (!group0) {
+         group0 = createGroupInternal(0, "All");
+    }
+    group0->refresh();
+
+
     QVariantMap groups = variant.toMap();
     QList<Group*> removedGroups;
     foreach (Group *group, m_list) {
-        if (!groups.contains(QString::number(group->id()))) {
+        if (group->id() != 0 && !groups.contains(QString::number(group->id()))) {
             removedGroups.append(group);
         }
     }
 
-    qDebug() << removedGroups.count() << "groups removed";
     foreach (Group *group, removedGroups) {
         int index = m_list.indexOf(group);
         beginRemoveRows(QModelIndex(), index, index);
@@ -136,13 +138,13 @@ void Groups::groupsReceived(int id, const QVariant &variant)
         endRemoveRows();
     }
 
-    createGroupInternal(0, "All");
     foreach (const QString &groupId, groups.keys()) {
-        if (findGroup(groupId.toInt()) == 0) {
-            createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
+        Group* group = findGroup(groupId.toInt());
+        if (!group) {
+            group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
         }
+        parseStateMap(group, groups.value(groupId).toMap().value("action").toMap());
     }
-    emit countChanged();
 }
 
 void Groups::groupDescriptionChanged()
@@ -271,4 +273,27 @@ void Groups::deleteGroupFinished(int id, const QVariant &response)
             refresh();
         }
     }
+}
+
+void Groups::parseStateMap(Group *group, const QVariantMap &stateMap)
+{
+    group->m_on = stateMap.value("on").toBool();
+    group->m_bri = stateMap.value("bri").toInt();
+    group->m_hue = stateMap.value("hue").toInt();
+    group->m_sat = stateMap.value("sat").toInt();
+    group->m_xy = stateMap.value("xy").toPointF();
+    group->m_ct = stateMap.value("ct").toInt();
+    group->m_alert = stateMap.value("alert").toString();
+    group->m_effect = stateMap.value("effect").toString();
+    QString colorModeString = stateMap.value("colormode").toString();
+    if (colorModeString == "hs") {
+        group->m_colormode = Group::ColorModeHS;
+    } else if (colorModeString == "xy") {
+        group->m_colormode = Group::ColorModeXY;
+    } else if (colorModeString == "ct") {
+        group->m_colormode = Group::ColorModeCT;
+    }
+    group->m_reachable = true;//stateMap.value("reachable").toBool();
+    emit group->stateChanged();
+
 }

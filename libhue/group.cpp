@@ -37,8 +37,6 @@ Group::Group(int id, const QString &name, QObject *parent)
     m_ctDirty(false),
     m_xyDirty(false)
 {
-    refresh();
-
     m_timeout.setInterval(250);
     connect(&m_timeout, &QTimer::timeout, this, &Group::timeout);
 }

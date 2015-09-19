@@ -27,13 +27,8 @@
 #include <QColor>
 
 Schedules::Schedules(QObject *parent)
-    : QAbstractListModel(parent)
+    : HueModel(parent)
 {
-    connect(HueBridgeConnection::instance(), SIGNAL(connectedBridgeChanged()), this, SLOT(refresh()));
-    refresh();
-
-    connect(&m_timer, &QTimer::timeout, this, &Schedules::refresh);
-    m_timer.start(10000);
 
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -43,11 +38,6 @@ Schedules::Schedules(QObject *parent)
 int Schedules::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return m_list.count();
-}
-
-int Schedules::count() const
-{
     return m_list.count();
 }
 
@@ -228,16 +218,16 @@ void Schedules::createSchedule(const QString &name, const QVariantMap &command, 
 
 void Schedules::schedulesReceived(int id, const QVariant &variant)
 {
-    qDebug() << "**** schedules received" << variant;
+//    qDebug() << "**** schedules received" << variant;
     Q_UNUSED(id)
     QVariantMap schedules = variant.toMap();
     QList<Schedule*> removedSchedules;
     foreach (Schedule *schedule, m_list) {
         if (!schedules.contains(schedule->id())) {
-            qDebug() << "removing schedule" << schedule->id();
+//            qDebug() << "removing schedule" << schedule->id();
             removedSchedules.append(schedule);
         } else {
-            qDebug() << "updating schedule" << schedule->id();
+//            qDebug() << "updating schedule" << schedule->id();
             QVariantMap scheduleMap = schedules.value(schedule->id()).toMap();
             schedule->setName(scheduleMap.value("name").toString());
             schedule->setEnabled(scheduleMap.value("status").toString() == "enabled");
@@ -246,7 +236,7 @@ void Schedules::schedulesReceived(int id, const QVariant &variant)
         }
     }
 
-    qDebug() << removedSchedules.count() << "schedules removed";
+//    qDebug() << removedSchedules.count() << "schedules removed";
     foreach (Schedule *schedule, removedSchedules) {
         int index = m_list.indexOf(schedule);
         beginRemoveRows(QModelIndex(), index, index);
@@ -290,9 +280,6 @@ void Schedules::deleteSchedule(const QString &id)
 Schedule *Schedules::createScheduleInternal(const QString &id, const QString &name)
 {
     Schedule *schedule = new Schedule(id, name, this);
-
-    connect(schedule, SIGNAL(nameChanged()), this, SLOT(sceneNameChanged()));
-    connect(schedule, SIGNAL(activeChanged()), this, SLOT(sceneActiveChanged()));
 
     beginInsertRows(QModelIndex(), m_list.count(), m_list.count());
     m_list.append(schedule);

@@ -109,6 +109,8 @@ private:
     QPointF m_dirtyXy;
 
     QTimer m_timeout;
+
+    friend class Groups;
 };
 
 #endif

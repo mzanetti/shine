@@ -12,6 +12,12 @@ Page {
     property var light: null
     property var schedules: null
 
+    Binding {
+        target: root.light
+        property: "autoRefresh"
+        value: true
+    }
+
     head {
         actions: [
             Action {
