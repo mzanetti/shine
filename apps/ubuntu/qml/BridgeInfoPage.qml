@@ -92,6 +92,7 @@ Page {
                 text: "Search for new lights..."
                 width: parent.width
                 visible: !searchLabel.searching
+                color: UbuntuColors.green
                 onClicked: {
                     root.lights.searchForNewLights();
                     searchLabel.searchTime = new Date(new Date().getTime() + 60000);
