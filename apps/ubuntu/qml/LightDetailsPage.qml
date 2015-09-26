@@ -28,7 +28,7 @@ Page {
             },
             Action {
                 iconName: "camera-self-timer"
-                onTriggered: PopupUtils.open(Qt.resolvedUrl("CreateTimerDialog.qml"), root)
+                onTriggered: PopupUtils.open(Qt.resolvedUrl("CreateTimerDialog.qml"), root,  {light: root.light, schedules: root.schedules })
             }
         ]
     }
@@ -98,52 +98,18 @@ Page {
         RowLayout {
             spacing: units.gu(2)
             Layout.fillWidth: true
-            ColorButton {
-                id: relaxButton
-                Layout.preferredHeight: width
-                Layout.fillWidth: true
-                source: "images/relax.svg"
+            Repeater {
+                model: LightRecipeModel {}
+                ColorButton {
+                    Layout.preferredHeight: width
+                    Layout.fillWidth: true
+                    source: "images/" + model.name + ".svg"
 
-                onClicked: {
-                    light.color = "#d5ff2b"
-                    light.bri = 144
-                    light.on = true;
-                }
-            }
-            ColorButton {
-                id: readingButton
-                Layout.preferredHeight: width
-                Layout.fillWidth: true
-                source: "images/reading.svg"
-
-                onClicked: {
-                    light.color = "#cff86"
-                    light.bri = 240
-                    light.on = true;
-                }
-            }
-            ColorButton {
-                id: concentrateButton
-                Layout.preferredHeight: width
-                Layout.fillWidth: true
-                source: "images/concentrate.svg"
-
-                onClicked: {
-                    light.color = "#d3fcff"
-                    light.bri = 220
-                    light.on = true;
-                }
-            }
-            ColorButton {
-                id: activateButton
-                Layout.preferredHeight: width
-                Layout.fillWidth: true
-                source: "images/activate.svg"
-
-                onClicked: {
-                    light.color = "#17ddff"
-                    light.bri = 200
-                    light.on = true;
+                    onClicked: {
+                        light.color = model.color
+                        light.bri = model.bri
+                        light.on = true;
+                    }
                 }
             }
         }

@@ -192,7 +192,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
     QByteArray data = serializer.serialize(params);
 #endif
 
-    qDebug() << "posting" << data << "\nto" << request.url();
+    qDebug() << "posting" << jsonDoc.toJson()<< "\nto" << request.url();
     QNetworkReply *reply = m_nam->post(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);

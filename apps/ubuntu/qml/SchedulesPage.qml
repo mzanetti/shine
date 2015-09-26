@@ -44,7 +44,7 @@ Page {
         Label {
             anchors { left: parent.left; right: parent.right; margins: units.gu(2) }
             wrapMode: Text.WordWrap
-            text: "No alarms or timers set up. You can create alarms and timers in the lights, groups and schedules sections."
+            text: "No alarms or timers set up. You can create alarms and timers in the lights and scenes sections."
             fontSize: "x-large"
             horizontalAlignment: Text.AlignHCenter
         }

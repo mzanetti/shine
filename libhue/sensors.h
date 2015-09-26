@@ -20,64 +20,49 @@
 #ifndef SENSORS_H
 #define SENSORS_H
 
-#include <QAbstractListModel>
+#include "huemodel.h"
+
 #include <QTimer>
+
 class Sensor;
 
-class Sensors: public QAbstractListModel
+class Sensors: public HueModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
-
 public:
     enum Roles {
         RoleId,
-        RoleName
+        RoleName,
+        RoleType,
+        RoleTypeString,
+        RoleModelId,
+        RoleManufacturerName,
+        RoleUniqueId,
+        RoleStateMap
     };
 
     explicit Sensors(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent) const;
-    int count() const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Sensor* get(int index) const;
     Q_INVOKABLE Sensor* findSensor(const QString &id) const;
+    Q_INVOKABLE void createSensor(const QString &name, const QString &uniqueId);
+
+    Q_INVOKABLE Sensor* findHelperSensor(const QString &name, const QString &uniqueId);
+    Q_INVOKABLE Sensor* findOrCreateHelperSensor(const QString &name, const QString &uniqueId);
 
 public slots:
-//    Q_INVOKABLE void createSingleAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &dateTime);
-//    Q_INVOKABLE void createRecurringAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &time, const QString &weekdays);
-//    Q_INVOKABLE void createSingleAlarmForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &dateTime);
-//    Q_INVOKABLE void createRecurringAlarmForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &time, const QString &weekdays);
-//    Q_INVOKABLE void createSingleAlarmForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &dateTime);
-//    Q_INVOKABLE void createSingleAlarmForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &time, const QString &weekdays);
-
-//    Q_INVOKABLE void createTimerForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QDateTime &timeFromNow, int repeat = -1);
-//    Q_INVOKABLE void createTimerForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QDateTime &timeFromNow, int repeat = -1);
-
-//    Q_INVOKABLE void deleteSchedule(const QString &id);
-
     void refresh();
 
-signals:
-    void countChanged();
-
 private slots:
-//    void createAlarmForScene(const QString &name, const QString &sceneId, const QString &timeString);
-//    void createScheduleForLight(const QString &name, int lightId, bool on, quint8 bri, const QColor &color, const QString &timeString);
-//    void createScheduleForGroup(const QString &name, int groupId, bool on, quint8 bri, const QColor &color, const QString &timeString);
-//    void createSchedule(const QString &name, const QVariantMap &command, const QString &timeString);
-
-//    void createScheduleFinished(int id, const QVariant &variant);
-//    void deleteScheduleFinished(int id, const QVariant &variant);
     void sensorsReceived(int id, const QVariant &variant);
+    void sensorCreated(int id, const QVariant &response);
 
 private:
-    Sensor* createSensorInternal(const QString &id, const QString &name);
-
     QList<Sensor*> m_list;
-
-    QTimer m_timer;
+    int m_waitingForSensorCreation;
 };
 
 #endif // SCENES_H

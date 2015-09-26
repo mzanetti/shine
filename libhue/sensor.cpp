@@ -27,13 +27,9 @@
 Sensor::Sensor(const QString &id, const QString &name, QObject *parent)
     : QObject(parent)
     , m_id(id)
-//    , m_type(TypeAlarm)
     , m_name(name)
-//    , m_enabled(true)
-//    , m_autodelete(true)
-//    , m_recurring(false)
+    , m_type(TypeUnknown)
 {
-//    refresh();
 }
 
 QString Sensor::id() const
@@ -54,133 +50,93 @@ void Sensor::setName(const QString &name)
     }
 }
 
-//Sensor::Type Sensor::type() const
-//{
-//    return m_type;
-//}
-
-//void Sensor::setType(Sensor::Type type)
-//{
-//    if (m_type != type) {
-//        m_type = type;
-//        emit typeChanged();
-//    }
-//}
-
-//QDateTime Sensor::dateTime() const
-//{
-//    return m_dateTime;
-//}
-
-//void Sensor::setDateTime(const QDateTime &dateTime)
-//{
-//    if (m_dateTime != dateTime) {
-//        m_dateTime = dateTime;
-//        emit dateTimeChanged();
-//    }
-//}
-
-//QString Sensor::weekdays() const
-//{
-//    return m_weekdays;
-//}
-
-//void Sensor::setWeekdays(const QString &weekdays)
-//{
-//    if (m_weekdays != weekdays) {
-//        m_weekdays = weekdays;
-//        emit weekdaysChanged();
-//    }
-//}
-
-//bool Sensor::enabled() const
-//{
-//    return m_enabled;
-//}
-
-//void Sensor::setEnabled(bool enabled)
-//{
-//    if (m_enabled != enabled) {
-//        m_enabled = enabled;
-//        emit enabledChanged();
-//    }
-//}
-
-//bool Sensor::autodelete() const
-//{
-//    return m_autodelete;
-//}
-
-//void Sensor::setAutoDelete(bool autodelete)
-//{
-//    if (m_autodelete != autodelete) {
-//        m_autodelete = autodelete;
-//        emit autodeleteChanged();
-//    }
-//}
-
-//bool Sensor::recurring() const
-//{
-//    return m_recurring;
-//}
-
-//void Sensor::setRecurring(bool recurring)
-//{
-//    if (m_recurring != recurring) {
-//        m_recurring = recurring;
-//        emit recurringChanged();
-//    }
-//}
-
-void Sensor::refresh()
+Sensor::Type Sensor::type() const
 {
-//    HueBridgeConnection::instance()->get("groups/" + QString::number(m_id), this, "responseReceived");
+    return m_type;
 }
 
-//void Scene::responseReceived(int id, const QVariant &response)
-//{
-//    Q_UNUSED(id)
+void Sensor::setType(Sensor::Type type)
+{
+    if (m_type != type) {
+        m_type = type;
+        emit typeChanged();
+    }
+}
 
-//    m_lightIds.clear();
+QString Sensor::typeString() const
+{
+    return typeToString(m_type);
+}
 
-//    QVariantMap attributes = response.toMap();
-//    QVariantList lightsMap = attributes.value("lights").toList();
-//    foreach (const QVariant &lightId, lightsMap) {
-//        m_lightIds << lightId.toUInt();
-//    }
+QString Sensor::modelId() const
+{
+    return m_modelId;
+}
 
-//    emit lightsChanged();
+void Sensor::setModelId(const QString &modelId)
+{
+    m_modelId = modelId;
+}
 
-//    QVariantMap action = attributes.value("action").toMap();
-//    m_on = action.value("on").toBool();
-//    emit stateChanged();
-//}
+QString Sensor::manufacturerName() const
+{
+    return m_manufacturerName;
+}
 
-//void Group::setDescriptionFinished(int id, const QVariant &response)
-//{
-//    Q_UNUSED(id)
-//    qDebug() << "setDescription finished" << response;
-//    QVariantMap result = response.toList().first().toMap();
+void Sensor::setManufacturerName(const QString &manufacturerName)
+{
+    m_manufacturerName = manufacturerName;
+}
 
-//    if (result.contains("success")) {
-//        QVariantMap successMap = result.value("success").toMap();
-//        if (successMap.contains("/groups/" + QString::number(m_id) + "/name")) {
-//            m_name = successMap.value("/groups/" + QString::number(m_id) + "/name").toString();
-//            emit nameChanged();
-//        }
-//    }
-//}
+QString Sensor::uniqueId() const
+{
+    return m_uniqueId;
+}
 
-//void Group::setStateFinished(int id, const QVariant &response)
-//{
-//    foreach (const QVariant &resultVariant, response.toList()) {
-//        QVariantMap result = resultVariant.toMap();
-//        if (result.contains("success")) {
-//            QVariantMap successMap = result.value("success").toMap();
-//            if (successMap.contains("/groups/" + QString::number(m_id) + "/state/on")) {
-//                m_on = successMap.value("/groups/" + QString::number(m_id) + "/state/on").toBool();
-//            }
-//        }
-//    }
-//    emit stateChanged();
-//}
+void Sensor::setUniqueId(const QString &uniqueId)
+{
+    m_uniqueId = uniqueId;
+}
+
+QVariantMap Sensor::stateMap() const
+{
+    return m_stateMap;
+}
+
+void Sensor::setStateMap(const QVariantMap &stateMap)
+{
+    if (m_stateMap != stateMap) {
+        m_stateMap = stateMap;
+        emit stateMapChanged();
+    }
+}
+
+Sensor::Type Sensor::typeStringToType(const QString &typeString)
+{
+    if (typeString == "ZGPSwitch") {
+        return TypeZGPSwitch;
+    } else if (typeString == "ZLLSwitch") {
+        return TypeZLLSwitch;
+    } else if (typeString == "Daylight") {
+        return TypeDaylight;
+    } else if (typeString == "CLIPGenericStatus") {
+        return TypeClipGenericStatus;
+    }
+    qDebug() << "Unhandled Sensor type:" << typeString;
+    return TypeUnknown;
+}
+
+QString Sensor::typeToString(Sensor::Type type)
+{
+    switch (type) {
+    case Sensor::TypeZGPSwitch:
+        return "ZGPSwitch";
+    case Sensor::TypeZLLSwitch:
+        return "ZLLSwitch";
+    case Sensor::TypeDaylight:
+        return "Daylight";
+    case Sensor::TypeClipGenericStatus:
+        return "CLIPGenericStatus";
+    }
+    return QString("Unkown");
+}

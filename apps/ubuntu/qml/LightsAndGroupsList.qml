@@ -5,10 +5,26 @@ import Ubuntu.Components 1.3
 ListView {
     id: root
     clip: true
-    currentIndex: 0
+    currentIndex: -1
 
     property var lights: null
     property var groups: null
+
+    function selectLight(id) {
+        for (var i = 0; i < lightsAndGroups.count; i++) {
+            if (lightsAndGroups.get(i).type == "light" && lightsAndGroups.get(i).id == id) {
+                root.currentIndex = i;
+            }
+        }
+    }
+
+    function selectGroup(id) {
+        for (var i = 0; i < lightsAndGroups.count; i++) {
+            if (lightsAndGroups.get(i).type == "group" && lightsAndGroups.get(i).id == id) {
+                root.currentIndex = i;
+            }
+        }
+    }
 
     model: ListModel {
         id: lightsAndGroups
@@ -28,9 +44,9 @@ ListView {
         onCountChanged: lightsAndGroups.refresh();
     }
     delegate: ListItem {
+        height: units.gu(5)
         RowLayout {
-            anchors.fill: parent
-            anchors.margins: units.gu(2)
+            anchors { fill: parent; leftMargin: units.gu(2); rightMargin: units.gu(2); topMargin: units.gu(1); bottomMargin: units.gu(1) }
             Label {
                 text: model.name
                 Layout.fillWidth: true
@@ -38,7 +54,7 @@ ListView {
             Icon {
                 name: "tick"
                 visible: root.currentIndex == index
-                Layout.preferredHeight: units.gu(2)
+                Layout.fillHeight: true
                 Layout.preferredWidth: height
             }
         }

@@ -22,6 +22,7 @@ set(PLUGIN_FILES
     ${CMAKE_BINARY_DIR}/plugin/Hue/libhueplugin.so
     ${CMAKE_BINARY_DIR}/plugin/Hue/ColorPicker.qml
     ${CMAKE_BINARY_DIR}/plugin/Hue/ColorPickerCt.qml
+    ${CMAKE_BINARY_DIR}/plugin/Hue/LightRecipeModel.qml
     ${CMAKE_BINARY_DIR}/plugin/Hue/qmldir
 )
 

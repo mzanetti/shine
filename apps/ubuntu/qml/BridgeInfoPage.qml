@@ -5,13 +5,13 @@ import Hue 0.1
 Page {
     id: root
 
-    title: "Bridge info"
+    title: "Bridge control"
 
     property var lights: null
 
     GridLayout {
         anchors.fill: parent
-        anchors.margins: units.gu(1)
+        anchors.margins: units.gu(2)
         rowSpacing: units.gu(1)
         columns: 2
         SettingsLabel {
@@ -73,7 +73,7 @@ Page {
         SettingsLabel {
             id: searchLabel
             Layout.columnSpan: 2
-            text: searching ? "The bridge is searching for new lights...\nMake sure the lights are powered. New lights should appear in the \"Lights\" section." : ""
+            text: searching ? "The bridge is searching for new devices...\nMake sure the newly installed lights are powered and press any buttons on newly installed Hue Tap switches. New lights should appear in the \"Lights\" section, new Hue Tap switches in the \"Hue Tap\" secion." : ""
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
             property bool searching: false
@@ -89,7 +89,7 @@ Page {
             }
 
             Button {
-                text: "Search for new lights..."
+                text: "Search for new devices..."
                 width: parent.width
                 visible: !searchLabel.searching
                 color: UbuntuColors.green

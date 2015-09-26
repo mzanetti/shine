@@ -34,6 +34,10 @@
 #include "../../libhue/configuration.h"
 #include "../../libhue/sensor.h"
 #include "../../libhue/sensors.h"
+#include "../../libhue/sensorsfiltermodel.h"
+#include "../../libhue/rule.h"
+#include "../../libhue/rules.h"
+#include "../../libhue/rulesfiltermodel.h"
 
 #if QT_VERSION >= 0x050000
 #include <QtQml/qqml.h>
@@ -71,7 +75,11 @@ void HuePlugin::registerTypes(const char *uri)
     qmlRegisterUncreatableType<Schedule>(uri, 0, 1, "Schedule", "Cannot create Schedule objects. Get them from the Schedules model.");
     qmlRegisterType<Configuration>(uri, 0, 1, "Configuration");
     qmlRegisterType<Sensors>(uri, 0, 1, "Sensors");
+    qmlRegisterType<SensorsFilterModel>(uri, 0, 1, "SensorsFilterModel");
     qmlRegisterUncreatableType<Sensor>(uri, 0, 1, "Sensor", "Cannot create Sensor objects. Get them from the Sensors model.");
+    qmlRegisterType<Rules>(uri, 0, 1, "Rules");
+    qmlRegisterType<RulesFilterModel>(uri, 0, 1, "RulesFilterModel");
+    qmlRegisterUncreatableType<Rule>(uri, 0, 1, "Rule", "Cannot create Rule objects. Get them from the Rules model.");
 }
 
 

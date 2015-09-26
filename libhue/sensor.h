@@ -29,20 +29,31 @@ class Sensor: public QObject
     Q_OBJECT
 
     Q_ENUMS(Type)
+    Q_FLAGS(Types)
     Q_PROPERTY(QString id READ id CONSTANT)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-//    Q_PROPERTY(Type type READ type NOTIFY typeChanged)
-//    Q_PROPERTY(QDateTime dateTime READ dateTime NOTIFY dateTimeChanged)
-//    Q_PROPERTY(QString weekdays READ weekdays NOTIFY weekdaysChanged)
-//    Q_PROPERTY(bool enabled READ enabled NOTIFY enabledChanged)
-//    Q_PROPERTY(bool autodelete READ autodelete NOTIFY autodeleteChanged)
-//    Q_PROPERTY(bool recurring READ recurring NOTIFY recurringChanged)
+    Q_PROPERTY(Type type READ type NOTIFY typeChanged)
+    Q_PROPERTY(QVariantMap stateMap READ stateMap NOTIFY stateMapChanged)
+    Q_PROPERTY(QString modelId READ modelId CONSTANT)
+    Q_PROPERTY(QString manufacturerName READ manufacturerName CONSTANT)
+    Q_PROPERTY(QString uniqueId READ uniqueId CONSTANT)
 
 public:
-//    enum Type {
-//        TypeAlarm,
-//        TypeTimer
-//    };
+    enum Type {
+        TypeUnknown = 0x000,
+        TypeZGPSwitch = 0x001,
+        TypeZLLSwitch = 0x002,
+        TypeClipSwitch = 0x004,
+        TypeClipOpenClose = 0x008,
+        TypeClipPresence = 0x010,
+        TypeClipTemperature = 0x020,
+        TypeClipHumidity = 0x040,
+        TypeDaylight = 0x080,
+        TypeClipGenericFlag = 0x100,
+        TypeClipGenericStatus = 0x200,
+        TypeAll = 0xffff
+    };
+    Q_DECLARE_FLAGS(Types, Type)
 
     Sensor(const QString &id, const QString &name, QObject *parent = 0);
 
@@ -51,51 +62,38 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-//    Type type() const;
-//    void setType(Type type);
+    Type type() const;
+    void setType(Type type);
+    QString typeString() const;
 
-//    QDateTime dateTime() const;
-//    void setDateTime(const QDateTime &dateTime);
+    QString modelId() const;
+    void setModelId(const QString &modelId);
 
-//    QString weekdays() const;
-//    void setWeekdays(const QString &weekdays);
+    QString manufacturerName() const;
+    void setManufacturerName(const QString &manufacturerName);
 
-//    bool enabled() const;
-//    void setEnabled(bool enabled);
+    QString uniqueId() const;
+    void setUniqueId(const QString &uniqueId);
 
-//    bool autodelete() const;
-//    void setAutoDelete(bool autodelete);
+    QVariantMap stateMap() const;
+    void setStateMap(const QVariantMap &stateMap);
 
-//    bool recurring() const;
-//    void setRecurring(bool recurring);
-
-public slots:
-    void refresh();
+    static Type typeStringToType(const QString &typeString);
+    static QString typeToString(Type type);
 
 signals:
     void nameChanged();
     void typeChanged();
-    void dateTimeChanged();
-    void weekdaysChanged();
-    void enabledChanged();
-    void autodeleteChanged();
-    void recurringChanged();
-
-private slots:
-//    void responseReceived(int id, const QVariant &response);
-//    void setDescriptionFinished(int id, const QVariant &response);
-
-//    void setStateFinished(int id, const QVariant &response);
+    void stateMapChanged();
 
 private:
     QString m_id;
     QString m_name;
-//    Type m_type;
-//    QDateTime m_dateTime;
-//    QString m_weekdays;
-//    bool m_enabled;
-//    bool m_autodelete;
-//    bool m_recurring;
+    Type m_type;
+    QString m_modelId;
+    QString m_manufacturerName;
+    QString m_uniqueId;
+    QVariantMap m_stateMap;
 };
 
 #endif

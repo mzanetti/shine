@@ -85,12 +85,14 @@ ListItem {
         }
         spacing: units.gu(1)
 
-        Icon {
+        Image {
             id: icon
             height: parent.height - units.gu(2)
             anchors.verticalCenter: parent.verticalCenter
             width: height
-            name: light && light.reachable ? light.on ? "torch-on" : "torch-off" : "flash-off"
+            source: light && light.reachable ? "images/a19_outline.svg" : "images/a19_filled.svg"
+            sourceSize.width: width
+            sourceSize.height: height
         }
 
         Label {

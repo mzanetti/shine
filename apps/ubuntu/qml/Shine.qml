@@ -117,15 +117,31 @@ Item {
 
             Tab {
                 id: sensorsTab
-                title: "Sensors"
-                page: SensorsPage {
-                    sensors: sensors
+                title: "Hue Tap"
+                page: PageStack {
+                    Component.onCompleted: push(sensorsPage)
+                    SensorsPage {
+                        id: sensorsPage
+                        sensors: sensors
+                        rules: rules
+                        lights: lights
+                        groups: groups
+                        scenes: scenes
+                    }
                 }
             }
 
+//            Tab {
+//                id: rulesTab
+//                title: "Rules"
+//                page: RulesPage {
+//                    rules: rules
+//                }
+//            }
+
             Tab {
                 id: bridgeInfoTab
-                title: "Bridge info"
+                title: "Bridge control"
                 page: BridgeInfoPage {
                     lights: lights
                 }
@@ -146,7 +162,7 @@ Item {
 
         Scenes {
             id: scenes
-            autoRefresh: tabs.selectedTab == scenesTab && !bigColorPicker.visible
+            autoRefresh: (tabs.selectedTab == scenesTab || tabs.selectedTab == sensorsTab) && !bigColorPicker.visible
         }
 
         Schedules {
@@ -161,6 +177,12 @@ Item {
 
         Sensors {
             id: sensors
+            autoRefresh: tabs.selectedTab == sensorsTab && !bigColorPicker.visible
+        }
+
+        Rules {
+            id: rules
+            autoRefresh: tabs.selectedTab == sensorsTab && !bigColorPicker.visible
         }
 
         Settings {
@@ -245,5 +267,4 @@ Item {
         visible: root.orientation == "landscape"
         lights: lights
     }
-
 }
