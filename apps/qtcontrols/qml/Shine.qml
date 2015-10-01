@@ -35,7 +35,7 @@ ApplicationWindow {
             iconName: "add"
             text: "connect"
             onClicked: {
-                HueBridge.createUser("shine", "1234567890abcdef")
+                HueBridge.createUser("shine")
             }
         }
     }

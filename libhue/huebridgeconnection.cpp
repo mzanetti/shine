@@ -75,19 +75,13 @@ QString HueBridgeConnection::connectedBridge() const
 
 HueBridgeConnection::BridgeStatus HueBridgeConnection::status() const
 {
-    if (m_apiKey.isEmpty()) {
-        return BridgeStatusSearching;
-    }
-    if (m_authenticated) {
-        return BridgeStatusConnected;
-    }
-    return BridgeStatusAuthenticationFailure;
+    return m_bridgeStatus;
 }
 
 HueBridgeConnection::HueBridgeConnection():
     m_nam(new QNetworkAccessManager(this)),
     m_discoveryError(false),
-    m_authenticated(false),
+    m_bridgeStatus(BridgeStatusSearching),
     m_requestCounter(0)
 {
     Discovery *discovery = new Discovery(this);
@@ -115,6 +109,8 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     }
 
     // Emitting this after we know if we can connect or not to avoid the ui triggering connect dialogs
+    m_bridgeStatus = BridgeStatusConnecting;
+    emit statusChanged();
     emit bridgeFoundChanged();
 
     // Tell the bridge to check for firmware updates
@@ -134,8 +130,6 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     QNetworkRequest request(m_baseApiUrl + "config");
     QNetworkReply *reply = m_nam->put(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(checkForUpdateFinished()));
-
-    emit statusChanged();
 }
 
 void HueBridgeConnection::onNoBridgesFound()
@@ -337,12 +331,13 @@ void HueBridgeConnection::checkForUpdateFinished()
     if (rsp.toList().first().toMap().contains("error")) {
         if (rsp.toList().first().toMap().value("error").toMap().value("type").toInt() == 1) {
             qWarning() << "User not authenticated to bridge";
-            m_authenticated = false;
+            m_bridgeStatus = BridgeStatusAuthenticationFailure;
         } else {
             qDebug() << "error communicating with bridge:" << jsonDoc.toJson();
         }
     } else {
-        m_authenticated = true;
+        m_bridgeStatus = BridgeStatusConnected;
+        emit connectedBridgeChanged();
     }
     emit statusChanged();
 }

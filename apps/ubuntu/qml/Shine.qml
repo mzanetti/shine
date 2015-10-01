@@ -65,6 +65,7 @@ Item {
             }
             onStatusChanged: {
                 if (HueBridge.status === HueBridge.BridgeStatusAuthenticationFailure) {
+                    print("Authentication failure!")
                     PopupUtils.open(loginComponent, root)
                 }
             }
@@ -216,7 +217,7 @@ Item {
                     id: connectButton
                     text: "Connect..."
                     onClicked: {
-                        HueBridge.createUser("Shine - Ubuntu touch", "abcdef1234567890")
+                        HueBridge.createUser("Shine - Ubuntu touch")
                         connectDialog.text = "Waiting for the connection to establish..."
                     }
                 }

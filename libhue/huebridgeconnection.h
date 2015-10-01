@@ -60,6 +60,7 @@ class HueBridgeConnection: public QObject
 public:
     enum BridgeStatus {
         BridgeStatusSearching,
+        BridgeStatusConnecting,
         BridgeStatusAuthenticationFailure,
         BridgeStatusConnected
     };
@@ -110,7 +111,7 @@ private:
     bool m_discoveryError;
     QString m_apiKey;
     QString m_baseApiUrl;
-    bool m_authenticated;
+    BridgeStatus m_bridgeStatus;
 
     int m_requestCounter;
     QHash<QNetworkReply*, int> m_requestIdMap;
