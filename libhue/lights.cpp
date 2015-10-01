@@ -128,7 +128,7 @@ void Lights::refresh()
 
 void Lights::lightsReceived(int id, const QVariant &variant)
 {
-//    qDebug() << "lightsResponse" << variant;
+    qDebug() << "lightsResponse" << variant;
     Q_UNUSED(id)
     QVariantMap lights = variant.toMap();
 
@@ -154,11 +154,13 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         Light *light = findLight(lightId.toInt());
         if (light) {
             light->m_name = lights.value(lightId).toMap().value("name").toString();
+            light->m_modelId = lights.value(lightId).toMap().value("modelid").toString();
         } else {
             light = createLight(lightId.toInt(), lights.value(lightId).toMap().value("name").toString());
+            light->m_modelId = lights.value(lightId).toMap().value("modelid").toString();
             newLights.append(light);
-
         }
+        qDebug() << "have modelid" << light->m_modelId;
         QVariantMap stateMap = lights.value(lightId).toMap().value("state").toMap();
         parseStateMap(light, stateMap);
     }

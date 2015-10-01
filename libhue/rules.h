@@ -29,12 +29,18 @@ class Rule;
 class Rules: public HueModel
 {
     Q_OBJECT
+    Q_ENUMS(DimAction)
 public:
     enum Roles {
         RoleId,
         RoleName,
         RoleConditions,
         RoleActions
+    };
+
+    enum DimAction {
+        DimActionUp,
+        DimActionDown
     };
 
     explicit Rules(QObject *parent = 0);
@@ -50,12 +56,15 @@ public:
 
     Q_INVOKABLE QVariantMap createHelperCondition(int helperSensorId, const QString &op, const QString &value);
     Q_INVOKABLE QVariantList createHueTapConditions(int tapSensorId, int buttonId);
-    Q_INVOKABLE QVariantList createDaylightConditions(int tapSensorId, bool day);
+    Q_INVOKABLE QVariantList createHueDimmerConditions(int dimmerSensorId, int buttonId);
+    Q_INVOKABLE QVariantList createDaylightConditions(int daylightSensorId, bool day);
 
     Q_INVOKABLE QVariantMap createHelperAction(int helperSensorId, int value);
     Q_INVOKABLE QVariantMap createLightAction(int lightId, bool on);
+    Q_INVOKABLE QVariantMap createLightDimmerAction(int lightId, DimAction dimAction);
     Q_INVOKABLE QVariantMap createLightColorAction(int lightId, const QColor &color, int bri);
     Q_INVOKABLE QVariantMap createGroupAction(int groupId, bool on);
+    Q_INVOKABLE QVariantMap createGroupDimmerAction(int lightId, DimAction dimAction);
     Q_INVOKABLE QVariantMap createGroupColorAction(int groupId, const QColor &color, int bri);
     Q_INVOKABLE QVariantMap createSceneAction(const QString &sceneId);
 

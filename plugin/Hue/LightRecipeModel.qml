@@ -18,7 +18,7 @@ ListModel {
     }
     ListElement {
         name: "reading"
-        color: "#cff86"
+        color: "#cfff86"
         bri: 240
     }
     ListElement {

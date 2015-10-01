@@ -5,7 +5,7 @@ import Ubuntu.Components.ListItems 1.3
 import Hue 0.1
 Page {
     id: root
-    title: "Hue Tap"
+    title: "Switches"
     property var sensors: null
     property var rules: null
     property var lights: null
@@ -15,7 +15,10 @@ Page {
     SensorsFilterModel {
         id: filterModel
         sensors: root.sensors
-        shownTypes: Sensor.TypeZGPSwitch// | Sensor.TypeDaylight //| Sensor.TypeAll
+        shownTypes: Sensor.TypeZGPSwitch
+//                    | Sensor.TypeDaylight
+                    | Sensor.TypeZLLSwitch
+//                    | Sensor.TypeAll
     }
 
     ListView {
@@ -35,6 +38,8 @@ Page {
                             return "images/tap_outline.svg"
                         case Sensor.TypeDaylight:
                             return "images/bridge_outline.svg"
+                        case Sensor.TypeZLLSwitch:
+                            return "images/dimmer_outline.svg"
                         }
                         return "";
                     }
@@ -54,7 +59,7 @@ Page {
         width: parent.width - units.gu(8)
         anchors.centerIn: parent
         fontSize: "large"
-        text: "No Hue Tap device connected to the bridge. You can add new Hue Tap switches in the \"Bridge Control\" section."
+        text: "No Hue Tap or Hue Dimmer device connected to the bridge. You can add new remotes in the \"Bridge Control\" section."
         wrapMode: Text.WordWrap
         horizontalAlignment: Text.AlignHCenter
         visible: filterModel.count === 0

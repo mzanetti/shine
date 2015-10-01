@@ -73,7 +73,7 @@ Page {
         SettingsLabel {
             id: searchLabel
             Layout.columnSpan: 2
-            text: searching ? "The bridge is searching for new devices...\nMake sure the newly installed lights are powered and press any buttons on newly installed Hue Tap switches. New lights should appear in the \"Lights\" section, new Hue Tap switches in the \"Hue Tap\" secion." : ""
+            text: searching ? "The bridge is searching for new devices...\nMake sure the newly installed lights are powered and press any buttons on newly installed Hue Tap switches. If connecting a new Hue Wireless Dimmer Switch, make sure it is blinking the orange light by pressing the \"SETUP\" button on the back. New lights should appear in the \"Lights\" section, new switches in the \"Switches\" secion." : ""
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
             property bool searching: false
@@ -81,7 +81,10 @@ Page {
 
             Timer {
                 running: searchLabel.searching
+                interval: 1000
+                repeat: true
                 onTriggered: {
+                    print("searchtime:", searchLabel.searchTime.toString())
                     if (searchLabel.searchTime < new Date()) {
                         searchLabel.searching = false
                     }
@@ -95,7 +98,7 @@ Page {
                 color: UbuntuColors.green
                 onClicked: {
                     root.lights.searchForNewLights();
-                    searchLabel.searchTime = new Date(new Date().getTime() + 60000);
+                    searchLabel.searchTime = new Date(new Date().getTime() + 30000);
                     searchLabel.searching = true
                 }
             }

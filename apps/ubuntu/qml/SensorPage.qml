@@ -52,6 +52,8 @@ Page {
         scenesListView.model = null;
         var recipes = [];
 
+        lightsAndGroupsList.currentIndex = -1;
+
         // Find all the rules for this button
         existingRulesFilter.conditionFilter = sensorLoader.item.createFilter();
 
@@ -83,6 +85,24 @@ Page {
                 if (recipes.indexOf(name) === -1) {
                     recipes.push(name)
                 }
+            } else if (rule.name.indexOf("Shine-DUL") === 0) {
+                lightsOrSceneSelector.selectedIndex = 3;
+                var lightId = rule.name.substring(10, rule.name.length)
+                print("lightId", lightId)
+                lightsAndGroupsList.selectLight(lightId)
+            } else if (rule.name.indexOf("Shine-DDL") === 0) {
+                lightsOrSceneSelector.selectedIndex = 4;
+                var lightId = rule.name.substring(10, rule.name.length)
+                print("lightId", lightId)
+                lightsAndGroupsList.selectLight(lightId)
+            } else if (rule.name.indexOf("Shine-DUG")) {
+                lightsOrSceneSelector.selectedIndex = 3;
+                var groupId = rule.name.substring(10, rule.name.length)
+                lightsAndGroupsList.selectGroup(groupId)
+            } else if (rule.name.indexOf("Shine-DDG")) {
+                lightsOrSceneSelector.selectedIndex = 4;
+                var groupId = rule.name.substring(10, rule.name.length)
+                lightsAndGroupsList.selectGroup(groupId)
             }
         }
         scenesListView.model = scenesFilterModel;
@@ -112,7 +132,9 @@ Page {
         var conditions = []
         var actions = []
 
+        print("current selection", lightsOrSceneSelector.selectedIndex)
         if (lightsOrSceneSelector.selectedIndex == 0) {
+            print("Creating light toggle rules")
             var lightOrGroup = lightsAndGroupsList.model.get(lightsAndGroupsList.currentIndex);
             var ruleName = "Shine-"
 
@@ -144,6 +166,7 @@ Page {
             rules.createRule(ruleName + "off", conditions, actions)
 
         } else if (lightsOrSceneSelector.selectedIndex == 2) {
+            print("Creating activate scenes rules")
             print("scenelength", scenesListView.selectedScenes.length)
             for (var i = 0; i < scenesListView.selectedScenes.length; i++) {
                 print("should add scene", scenesListView.selectedScenes[i])
@@ -175,7 +198,8 @@ Page {
                 actions.push(rules.createHelperAction(helperSensor.id, "" + buttonId + "1"))
                 rules.createRule("Shine-S" + scenesListView.selectedScenes[0], conditions, actions);
             }
-        } else {  // recipies
+        } else if (lightsOrSceneSelector.selectedIndex == 1) {  // recipies
+            print("Creating recipe rules")
             var lightOrGroup = lightsAndGroupsList.model.get(lightsAndGroupsList.currentIndex);
 
             for (var i = 0; i < recipeSelector.recipes.length; i++) {
@@ -195,6 +219,7 @@ Page {
 
                 actions = [];
 
+                print("***saving rule", lightOrGroup.isGroup, lightOrGroup.name, lightsAndGroupsList.model)
                 if (lightOrGroup.isGroup) {
                     ruleName += "G";
                     if (recipe.name === "off") {
@@ -248,6 +273,33 @@ Page {
                 actions.push(rules.createHelperAction(helperSensor.id, "" + buttonId + "1"))
                 rules.createRule(ruleName, conditions, actions);
             }
+        } else { // Dimmer
+            print("Creating dimmer rules")
+            var lightOrGroup = lightsAndGroupsList.model.get(lightsAndGroupsList.currentIndex);
+
+            var ruleName = "Shine-D"
+
+            conditions = sensorLoader.item.createSensorConditions();
+
+            var dimAction;
+            if (lightsOrSceneSelector.selectedIndex == 3) {
+                dimAction = Rules.DimActionUp;
+                ruleName += "U";
+            } else {
+                dimAction = Rules.DimActionDown;
+                ruleName += "D";
+            }
+            if (lightOrGroup.type === "light") {
+                actions.push(root.rules.createLightDimmerAction(lightOrGroup.id, dimAction))
+                ruleName += "L"
+            } else {
+                actions.push(root.rules.createGroupDimmerAction(lightOrGroup.id, dimAction))
+                ruleName += "G"
+            }
+            ruleName += "-" + lightOrGroup.id
+
+            actions.push(root.rules.createHelperAction(helperSensor.id, 1))
+            rules.createRule(ruleName, conditions, actions);
         }
 
         rules.refresh();
@@ -269,6 +321,8 @@ Page {
                     return hueBridgeComponent;
                 case Sensor.TypeZGPSwitch:
                     return hueTapComponent;
+                case Sensor.TypeZLLSwitch:
+                    return hueDimmerComponent;
                 }
                 return null;
             }
@@ -276,7 +330,7 @@ Page {
 
         ItemSelector {
             id: lightsOrSceneSelector
-            model: ["Toggle lights", "Switch lights", "Activate scenes"]
+            model: ["Toggle lights", "Switch lights", "Activate scenes", "Dim Up", "Dim Down"]
         }
         Item {
             id: recipeSelector
@@ -363,14 +417,13 @@ Page {
             }
         }
 
-
         LightsAndGroupsList {
             id: lightsAndGroupsList
             lights: root.lights
             groups: root.groups
             Layout.fillWidth: true
             Layout.fillHeight: true
-            visible: lightsOrSceneSelector.selectedIndex == 0 || lightsOrSceneSelector.selectedIndex == 1
+            visible: lightsOrSceneSelector.selectedIndex !== 2
             opacity: lightsOrSceneSelector.currentlyExpanded ? 0 : 1
             Behavior on opacity { UbuntuNumberAnimation {} }
         }
@@ -560,6 +613,97 @@ Page {
                     width: height
                     anchors { right: parent.right; rightMargin: width / 2; verticalCenter: parent.verticalCenter }
                     onClicked: hueTap.buttonId = 18
+                }
+            }
+        }
+    }
+
+    Component {
+        id: hueDimmerComponent
+        Item {
+            id: hueDimmer
+            property int buttonId: buttonNumber + "00" + buttonMode
+
+            property int buttonNumber: 1
+            property int buttonMode: pressCheckBox.checked ? 2 : 1
+
+            function createSensorConditions() {
+                return root.rules.createHueDimmerConditions(root.sensor.id, hueDimmer.buttonId);
+            }
+
+            function createFilter() {
+                var filter = new Object();
+                filter["address"] = "/sensors/" + root.sensor.id + "/state/buttonevent"
+                filter["operator"] = "eq"
+                filter["value"] = hueDimmer.buttonId
+                return filter
+            }
+
+            Row {
+                anchors.fill: parent
+                Image {
+                    source: "images/dimmer_outline_" + hueDimmer.buttonNumber + ".svg"
+                    height: parent.height
+                    width: height
+                    sourceSize.height: height
+                    sourceSize.width: width
+//                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    MouseArea {
+                        height: parent.height / 3
+                        width: parent.width / 3
+                        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+                        onClicked: hueDimmer.buttonNumber = 1
+                    }
+                    MouseArea {
+                        height: parent.height / 6
+                        width: parent.width / 3
+                        anchors { centerIn: parent; verticalCenterOffset: -height / 2 }
+                        onClicked: hueDimmer.buttonNumber = 2
+                    }
+                    MouseArea {
+                        height: parent.height / 6
+                        width: parent.width / 3
+                        anchors { centerIn: parent; verticalCenterOffset: height / 2 }
+                        onClicked: hueDimmer.buttonNumber = 3
+                    }
+                    MouseArea {
+                        height: parent.height / 3
+                        width: parent.width / 3
+                        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+                        onClicked: hueDimmer.buttonNumber = 4
+                    }
+                }
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: units.gu(1)
+                    Row {
+                        spacing: units.gu(1)
+                        CheckBox {
+                            id: pressCheckBox
+                            checked: true
+                            onClicked: {
+                                holdCheckBox.checked = false;
+                            }
+                        }
+                        Label {
+                            text: "Press"
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                    Row {
+                        spacing: units.gu(1)
+                        CheckBox {
+                            id: holdCheckBox
+                            onClicked: {
+                                pressCheckBox.checked = false;
+                            }
+                        }
+                        Label {
+                            text: "Hold"
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
                 }
             }
         }

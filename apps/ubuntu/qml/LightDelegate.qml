@@ -90,7 +90,66 @@ ListItem {
             height: parent.height - units.gu(2)
             anchors.verticalCenter: parent.verticalCenter
             width: height
-            source: light && light.reachable ? "images/a19_outline.svg" : "images/a19_filled.svg"
+            source: {
+                if (!light) return "";
+                var name = "images/";
+                print("modelId", light.modelId)
+                switch(light.modelId) {
+                case "LCT001":
+                case "LWB004":
+                case "LWB006":
+                    name += "a19";
+                    break;
+                case "LCT002":
+                    name += "br30";
+                    break;
+                case "LCT003":
+                    name += "gu10";
+                    break;
+                case "LST001":
+                    name += "lightstrip";
+                    break;
+                case "LLC010":
+                case "LLC006":
+                    name += "lc_iris";
+                    break;
+                case "LLC011":
+                case "LLC012":
+                case "LLC007":
+                    name += "lc_bloom";
+                    break;
+                case "LLC013":
+                    name += "storylight";
+                    break;
+                case "LLC020":
+                    name += "huego";
+                    break;
+                case "HBL001":
+                case "HBL002":
+                case "HBL003":
+                    name += "beyond";
+                    break;
+                case "HEL001":
+                case "HEL002":
+                    name += "entity";
+                    break;
+                case "HIL001":
+                case "HIL002":
+                    name += "impulse";
+                    break;
+                case "HML001":
+                case "HML002":
+                case "HML003":
+                case "HML007":
+                    name += "phoenix";
+                    break;
+                default:
+                    name += "group"
+                }
+                name += "_" + (light.reachable ? "outline" : "filled") + ".svg"
+                return name;
+            }
+
             sourceSize.width: width
             sourceSize.height: height
         }

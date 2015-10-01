@@ -126,11 +126,28 @@ QVariantList Rules::createHueTapConditions(int tapSensorId, int buttonId)
     return conditions;
 }
 
-QVariantList Rules::createDaylightConditions(int tapSensorId, bool day)
+QVariantList Rules::createHueDimmerConditions(int dimmerSensorId, int buttonId)
+{
+    QVariantList conditions;
+    QVariantMap buttonIdCondition;
+    buttonIdCondition.insert("address", "/sensors/" + QString::number(dimmerSensorId) + "/state/buttonevent");
+    buttonIdCondition.insert("operator", "eq");
+    buttonIdCondition.insert("value", QString::number(buttonId));
+    conditions.append(buttonIdCondition);
+
+    QVariantMap buttonPressedCondition;
+    buttonPressedCondition.insert("address", "/sensors/" + QString::number(dimmerSensorId) + "/state/lastupdated");
+    buttonPressedCondition.insert("operator", "dx");
+    conditions.append(buttonPressedCondition);
+
+    return conditions;
+}
+
+QVariantList Rules::createDaylightConditions(int daylightSensorId, bool day)
 {
     QVariantList conditions;
     QVariantMap daylightCondition;
-    daylightCondition.insert("address", "/sensors/" + QString::number(tapSensorId) + "/state/daylight");
+    daylightCondition.insert("address", "/sensors/" + QString::number(daylightSensorId) + "/state/daylight");
     daylightCondition.insert("operator", "eq");
     daylightCondition.insert("value", day);
     conditions.append(daylightCondition);
@@ -160,6 +177,19 @@ QVariantMap Rules::createLightAction(int lightId, bool on)
     return action;
 }
 
+QVariantMap Rules::createLightDimmerAction(int lightId, Rules::DimAction dimAction)
+{
+    QVariantMap action;
+    action.insert("address", "/lights/" + QString::number(lightId) + "/state");
+    action.insert("method", "PUT");
+    QVariantMap body;
+    body.insert("on", true);
+    body.insert("bri_inc", dimAction == DimActionUp ? 30 : -30);
+    body.insert("transitiontime", 9);
+    action.insert("body", body);
+    return action;
+}
+
 QVariantMap Rules::createLightColorAction(int lightId, const QColor &color, int bri)
 {
     // Transform from RGB to Hue/Sat
@@ -185,6 +215,19 @@ QVariantMap Rules::createGroupAction(int groupId, bool on)
     action.insert("method", "PUT");
     QVariantMap body;
     body.insert("on", on);
+    action.insert("body", body);
+    return action;
+}
+
+QVariantMap Rules::createGroupDimmerAction(int lightId, Rules::DimAction dimAction)
+{
+    QVariantMap action;
+    action.insert("address", "/groups/" + QString::number(lightId) + "/action");
+    action.insert("method", "PUT");
+    QVariantMap body;
+    body.insert("on", true);
+    body.insert("bri_inc", dimAction == DimActionUp ? 30 : -30);
+    body.insert("transitiontime", 9);
     action.insert("body", body);
     return action;
 }

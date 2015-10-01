@@ -117,7 +117,7 @@ Item {
 
             Tab {
                 id: sensorsTab
-                title: "Hue Tap"
+                title: "Switches"
                 page: PageStack {
                     Component.onCompleted: push(sensorsPage)
                     SensorsPage {

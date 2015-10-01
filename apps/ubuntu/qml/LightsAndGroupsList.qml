@@ -32,10 +32,10 @@ ListView {
         function refresh() {
             lightsAndGroups.clear();
             for (var i = 0; i < root.lights.count; i++) {
-                lightsAndGroups.append({name: root.lights.get(i).name, id: root.lights.get(i).id, type: "light"})
+                lightsAndGroups.append({name: root.lights.get(i).name, id: root.lights.get(i).id, type: "light", isGroup: false})
             }
             for (var i = 0; i < root.groups.count; i++) {
-                lightsAndGroups.append({name: root.groups.get(i).name, id: root.groups.get(i).id, type: "group"})
+                lightsAndGroups.append({name: root.groups.get(i).name, id: root.groups.get(i).id, type: "group", isGroup: true})
             }
         }
     }
