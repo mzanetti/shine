@@ -48,14 +48,22 @@ private:
 class HueBridgeConnection: public QObject
 {
     Q_OBJECT
+    Q_ENUMS(BridgeStatus)
 
     Q_PROPERTY(QString apiKey READ apiKey WRITE setApiKey NOTIFY apiKeyChanged)
     Q_PROPERTY(bool discoveryError READ discoveryError NOTIFY discoveryErrorChanged)
     // TODO: Convert this to a model holding all the discovered bridges
     Q_PROPERTY(bool bridgeFound READ bridgeFound NOTIFY bridgeFoundChanged)
     Q_PROPERTY(QString connectedBridge READ connectedBridge NOTIFY connectedBridgeChanged)
+    Q_PROPERTY(BridgeStatus status READ status NOTIFY statusChanged)
 
 public:
+    enum BridgeStatus {
+        BridgeStatusSearching,
+        BridgeStatusAuthenticationFailure,
+        BridgeStatusConnected
+    };
+
     static HueBridgeConnection* instance();
 
     QString apiKey() const;
@@ -65,7 +73,9 @@ public:
     bool bridgeFound() const;
     QString connectedBridge() const;
 
-    Q_INVOKABLE void createUser(const QString &devicetype, const QString &username);
+    BridgeStatus status() const;
+
+    Q_INVOKABLE void createUser(const QString &devicetype);
 
     int get(const QString &path, QObject *sender, const QString &slot);
     int deleteResource(const QString &path, QObject *sender, const QString &slot);
@@ -77,7 +87,7 @@ signals:
     void discoveryErrorChanged();
     void bridgeFoundChanged();
     void connectedBridgeChanged();
-    void stateChanged();
+    void statusChanged();
 
     void createUserFailed(const QString &errorMessage);
 
@@ -87,6 +97,7 @@ private slots:
     void onNoBridgesFound();
 
     void createUserFinished();
+    void checkForUpdateFinished();
     void slotOpFinished();
 
 private:
@@ -99,6 +110,7 @@ private:
     bool m_discoveryError;
     QString m_apiKey;
     QString m_baseApiUrl;
+    bool m_authenticated;
 
     int m_requestCounter;
     QHash<QNetworkReply*, int> m_requestIdMap;

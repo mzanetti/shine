@@ -63,11 +63,12 @@ Item {
             onApiKeyChanged: {
                 keystore.apiKey = HueBridge.apiKey;
             }
-            onConnectedBridgeChanged: {
-                bridgeConfig.checkForUpdate();
+            onStatusChanged: {
+                if (HueBridge.status === HueBridge.BridgeStatusAuthenticationFailure) {
+                    PopupUtils.open(loginComponent, root)
+                }
             }
         }
-
 
         Tabs {
             id: tabs
