@@ -394,6 +394,7 @@ void Light::setStateFinished(int id, const QVariant &response)
         }
     }
     emit stateChanged();
+    emit writeOperationFinished();
 
     if (m_busyStateChangeId == id) {
         m_busyStateChangeId = -1;

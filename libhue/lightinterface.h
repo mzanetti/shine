@@ -96,6 +96,7 @@ public slots:
 signals:
     void nameChanged();
     void stateChanged();
+    void writeOperationFinished();
 };
 
 #endif

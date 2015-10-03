@@ -82,6 +82,12 @@ Page {
                     delegate: LightDelegate {
                         light: groups.get(index)
                         schedules: root.schedules
+                        Connections {
+                            target: groups.get(index)
+                            onWriteOperationFinished: {
+                                root.lights.refresh()
+                            }
+                        }
                     }
                 }
 
@@ -101,6 +107,12 @@ Page {
                     delegate: LightDelegate {
                         light: lightsFilterModel.get(index)
                         schedules: root.schedules
+                        Connections {
+                            target: lightsFilterModel.get(index)
+                            onWriteOperationFinished: {
+                                root.groups.refresh()
+                            }
+                        }
                     }
                 }
             }

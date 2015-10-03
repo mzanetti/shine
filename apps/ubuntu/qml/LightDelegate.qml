@@ -29,6 +29,8 @@ ListItem {
     property var light
     property var schedules: null
 
+    signal changed()
+
     onClicked: {
         pageStack.push(Qt.resolvedUrl("LightDetailsPage.qml"), {light: root.light, schedules: root.schedules})
     }
@@ -167,6 +169,7 @@ ListItem {
             anchors.verticalCenter: parent.verticalCenter
             onClicked: {
                 light.on = !light.on;
+                root.changed();
             }
         }
     }
