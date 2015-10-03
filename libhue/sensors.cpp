@@ -27,8 +27,9 @@
 #include <QColor>
 #include <QCoreApplication>
 
-Sensors::Sensors(QObject *parent)
-    : HueModel(parent)
+Sensors::Sensors(QObject *parent):
+    HueModel(parent),
+    m_busy(false)
 {
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -140,9 +141,16 @@ Sensor *Sensors::findOrCreateHelperSensor(const QString &name, const QString &un
     return sensor;
 }
 
+bool Sensors::busy() const
+{
+    return m_busy;
+}
+
 void Sensors::refresh()
 {
     HueBridgeConnection::instance()->get("sensors", this, "sensorsReceived");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Sensors::sensorsReceived(int id, const QVariant &variant)
@@ -183,6 +191,8 @@ void Sensors::sensorsReceived(int id, const QVariant &variant)
             endInsertRows();
         }
     }
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Sensors::sensorCreated(int id, const QVariant &response)

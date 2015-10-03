@@ -25,7 +25,8 @@
 #include <QDebug>
 
 Lights::Lights(QObject *parent) :
-    HueModel(parent)
+    HueModel(parent),
+    m_busy(false)
 {
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -121,9 +122,16 @@ void Lights::searchForNewLights()
     HueBridgeConnection::instance()->post("lights", QVariantMap(), this, "searchStarted");
 }
 
+bool Lights::busy() const
+{
+    return m_busy;
+}
+
 void Lights::refresh()
 {
     HueBridgeConnection::instance()->get("lights", this, "lightsReceived");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Lights::lightsReceived(int id, const QVariant &variant)
@@ -171,6 +179,9 @@ void Lights::lightsReceived(int id, const QVariant &variant)
         m_list.append(newLights);
         endInsertRows();
     }
+
+    m_busy = false;
+    emit busyChanged();
 }
 
 void Lights::lightDescriptionChanged()

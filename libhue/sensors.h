@@ -53,6 +53,8 @@ public:
     Q_INVOKABLE Sensor* findHelperSensor(const QString &name, const QString &uniqueId);
     Q_INVOKABLE Sensor* findOrCreateHelperSensor(const QString &name, const QString &uniqueId);
 
+    bool busy() const;
+
 public slots:
     void refresh();
 
@@ -62,7 +64,7 @@ private slots:
 
 private:
     QList<Sensor*> m_list;
-    int m_waitingForSensorCreation;
+    bool m_busy;
 };
 
 #endif // SCENES_H

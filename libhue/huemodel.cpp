@@ -31,7 +31,7 @@ HueModel::HueModel(QObject *parent) :
     connect(this, SIGNAL(modelReset()), this, SIGNAL(countChanged()));
 }
 
-bool HueModel::autoRefresh()
+bool HueModel::autoRefresh() const
 {
     return m_refreshTimer.isActive();
 }

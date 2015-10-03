@@ -46,6 +46,8 @@ public:
     Q_INVOKABLE Schedule* get(int index) const;
     Q_INVOKABLE Schedule* findSchedule(const QString &id) const;
 
+    bool busy() const;
+
 public slots:
     Q_INVOKABLE void createSingleAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &dateTime);
     Q_INVOKABLE void createRecurringAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &time, const QString &weekdays);
@@ -78,6 +80,7 @@ private:
     Schedule* createScheduleInternal(const QString &id, const QString &name);
 
     QList<Schedule*> m_list;
+    bool m_busy;
 };
 
 #endif

@@ -205,6 +205,7 @@ void Light::setColor(const QColor &color)
 //        QVariantList xyList;
 //        xyList << x << y;
 //        params.insert("xy", xyList);
+        Q_UNUSED(x); Q_UNUSED(y);
 
 
         params.insert("on", true);

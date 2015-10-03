@@ -28,6 +28,7 @@ class HueModel: public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(bool autoRefresh READ autoRefresh WRITE setAutoRefresh NOTIFY autoRefreshChanged)
+    Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
 
 public:
 
@@ -35,8 +36,9 @@ public:
 
     int count() const { return rowCount(QModelIndex()); }
 
-    bool autoRefresh();
+    bool autoRefresh() const;
     void setAutoRefresh(bool autoRefresh);
+    virtual bool busy() const = 0;
 
 public slots:
     virtual void refresh() = 0;
@@ -44,6 +46,7 @@ public slots:
 signals:
     void countChanged();
     void autoRefreshChanged();
+    void busyChanged();
 
 private:
     QTimer m_refreshTimer;

@@ -25,8 +25,9 @@
 #include <QDebug>
 #include <QUuid>
 
-Scenes::Scenes(QObject *parent)
-    : HueModel(parent)
+Scenes::Scenes(QObject *parent):
+    HueModel(parent),
+    m_busy(false)
 {
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -85,9 +86,16 @@ void Scenes::recallScene(const QString &id)
     HueBridgeConnection::instance()->put("groups/0/action", params, this, "recallSceneFinished");
 }
 
+bool Scenes::busy() const
+{
+    return m_busy;
+}
+
 void Scenes::refresh()
 {
     HueBridgeConnection::instance()->get("scenes", this, "scenesReceived");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Scenes::scenesReceived(int id, const QVariant &variant)
@@ -126,10 +134,13 @@ void Scenes::scenesReceived(int id, const QVariant &variant)
             foreach (const QVariant &light, sceneMap.value("lights").toList()) {
                 lights << light.toInt();
             }
-            Scene *scene = createSceneInternal(sceneId, sceneMap.value("name").toString(), lights);
+            createSceneInternal(sceneId, sceneMap.value("name").toString(), lights);
 //            qDebug() << "creating scene with lights" << lights << scene->lightsCount();
         }
     }
+
+    m_busy = false;
+    emit busyChanged();
 }
 
 void Scenes::sceneNameChanged()
@@ -148,7 +159,7 @@ void Scenes::sceneNameChanged()
 #endif
 }
 
-void Scenes::createScene(const QString &name, const QList<int> &lights, const QString &userData)
+void Scenes::createScene(const QString &name, const QList<int> &lights)
 {
     const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 

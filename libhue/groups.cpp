@@ -25,7 +25,8 @@
 #include <QDebug>
 
 Groups::Groups(QObject *parent)
-    : HueModel(parent)
+    : HueModel(parent),
+      m_busy(false)
 {
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -104,9 +105,16 @@ Group *Groups::findGroup(int id) const
     return 0;
 }
 
+bool Groups::busy() const
+{
+    return m_busy;
+}
+
 void Groups::refresh()
 {
     HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Groups::groupsReceived(int id, const QVariant &variant)
@@ -145,6 +153,8 @@ void Groups::groupsReceived(int id, const QVariant &variant)
         }
         parseStateMap(group, groups.value(groupId).toMap().value("action").toMap());
     }
+    m_busy = false;
+    emit busyChanged();
 }
 
 void Groups::groupDescriptionChanged()

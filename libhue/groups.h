@@ -54,6 +54,8 @@ public:
     Q_INVOKABLE Group* get(int index) const;
     Q_INVOKABLE Group *findGroup(int id) const;
 
+    bool busy() const;
+
 public slots:
     Q_INVOKABLE void createGroup(const QString &name, const QList<int> &lights);
     Q_INVOKABLE void deleteGroup(int id);
@@ -73,6 +75,7 @@ private:
     void parseStateMap(Group* group, const QVariantMap &stateMap);
 
     QList<Group*> m_list;
+    bool m_busy;
 };
 
 #endif // GROUPS_H

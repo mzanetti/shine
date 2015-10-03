@@ -26,8 +26,9 @@
 #include <QUuid>
 #include <QColor>
 
-Schedules::Schedules(QObject *parent)
-    : HueModel(parent)
+Schedules::Schedules(QObject *parent):
+    HueModel(parent),
+    m_busy(false)
 {
 
 #if QT_VERSION < 0x050000
@@ -90,6 +91,11 @@ Schedule *Schedules::findSchedule(const QString &id) const
         }
     }
     return 0;
+}
+
+bool Schedules::busy() const
+{
+    return m_busy;
 }
 
 void Schedules::createSingleAlarmForScene(const QString &name, const QString &sceneId, const QDateTime &dateTime)
@@ -158,6 +164,8 @@ void Schedules::createSingleAlarmForLight(const QString &name, int lightId, bool
 void Schedules::refresh()
 {
     HueBridgeConnection::instance()->get("schedules", this, "schedulesReceived");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Schedules::createAlarmForScene(const QString &name, const QString &sceneId, const QString &timeString)
@@ -270,6 +278,9 @@ void Schedules::schedulesReceived(int id, const QVariant &variant)
         }
     }
     emit countChanged();
+
+    m_busy = false;
+    emit busyChanged();
 }
 
 void Schedules::deleteSchedule(const QString &id)

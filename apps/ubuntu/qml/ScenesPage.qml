@@ -24,13 +24,24 @@ import Ubuntu.Components.ListItems 1.3
 import Ubuntu.Components.Popups 1.3
 import Hue 0.1
 
-Page {
+ShinePage {
     id: root
     title: "Scenes"
+    busy: scenes && scenes.count === 0 && scenes.busy
 
     property var lights: null
     property var scenes: null
     property var schedules: null
+
+    Label {
+        anchors { left: parent.left; right: parent.right; margins: units.gu(2); verticalCenter: parent.verticalCenter }
+        wrapMode: Text.WordWrap
+        text: "No scenes created. You can create scenes by using the + button in the header."
+        fontSize: "x-large"
+        horizontalAlignment: Text.AlignHCenter
+        visible: scenes.count === 0 && !root.busy
+        z: 2
+    }
 
     head {
         actions: [
@@ -43,12 +54,7 @@ Page {
                 onTriggered: {
                     var popup = PopupUtils.open(Qt.resolvedUrl("EditSceneDialog.qml"), root, {title: i18n.tr("Create Scene"), lights: root.lights})
                     popup.accepted.connect(function(name, lightsList) {
-                        var colors;
-                        for (var i = 0; i < lightsList.length; i++) {
-                            colors += root.lights.findLight(lightsList[i]).color
-                        }
-
-                        scenes.createScene(name, lightsList, colors);
+                        scenes.createScene(name, lightsList);
                     })
                 }
             }

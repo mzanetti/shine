@@ -26,8 +26,9 @@
 #include <QUuid>
 #include <QColor>
 
-Rules::Rules(QObject *parent)
-    : HueModel(parent)
+Rules::Rules(QObject *parent):
+    HueModel(parent),
+    m_busy(false)
 {
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
@@ -261,9 +262,16 @@ QVariantMap Rules::createSceneAction(const QString &sceneId)
     return action;
 }
 
+bool Rules::busy() const
+{
+    return m_busy;
+}
+
 void Rules::refresh()
 {
     HueBridgeConnection::instance()->get("rules", this, "rulesReceived");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Rules::rulesReceived(int id, const QVariant &variant)
@@ -294,6 +302,8 @@ void Rules::rulesReceived(int id, const QVariant &variant)
         rule->setConditions(ruleMap.value("conditions").toList());
         rule->setActions(ruleMap.value("actions").toList());
     }
+    m_busy = false;
+    emit busyChanged();
 }
 
 void Rules::ruleDeleted(int, const QVariant &response)
@@ -303,6 +313,7 @@ void Rules::ruleDeleted(int, const QVariant &response)
 
 void Rules::createRuleFinished(int id, const QVariant &response)
 {
+    Q_UNUSED(id)
     qDebug() << "create rule finished:" << response;
 }
 

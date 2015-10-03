@@ -24,9 +24,10 @@ import Ubuntu.Components.ListItems 1.3
 import Ubuntu.Components.Popups 1.3
 import Hue 0.1
 
-Page {
+ShinePage {
     id: root
     title: "Alarms & Timers"
+    busy: schedules && schedules.count === 0 && schedules.busy
 
     property var lights: null
     property var groups: null
@@ -35,19 +36,14 @@ Page {
 
     property bool pageActive: false
 
-    Column {
-        width: parent.width
-        anchors.centerIn: parent
-        spacing: units.gu(6)
-        visible: schedules.count == 0
+    Label {
+        anchors { left: parent.left; right: parent.right; margins: units.gu(2); verticalCenter: parent.verticalCenter }
+        wrapMode: Text.WordWrap
+        text: "No alarms or timers set up. You can create alarms and timers in the lights and scenes sections."
+        fontSize: "x-large"
+        horizontalAlignment: Text.AlignHCenter
+        visible: schedules.count === 0 && !root.busy
         z: 2
-        Label {
-            anchors { left: parent.left; right: parent.right; margins: units.gu(2) }
-            wrapMode: Text.WordWrap
-            text: "No alarms or timers set up. You can create alarms and timers in the lights and scenes sections."
-            fontSize: "x-large"
-            horizontalAlignment: Text.AlignHCenter
-        }
     }
 
 

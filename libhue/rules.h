@@ -68,6 +68,8 @@ public:
     Q_INVOKABLE QVariantMap createGroupColorAction(int groupId, const QColor &color, int bri);
     Q_INVOKABLE QVariantMap createSceneAction(const QString &sceneId);
 
+    bool busy() const;
+
 public slots:
     void refresh();
 
@@ -81,6 +83,7 @@ private:
     Rule* createRuleInternal(const QString &id, const QString &name);
 
     QList<Rule*> m_list;
+    bool m_busy;
 };
 
 #endif

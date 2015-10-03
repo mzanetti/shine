@@ -58,6 +58,8 @@ public:
 
     Q_INVOKABLE void searchForNewLights();
 
+    bool busy() const;
+
 public slots:
     void refresh();
 
@@ -76,6 +78,7 @@ private:
 
 private:
     QList<Light*> m_list;
+    bool m_busy;
 };
 
 #endif // LIGHTS_H
