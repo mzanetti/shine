@@ -65,6 +65,7 @@ public slots:
 private slots:
     void createGroupFinished(int id, const QVariant &variant);
     void deleteGroupFinished(int id, const QVariant &variant);
+    void lightsReceived(int id, const QVariant &variant);
     void groupsReceived(int id, const QVariant &variant);
     void groupDescriptionChanged();
     void groupStateChanged();
@@ -74,6 +75,7 @@ private:
     Group* createGroupInternal(int id, const QString &name);
     void parseStateMap(Group* group, const QVariantMap &stateMap);
 
+    QHash<int, bool> m_lights;
     QList<Group*> m_list;
     bool m_busy;
 };

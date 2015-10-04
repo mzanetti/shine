@@ -112,7 +112,7 @@ bool Groups::busy() const
 
 void Groups::refresh()
 {
-    HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
+    HueBridgeConnection::instance()->get("lights", this, "lightsReceived");
     m_busy = true;
     emit busyChanged();
 }
@@ -152,6 +152,19 @@ void Groups::groupsReceived(int id, const QVariant &variant)
             group = createGroupInternal(groupId.toInt(), groups.value(groupId).toMap().value("name").toString());
         }
         parseStateMap(group, groups.value(groupId).toMap().value("action").toMap());
+        group->m_on = false;
+        QList<int> lightIds;
+        foreach (const QVariant &lightId, groups.value(groupId).toMap().value("lights").toList()) {
+            lightIds.append(lightId.toInt());
+            if (m_lights.value(lightId.toInt())) {
+                group->m_on = true;
+            }
+        }
+        if (group->m_lightIds != lightIds) {
+            group->m_lightIds = lightIds;
+            emit group->lightsChanged();
+        }
+        emit group->stateChanged();
     }
     m_busy = false;
     emit busyChanged();
@@ -285,6 +298,19 @@ void Groups::deleteGroupFinished(int id, const QVariant &response)
     }
 }
 
+void Groups::lightsReceived(int id, const QVariant &variant)
+{
+    Q_UNUSED(id)
+//    qDebug() << "lights received" << variant;
+
+    m_lights.clear();
+    foreach (const QString &lightId, variant.toMap().keys()) {
+        m_lights.insert(lightId.toInt(), variant.toMap().value(lightId).toMap().value("state").toMap().value("on").toBool());
+    }
+
+    HueBridgeConnection::instance()->get("groups", this, "groupsReceived");
+}
+
 void Groups::parseStateMap(Group *group, const QVariantMap &stateMap)
 {
     group->m_on = stateMap.value("on").toBool();
@@ -304,6 +330,5 @@ void Groups::parseStateMap(Group *group, const QVariantMap &stateMap)
         group->m_colormode = Group::ColorModeCT;
     }
     group->m_reachable = true;//stateMap.value("reachable").toBool();
-    emit group->stateChanged();
 
 }
