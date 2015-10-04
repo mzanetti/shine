@@ -18,33 +18,71 @@
  */
 
 import QtQuick 2.3
+import QtQuick.Layouts 1.1
 import Ubuntu.Components 1.3
 import Hue 0.1
 
-Item {
-    property alias lights: bigColorPicker.lights
+Rectangle {
+    id: root
+    property var lights: null
+    color: "white"
 
-    UbuntuColorPicker {
-        id: bigColorPicker
+    LightsFilterModel {
+        id: filterModel
+        lights: root.lights
+    }
+
+    RowLayout {
         anchors.fill: parent
-        anchors.margins: units.gu(2)
+        anchors.margins: units.gu(1)
+        spacing: units.gu(1)
+        UbuntuColorPicker {
+            id: bigColorPicker
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            lights: filterModel
 
-        touchDelegate: UbuntuShape {
-            id: lightDelegate
-            backgroundColor: light && light.reachable ? (light.on ? "blue" : "gray") : "red"
-            height: units.gu(5)
-            width: units.gu(5)
-            property var point: light ? bigColorPicker.calculateXy(light.color) : undefined
-            radius: "medium"
-            opacity: light && light.reachable ? 1 : .5
-            Label {
-                id: label
-                color: "white"
-                anchors.centerIn: parent
+            touchDelegate: UbuntuShape {
+                id: lightDelegate
+                backgroundColor: light && light.reachable ? (light.on ? "blue" : "gray") : "red"
+                height: units.gu(5)
+                width: units.gu(5)
+                property var point: light ? bigColorPicker.calculateXy(light.color) : undefined
+                radius: "medium"
+                opacity: light && light.reachable ? 1 : .5
+                Label {
+                    id: label
+                    color: "white"
+                    anchors.centerIn: parent
+                    text: light && light.id
+                }
+
+                property var light
             }
+        }
 
-            property var light
-            property alias text: label.text
+        ListView {
+            Layout.fillHeight: true
+            Layout.preferredWidth: units.gu(20)
+            model: root.lights
+            spacing: units.gu(1)
+            delegate: RowLayout {
+                CheckBox {
+                    checked: true
+                    onCheckedChanged: {
+                        if (!checked) {
+                            filterModel.hideLight(model.id)
+                        } else {
+                            filterModel.showLight(model.id)
+                        }
+                    }
+                }
+                Label {
+                    text: model.id + " " + model.name
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
         }
     }
 }
+

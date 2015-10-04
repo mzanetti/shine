@@ -27,6 +27,9 @@ public:
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
+    Q_INVOKABLE void hideLight(int id);
+    Q_INVOKABLE void showLight(int id);
+
 signals:
     void groupIdChanged();
     void lightsChanged();
@@ -44,6 +47,8 @@ private:
     Group *m_group;
     Groups *m_groups;
     Lights *m_lights;
+
+    QList<int> m_hiddenLights;
 };
 
 #endif

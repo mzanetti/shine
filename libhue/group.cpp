@@ -365,6 +365,7 @@ void Group::setStateFinished(int id, const QVariant &response)
         m_timeout.stop();
         if (m_hueDirty || m_satDirty || m_briDirty) {
             QVariantMap params;
+            params.insert("transitiontime", 0);
             if (m_hueDirty) {
                 params.insert("hue", m_dirtyHue);
                 m_hueDirty = false;

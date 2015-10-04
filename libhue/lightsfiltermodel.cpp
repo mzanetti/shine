@@ -66,16 +66,32 @@ Light *LightsFilterModel::get(int row) const
 bool LightsFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     Q_UNUSED(sourceParent)
+    Light *light = m_lights->get(sourceRow);
+    if (m_hiddenLights.contains(light->id())) {
+        return false;
+    }
+
     if (m_groupId == 0) {
         return true;
     }
 
-    Light *light = m_lights->get(sourceRow);
     if (m_group && m_group->lightIds().contains(light->id())) {
         return true;
     }
 
     return false;
+}
+
+void LightsFilterModel::hideLight(int id)
+{
+    m_hiddenLights.append(id);
+    invalidateFilter();
+}
+
+void LightsFilterModel::showLight(int id)
+{
+    m_hiddenLights.removeAll(id);
+    invalidateFilter();
 }
 
 void LightsFilterModel::groupChanged(const QModelIndex &first, const QModelIndex &last, const QVector<int> &roles)
