@@ -35,11 +35,11 @@
 
 #include "discovery.h"
 
-HueBridgeConnection *HueBridgeConnection::s_instance = 0;
+HueBridgeConnection *HueBridgeConnection::s_instance = NULL;
 
 HueBridgeConnection *HueBridgeConnection::instance()
 {
-    if (!s_instance) {
+    if (s_instance == NULL) {
         s_instance = new HueBridgeConnection();
     }
     return s_instance;
