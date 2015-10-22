@@ -112,6 +112,8 @@ void Sensors::createSensor(const QString &name, const QString &uniqueId)
     stateMap.insert("status", 0);
     params.insert("state", stateMap);
     HueBridgeConnection::instance()->post("sensors", params, this, "sensorCreated");
+    m_busy = true;
+    emit busyChanged();
 }
 
 void Sensors::deleteSensor(const QString &id)
@@ -217,12 +219,21 @@ void Sensors::sensorsReceived(int id, const QVariant &variant)
             endInsertRows();
         }
     }
-    m_busy = true;
+    m_busy = false;
     emit busyChanged();
 }
 
 void Sensors::sensorCreated(int id, const QVariant &response)
 {
     Q_UNUSED(id)
-    qDebug() << "sensor created" << response;
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        refresh();
+    }else{
+        qDebug() << "An error occured while creating sensor:";
+    }
+    m_busy = false;
+    emit busyChanged();
 }
