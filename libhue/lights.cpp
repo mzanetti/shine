@@ -20,9 +20,13 @@
 #include "lights.h"
 #include "light.h"
 
+#include <QDebug>
+#include <QIcon>
+
 #include "huebridgeconnection.h"
 
-#include <QDebug>
+
+IconMap* IconMap::s_instance = NULL;
 
 Lights::Lights(QObject *parent) :
     HueModel(parent),
@@ -31,6 +35,7 @@ Lights::Lights(QObject *parent) :
 #if QT_VERSION < 0x050000
     setRoleNames(roleNames());
 #endif
+    iconMap = IconMap::instance();
 }
 
 int Lights::rowCount(const QModelIndex &parent) const
@@ -42,6 +47,7 @@ int Lights::rowCount(const QModelIndex &parent) const
 QVariant Lights::data(const QModelIndex &index, int role) const
 {
     Light *light = m_list.at(index.row());
+
     switch (role) {
     case RoleId:
         return light->id();
@@ -73,6 +79,10 @@ QVariant Lights::data(const QModelIndex &index, int role) const
         return light->colorMode();
     case RoleReachable:
         return light->reachable();
+    case RoleIcon:
+        return QIcon(iconMap->getIcon(light->modelId(), false));
+    case RoleIconOutline:
+        return QIcon(iconMap->getIcon(light->modelId(), true));
     }
 
     return QVariant();

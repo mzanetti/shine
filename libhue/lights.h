@@ -21,6 +21,7 @@
 #define LIGHTS_H
 
 #include "huemodel.h"
+#include "iconMap.h"
 
 #include <QTimer>
 
@@ -45,7 +46,9 @@ public:
         RoleAlert,
         RoleEffect,
         RoleColorMode,
-        RoleReachable
+        RoleReachable,
+        RoleIcon,
+        RoleIconOutline
     };
 
     explicit Lights(QObject *parent = 0);
@@ -79,6 +82,7 @@ private:
 private:
     QList<Light*> m_list;
     bool m_busy;
+    IconMap *iconMap;
 };
 
 #endif // LIGHTS_H
