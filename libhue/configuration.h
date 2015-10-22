@@ -59,6 +59,7 @@ public slots:
 
     void checkForUpdate();
     void performUpdate();
+    void pressLinkButton();
 
 signals:
     void changed();
