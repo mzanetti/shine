@@ -31,7 +31,7 @@ class Sensors: public HueModel
     Q_OBJECT
 public:
     enum Roles {
-        RoleId,
+        RoleId = Qt::UserRole,
         RoleName,
         RoleType,
         RoleTypeString,
