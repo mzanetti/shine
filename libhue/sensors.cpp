@@ -159,12 +159,16 @@ void Sensors::sensorsReceived(int id, const QVariant &variant)
     Q_UNUSED(id)
     QVariantMap sensors = variant.toMap();
     QList<Sensor*> removedSensors;
-    foreach (Sensor *sensor, m_list) {
+    Sensor *sensor = NULL;
+    for (int i=0; i<m_list.size(); i++){
+        sensor = m_list[i];
         if (!sensors.contains(sensor->id())) {
             removedSensors.append(sensor);
         } else {
             QVariantMap sensorMap = sensors.value(sensor->id()).toMap();
             sensor->setName(sensorMap.value("name").toString());
+            sensor->setStateMap(sensorMap.value("state").toMap());
+            emit dataChanged(index(i, 1), index(i, 1));
         }
     }
 
