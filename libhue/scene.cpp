@@ -58,7 +58,14 @@ QList<int> Scene::lights() const
 void Scene::setLights(const QList<int> lights)
 {
     if (lights != m_lightIds) {
+        // TODO: do an actual merge instead of clearing and readding
+        beginRemoveRows(QModelIndex(), 0, m_lightIds.size()-1);
+        m_lightIds.clear();
+        endRemoveRows();
+
+        beginInsertRows(QModelIndex(), 0, lights.size()-1);
         m_lightIds = lights;
+        endInsertRows();
         emit lightsChanged();
     }
 }
