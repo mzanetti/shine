@@ -22,7 +22,6 @@
 
 #include <QColor>
 #include <QDebug>
-#include <qabstractitemmodel.h>
 
 Rule::Rule(const QString &id, const QString &name, QObject *parent)
     : QObject(parent)
