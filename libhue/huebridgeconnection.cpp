@@ -292,8 +292,7 @@ void HueBridgeConnection::createUserFinished()
         return;
     }
 
-    m_apiKey = map.value("success").toMap().value("username").toString();
-    emit apiKeyChanged();
+    setApiKey(map.value("success").toMap().value("username").toString());
 
     m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_apiKey + "/";
     emit connectedBridgeChanged();
