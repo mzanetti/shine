@@ -232,6 +232,7 @@ void Lights::lightStateChanged()
 void Lights::searchStarted(int id, const QVariant &response)
 {
     Q_UNUSED(id)
+    Q_UNUSED(response)
     qDebug() << "search started" << response;
 }
 

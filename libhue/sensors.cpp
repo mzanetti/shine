@@ -201,5 +201,6 @@ void Sensors::sensorsReceived(int id, const QVariant &variant)
 
 void Sensors::sensorCreated(int id, const QVariant &response)
 {
+    Q_UNUSED(id)
     qDebug() << "sensor created" << response;
 }

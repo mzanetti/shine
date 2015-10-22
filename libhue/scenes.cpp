@@ -216,5 +216,6 @@ void Scenes::createSceneFinished(int id, const QVariant &response)
 
 void Scenes::recallSceneFinished(int id, const QVariant &variant)
 {
+    Q_UNUSED(id)
     qDebug() << "scene recalled" << variant;
 }
