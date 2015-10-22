@@ -49,6 +49,7 @@ public:
     Q_INVOKABLE Sensor* get(int index) const;
     Q_INVOKABLE Sensor* findSensor(const QString &id) const;
     Q_INVOKABLE void createSensor(const QString &name, const QString &uniqueId);
+    void deleteSensor(const QString &id);
 
     Q_INVOKABLE Sensor* findHelperSensor(const QString &name, const QString &uniqueId);
     Q_INVOKABLE Sensor* findOrCreateHelperSensor(const QString &name, const QString &uniqueId);
@@ -57,6 +58,7 @@ public:
 
 public slots:
     void refresh();
+    void sensorDeleted(int, const QVariant &response);
 
 private slots:
     void sensorsReceived(int id, const QVariant &variant);

@@ -114,6 +114,13 @@ void Sensors::createSensor(const QString &name, const QString &uniqueId)
     HueBridgeConnection::instance()->post("sensors", params, this, "sensorCreated");
 }
 
+void Sensors::deleteSensor(const QString &id)
+{
+    HueBridgeConnection::instance()->deleteResource("sensors/" + id, this, "sensorDeleted");
+    m_busy = true;
+    emit busyChanged();
+}
+
 Sensor *Sensors::findHelperSensor(const QString &name, const QString &uniqueId)
 {
     foreach (Sensor *sensor, m_list) {
@@ -150,6 +157,21 @@ void Sensors::refresh()
 {
     HueBridgeConnection::instance()->get("sensors", this, "sensorsReceived");
     m_busy = true;
+    emit busyChanged();
+}
+
+void Sensors::sensorDeleted(int id, const QVariant &response)
+{
+    Q_UNUSED(id)
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        refresh();
+    }else{
+        qDebug() << "An error occured while deleting sensor";
+    }
+    m_busy = false;
     emit busyChanged();
 }
 
