@@ -36,10 +36,41 @@ Sensors::Sensors(QObject *parent):
 #endif
 }
 
+QVariant Sensors::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    switch (role){
+    case Qt::DisplayRole:
+    {
+        QString str;
+        if (orientation == Qt::Horizontal){
+            switch (section){
+            case 0:
+                str = "Name";
+                break;
+            case 1:
+                str = "Status";
+                break;
+            }
+        }else{
+            str = QString::number(section+1);
+        }
+        return str;
+        break;
+    }
+    }
+    return QVariant();
+}
+
 int Sensors::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
     return m_list.count();
+}
+
+int Sensors::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return 2;
 }
 
 QVariant Sensors::data(const QModelIndex &index, int role) const
@@ -54,14 +85,17 @@ QVariant Sensors::data(const QModelIndex &index, int role) const
         return sensor->type();
     case RoleTypeString:
         return sensor->typeString();
+    case RoleModelId:
+        return sensor->modelId();
     case RoleManufacturerName:
         return sensor->manufacturerName();
     case RoleUniqueId:
         return sensor->uniqueId();
     case RoleStateMap:
         return sensor->stateMap();
-    case RoleModelId:
-        return sensor->modelId();
+    case RoleStatus:
+        QVariantMap stateMap = sensor->stateMap();
+        return stateMap.take("status");
     }
 
     return QVariant();

@@ -38,12 +38,15 @@ public:
         RoleModelId,
         RoleManufacturerName,
         RoleUniqueId,
-        RoleStateMap
+        RoleStateMap,
+        RoleStatus
     };
 
     explicit Sensors(QObject *parent = 0);
 
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     int rowCount(const QModelIndex &parent) const;
+    virtual int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Sensor* get(int index) const;
