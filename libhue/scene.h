@@ -50,6 +50,8 @@ public:
     virtual int rowCount(const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
 
+    Q_INVOKABLE bool containsLight(int index) const;
+
     virtual bool busy() const;
 
 public slots:

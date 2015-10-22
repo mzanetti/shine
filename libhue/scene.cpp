@@ -78,6 +78,11 @@ int Scene::light(int index) const
     return m_lightIds.at(index);
 }
 
+bool Scene::containsLight(int index) const
+{
+    return m_lightIds.contains(index);
+}
+
 int Scene::lightsCount() const
 {
     return m_lightIds.count();
