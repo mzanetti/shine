@@ -25,7 +25,7 @@
 #include <qabstractitemmodel.h>
 
 Scene::Scene(const QString &id, const QString &name, QObject *parent)
-    : QObject(parent)
+    : HueModel(parent)
     , m_id(id)
     , m_name(name)
 {
@@ -85,4 +85,24 @@ int Scene::lightsCount() const
 
 void Scene::refresh()
 {
+}
+
+
+int Scene::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return m_lightIds.count();
+}
+
+QVariant Scene::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole){
+        return m_lightIds.at(index.row());
+    }
+    return QVariant();
+}
+
+bool Scene::busy() const
+{
+    return m_busy;
 }

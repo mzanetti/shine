@@ -23,7 +23,9 @@
 #include <QObject>
 #include <QAbstractListModel>
 
-class Scene: public QObject
+#include "huemodel.h"
+
+class Scene: public HueModel
 {
     Q_OBJECT
 
@@ -45,6 +47,11 @@ public:
     int lightsCount() const;
     Q_INVOKABLE int light(int index) const;
 
+    virtual int rowCount(const QModelIndex &parent) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+
+    virtual bool busy() const;
+
 public slots:
     void refresh();
 
@@ -56,6 +63,7 @@ private:
     QString m_id;
     QString m_name;
     QList<int> m_lightIds;
+    bool m_busy;
 };
 
 #endif
