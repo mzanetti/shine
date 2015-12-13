@@ -117,6 +117,7 @@ void HueBridgeConnection::onFoundBridge(QHostAddress bridge)
     QVariantMap swupdateMap;
     swupdateMap.insert("checkforupdate", true);
     QVariantMap params;
+    params.insert("portalservices", true);
     params.insert("swupdate", swupdateMap);
 
 #if QT_VERSION >= 0x050000
@@ -213,7 +214,7 @@ int HueBridgeConnection::post(const QString &path, const QVariantMap &params, QO
     QByteArray data = serializer.serialize(params);
 #endif
 
-    qDebug() << "posting" << jsonDoc.toJson()<< "\nto" << request.url();
+    qDebug() << "posting" << jsonDoc.toJson()<< "\nto" << request.url() << "\n" << data;
     QNetworkReply *reply = m_nam->post(request, data);
     connect(reply, SIGNAL(finished()), this, SLOT(slotOpFinished()));
     m_requestIdMap.insert(reply, m_requestCounter);
