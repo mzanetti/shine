@@ -67,6 +67,7 @@ public:
     Q_INVOKABLE QVariantMap createGroupDimmerAction(int lightId, DimAction dimAction);
     Q_INVOKABLE QVariantMap createGroupColorAction(int groupId, const QColor &color, int bri);
     Q_INVOKABLE QVariantMap createSceneAction(const QString &sceneId);
+    Q_INVOKABLE QVariantList createLightTimerActions(int lightId);
 
     bool busy() const;
 

@@ -273,7 +273,18 @@ Page {
                 actions.push(rules.createHelperAction(helperSensor.id, "" + buttonId + "1"))
                 rules.createRule(ruleName, conditions, actions);
             }
-        } else { // Dimmer
+        } else if (lightsOrSceneSelector.selectedIndex == 5) { // Sleep timer
+            var lightOrGroup = lightsAndGroupsList.model.get(lightsAndGroupsList.currentIndex);
+            var ruleName = "Shine-T-"
+            conditions = sensorLoader.item.createSensorConditions();
+            if (lightOrGroup.type === "light") {
+                actions.push(root.rules.createLightTimerActions(lightOrGroup))
+            } else {
+                actions.push(root.rules.createGroupTimerActions(lightOrGroup))
+            }
+            rules.createRule(ruleName, conditions, actions);
+
+        }else { // Dimmer
             print("Creating dimmer rules")
             var lightOrGroup = lightsAndGroupsList.model.get(lightsAndGroupsList.currentIndex);
 
@@ -330,6 +341,7 @@ Page {
 
         ItemSelector {
             id: lightsOrSceneSelector
+//            model: ["Toggle lights", "Switch lights", "Activate scenes", "Dim Up", "Dim Down", "Set sleep timer"]
             model: ["Toggle lights", "Switch lights", "Activate scenes", "Dim Up", "Dim Down"]
         }
         Item {

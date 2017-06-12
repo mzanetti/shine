@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QUuid>
 #include <QColor>
+#include <QTime>
 
 Rules::Rules(QObject *parent):
     HueModel(parent),
@@ -260,6 +261,46 @@ QVariantMap Rules::createSceneAction(const QString &sceneId)
     body.insert("scene", sceneId);
     action.insert("body", body);
     return action;
+}
+
+QVariantList Rules::createLightTimerActions(int lightId)
+{
+    QVariantList actions;
+    QVariantMap selectAction;
+    selectAction.insert("address", "/lights/" + QString::number(lightId) + "/state");
+    selectAction.insert("method", "PUT");
+    QVariantMap body;
+    body.insert("alert", "select");
+    selectAction.insert("body", body);
+    actions.append(selectAction);
+
+    /////////////
+
+    QVariantMap createScheduleCommandBody;
+    createScheduleCommandBody.insert("on", false);
+
+    QVariantMap createScheduleCommand;
+    createScheduleCommand.insert("address", "/api/" + HueBridgeConnection::instance()->apiKey() + "/lights/" + QString::number(lightId) + "/state");
+    createScheduleCommand.insert("method", "PUT");
+    createScheduleCommand.insert("body", createScheduleCommandBody);
+
+    QTime timeFromNow(0, 1, 0);
+    QString timeString = "PT" + timeFromNow.toString("hh:mm:ss");
+
+    QVariantMap createSchedule;
+    createSchedule.insert("name", "A");
+    createSchedule.insert("command", createScheduleCommand);
+    createSchedule.insert("localtime", timeString);
+
+
+    QVariantMap timerAction;
+    timerAction.insert("address", "/schedules");
+    timerAction.insert("method", "PUT");
+    timerAction.insert("body", createSchedule);
+
+    actions.append(timerAction);
+
+    return actions;
 }
 
 bool Rules::busy() const
