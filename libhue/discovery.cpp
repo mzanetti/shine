@@ -61,6 +61,7 @@ void Discovery::findBridges()
 //    qDebug() << "writing datagram" << b;
     m_timeout->start(DISCOVERY_TIMEOUT * 1000);
     if (writeDatagram(b.toUtf8(), QHostAddress("239.255.255.250"), 1900) < 0) {
+        qDebug() << errorString();
         emit error();
     }
 }
