@@ -86,8 +86,8 @@ void Discovery::onReadyRead()
         readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
 //        qDebug() << "got datagram" << datagram;
+        sender.setAddress(sender.toIPv4Address());
         if (!m_reportedBridges.contains(sender)) {
-            sender.setAddress(sender.toIPv4Address());
             m_reportedBridges << sender;
             emit foundBridge(sender);
         }

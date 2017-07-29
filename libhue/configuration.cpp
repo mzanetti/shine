@@ -55,7 +55,13 @@ void Configuration::performUpdate()
     QVariantMap params;
     params.insert("swupdate", swupdateMap);
     HueBridgeConnection::instance()->put("config", params, this, "performUpdateReply");
+}
 
+void Configuration::pressLinkButton()
+{
+    QVariantMap params;
+    params.insert("linkbutton", true);
+    HueBridgeConnection::instance()->put("config", params, this, "");
 }
 
 QString Configuration::name()

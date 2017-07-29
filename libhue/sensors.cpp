@@ -36,10 +36,41 @@ Sensors::Sensors(QObject *parent):
 #endif
 }
 
+QVariant Sensors::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    switch (role){
+    case Qt::DisplayRole:
+    {
+        QString str;
+        if (orientation == Qt::Horizontal){
+            switch (section){
+            case 0:
+                str = "Name";
+                break;
+            case 1:
+                str = "Status";
+                break;
+            }
+        }else{
+            str = QString::number(section+1);
+        }
+        return str;
+        break;
+    }
+    }
+    return QVariant();
+}
+
 int Sensors::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
     return m_list.count();
+}
+
+int Sensors::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return 2;
 }
 
 QVariant Sensors::data(const QModelIndex &index, int role) const
@@ -54,14 +85,17 @@ QVariant Sensors::data(const QModelIndex &index, int role) const
         return sensor->type();
     case RoleTypeString:
         return sensor->typeString();
+    case RoleModelId:
+        return sensor->modelId();
     case RoleManufacturerName:
         return sensor->manufacturerName();
     case RoleUniqueId:
         return sensor->uniqueId();
     case RoleStateMap:
         return sensor->stateMap();
-    case RoleModelId:
-        return sensor->modelId();
+    case RoleStatus:
+        QVariantMap stateMap = sensor->stateMap();
+        return stateMap.take("status");
     }
 
     return QVariant();
@@ -112,6 +146,15 @@ void Sensors::createSensor(const QString &name, const QString &uniqueId)
     stateMap.insert("status", 0);
     params.insert("state", stateMap);
     HueBridgeConnection::instance()->post("sensors", params, this, "sensorCreated");
+    m_busy = true;
+    emit busyChanged();
+}
+
+void Sensors::deleteSensor(const QString &id)
+{
+    HueBridgeConnection::instance()->deleteResource("sensors/" + id, this, "sensorDeleted");
+    m_busy = true;
+    emit busyChanged();
 }
 
 Sensor *Sensors::findHelperSensor(const QString &name, const QString &uniqueId)
@@ -153,18 +196,37 @@ void Sensors::refresh()
     emit busyChanged();
 }
 
+void Sensors::sensorDeleted(int id, const QVariant &response)
+{
+    Q_UNUSED(id)
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        refresh();
+    }else{
+        qDebug() << "An error occured while deleting sensor";
+    }
+    m_busy = false;
+    emit busyChanged();
+}
+
 void Sensors::sensorsReceived(int id, const QVariant &variant)
 {
 //    qDebug() << "**** sensors received" << variant;
     Q_UNUSED(id)
     QVariantMap sensors = variant.toMap();
     QList<Sensor*> removedSensors;
-    foreach (Sensor *sensor, m_list) {
+    Sensor *sensor = NULL;
+    for (int i=0; i<m_list.size(); i++){
+        sensor = m_list[i];
         if (!sensors.contains(sensor->id())) {
             removedSensors.append(sensor);
         } else {
             QVariantMap sensorMap = sensors.value(sensor->id()).toMap();
             sensor->setName(sensorMap.value("name").toString());
+            sensor->setStateMap(sensorMap.value("state").toMap());
+            emit dataChanged(index(i, 1), index(i, 1));
         }
     }
 
@@ -191,11 +253,21 @@ void Sensors::sensorsReceived(int id, const QVariant &variant)
             endInsertRows();
         }
     }
-    m_busy = true;
+    m_busy = false;
     emit busyChanged();
 }
 
 void Sensors::sensorCreated(int id, const QVariant &response)
 {
-    qDebug() << "sensor created" << response;
+    Q_UNUSED(id)
+
+    QVariantMap result = response.toList().first().toMap();
+
+    if (result.contains("success")) {
+        refresh();
+    }else{
+        qDebug() << "An error occured while creating sensor:";
+    }
+    m_busy = false;
+    emit busyChanged();
 }

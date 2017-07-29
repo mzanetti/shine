@@ -25,7 +25,7 @@
 #include <qabstractitemmodel.h>
 
 Scene::Scene(const QString &id, const QString &name, QObject *parent)
-    : QObject(parent)
+    : HueModel(parent)
     , m_id(id)
     , m_name(name)
 {
@@ -58,17 +58,29 @@ QList<int> Scene::lights() const
 void Scene::setLights(const QList<int> lights)
 {
     if (lights != m_lightIds) {
+        // TODO: do an actual merge instead of clearing and readding
+        beginRemoveRows(QModelIndex(), 0, m_lightIds.size()-1);
+        m_lightIds.clear();
+        endRemoveRows();
+
+        beginInsertRows(QModelIndex(), 0, lights.size()-1);
         m_lightIds = lights;
+        endInsertRows();
         emit lightsChanged();
     }
 }
 
 int Scene::light(int index) const
 {
-    if (index < 0 || index > m_lightIds.count() > 0) {
+    if (index < 0 || index >= m_lightIds.count()) {
         return -1;
     }
     return m_lightIds.at(index);
+}
+
+bool Scene::containsLight(int index) const
+{
+    return m_lightIds.contains(index);
 }
 
 int Scene::lightsCount() const
@@ -78,4 +90,24 @@ int Scene::lightsCount() const
 
 void Scene::refresh()
 {
+}
+
+
+int Scene::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return m_lightIds.count();
+}
+
+QVariant Scene::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DisplayRole){
+        return m_lightIds.at(index.row());
+    }
+    return QVariant();
+}
+
+bool Scene::busy() const
+{
+    return m_busy;
 }

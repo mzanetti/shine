@@ -31,24 +31,28 @@ class Sensors: public HueModel
     Q_OBJECT
 public:
     enum Roles {
-        RoleId,
+        RoleId = Qt::UserRole,
         RoleName,
         RoleType,
         RoleTypeString,
         RoleModelId,
         RoleManufacturerName,
         RoleUniqueId,
-        RoleStateMap
+        RoleStateMap,
+        RoleStatus
     };
 
     explicit Sensors(QObject *parent = 0);
 
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     int rowCount(const QModelIndex &parent) const;
+    virtual int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
     Q_INVOKABLE Sensor* get(int index) const;
     Q_INVOKABLE Sensor* findSensor(const QString &id) const;
     Q_INVOKABLE void createSensor(const QString &name, const QString &uniqueId);
+    void deleteSensor(const QString &id);
 
     Q_INVOKABLE Sensor* findHelperSensor(const QString &name, const QString &uniqueId);
     Q_INVOKABLE Sensor* findOrCreateHelperSensor(const QString &name, const QString &uniqueId);
@@ -57,6 +61,7 @@ public:
 
 public slots:
     void refresh();
+    void sensorDeleted(int, const QVariant &response);
 
 private slots:
     void sensorsReceived(int id, const QVariant &variant);

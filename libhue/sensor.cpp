@@ -137,6 +137,8 @@ QString Sensor::typeToString(Sensor::Type type)
         return "Daylight";
     case Sensor::TypeClipGenericStatus:
         return "CLIPGenericStatus";
+    default:
+        return "Unknown";
     }
     return QString("Unkown");
 }

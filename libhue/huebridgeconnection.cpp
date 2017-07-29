@@ -35,11 +35,11 @@
 
 #include "discovery.h"
 
-HueBridgeConnection *HueBridgeConnection::s_instance = 0;
+HueBridgeConnection *HueBridgeConnection::s_instance = NULL;
 
 HueBridgeConnection *HueBridgeConnection::instance()
 {
-    if (!s_instance) {
+    if (s_instance == NULL) {
         s_instance = new HueBridgeConnection();
     }
     return s_instance;
@@ -293,8 +293,7 @@ void HueBridgeConnection::createUserFinished()
         return;
     }
 
-    m_apiKey = map.value("success").toMap().value("username").toString();
-    emit apiKeyChanged();
+    setApiKey(map.value("success").toMap().value("username").toString());
 
     m_baseApiUrl = "http://" + m_bridge.toString() + "/api/" + m_apiKey + "/";
     emit connectedBridgeChanged();
