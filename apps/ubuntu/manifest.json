@@ -1,7 +1,7 @@
 {
     "description": "A control app for Philips Hue lights.",
     "framework": "ubuntu-sdk-15.04.1",
-    "architecture": "armhf",
+    "architecture": "@CLICK_ARCH@",
     "hooks": {
         "shine": {
             "apparmor": "shine.json",

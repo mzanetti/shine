@@ -1,0 +1,3 @@
+clickable_minimum_required: "7"
+builder: cmake
+kill: shine_ubuntu
